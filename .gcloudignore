@@ -1,0 +1,24 @@
+# Version control
+.git
+.gitignore
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Dependencies
+node_modules/
+google-cloud-sdk/
+google-cloud-cli.tar.gz
+
+# Local/Temp files
+agent_events.db
+.DS_Store
+.env
+
+# Editor config
+.vscode/
+.idea/

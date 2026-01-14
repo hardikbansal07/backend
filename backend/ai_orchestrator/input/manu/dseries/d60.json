@@ -1,0 +1,38 @@
+{
+  "label": "Sashtiamsa (D60)",
+  "houses": {
+    "1": [
+      "Sun☉",
+      "Jupiter♃",
+      "Neptune♆"
+    ],
+    "2": [],
+    "3": [
+      "Moon☾",
+      "Raagu☊"
+    ],
+    "4": [
+      "Uranus⛢"
+    ],
+    "5": [
+      "Pluto♇"
+    ],
+    "6": [],
+    "7": [
+      "Mercury☿"
+    ],
+    "8": [],
+    "9": [
+      "Venus♀",
+      "Saturn♄",
+      "Kethu☋"
+    ],
+    "10": [],
+    "11": [
+      "Ascendantℒ"
+    ],
+    "12": [
+      "Mars♂℞"
+    ]
+  }
+}

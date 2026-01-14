@@ -1,0 +1,15 @@
+{
+    "birthDateTime": "1990-01-01T10:00:00",
+    "location": {
+        "place": "New Delhi, India",
+        "latitude": 28.6139,
+        "longitude": 77.2090,
+        "tzOffset": 5.5
+    },
+    "calcType": "drik",
+    "ayanamsaMode": "LAHIRI",
+    "divisionalFactors": [
+        1,
+        9
+    ]
+}

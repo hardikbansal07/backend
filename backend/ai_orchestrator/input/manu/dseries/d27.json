@@ -1,0 +1,38 @@
+{
+  "label": "Nakshatramsa (D27)",
+  "houses": {
+    "1": [
+      "Saturn♄",
+      "Uranus⛢"
+    ],
+    "2": [
+      "Jupiter♃",
+      "Raagu☊"
+    ],
+    "3": [
+      "Mercury☿",
+      "Neptune♆"
+    ],
+    "4": [
+      "Pluto♇"
+    ],
+    "5": [],
+    "6": [],
+    "7": [
+      "Ascendantℒ",
+      "Venus♀"
+    ],
+    "8": [
+      "Kethu☋"
+    ],
+    "9": [],
+    "10": [
+      "Mars♂℞"
+    ],
+    "11": [
+      "Sun☉",
+      "Moon☾"
+    ],
+    "12": []
+  }
+}

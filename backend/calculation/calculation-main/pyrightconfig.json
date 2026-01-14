@@ -1,0 +1,7 @@
+{
+  "include": ["src"],
+  "exclude": ["src/jhora/horoscope/main.py"],
+  "typeCheckingMode": "basic",
+  "reportMissingTypeStubs": false,
+  "reportMissingImports": false
+}

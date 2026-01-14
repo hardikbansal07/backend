@@ -1,0 +1,37 @@
+{
+  "label": "Hora (D2)",
+  "houses": {
+    "1": [
+      "Venus♀"
+    ],
+    "2": [],
+    "3": [],
+    "4": [
+      "Sun☉",
+      "Mercury☿"
+    ],
+    "5": [
+      "Jupiter♃",
+      "Pluto♇"
+    ],
+    "6": [
+      "Mars♂℞"
+    ],
+    "7": [
+      "Neptune♆"
+    ],
+    "8": [],
+    "9": [
+      "Ascendantℒ",
+      "Moon☾",
+      "Saturn♄",
+      "Raagu☊",
+      "Kethu☋"
+    ],
+    "10": [
+      "Uranus⛢"
+    ],
+    "11": [],
+    "12": []
+  }
+}

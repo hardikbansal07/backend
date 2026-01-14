@@ -1,0 +1,195 @@
+{
+  "chart_type": "D1 (Rāśi / Natal)",
+  "ascendant": {
+    "sign": "Aquarius",
+    "symbol": "♒︎",
+    "longitude_dms": "6° 40’ 56\u2033",
+    "nakshatra": { "name": "Shatabhisha", "pada": 1 }
+  },
+  "special_lagnas": {
+    "Bhava Lagna (BL)": { "sign": "Aquarius", "symbol": "♒︎", "longitude_dms": "4° 45’ 27\u2033" },
+    "Hora Lagna (HL)": { "sign": "Pisces",   "symbol": "♓︎", "longitude_dms": "11° 31’ 10\u2033" },
+    "Ghati Lagna (GL)": { "sign": "Cancer",   "symbol": "♋︎", "longitude_dms": "1° 48’ 21\u2033" },
+    "Vighati Lagna (VL)": { "sign": "Aquarius", "symbol": "♒︎", "longitude_dms": "13° 43’ 19\u2033" },
+    "Pranapada Lagna (PL)": { "sign": "Taurus", "symbol": "♉︎", "longitude_dms": "12° 57’ 57\u2033" },
+    "Indu Lagna (IL)": { "sign": "Gemini",    "symbol": "♊︎", "longitude_dms": "2° 18’ 46\u2033" },
+    "Bhrigu Bindhu (BB)": { "sign": "Aries",  "symbol": "♈",  "longitude_dms": "23° 23’ 48\u2033" },
+    "Kunda Lagna (KL)": { "sign": "Aries",    "symbol": "♈",  "longitude_dms": "1° 15’ 3\u2033" },
+    "Sree Lagna (SL)": { "sign": "Libra",     "symbol": "♎︎", "longitude_dms": "9° 7’ 34\u2033" },
+    "Varnada Lagna (VL2)": { "sign": "Capricorn", "symbol": "♑︎", "longitude_dms": "6° 40’ 56\u2033" },
+    "Maandhi (Md)": { "sign": "Aquarius",     "symbol": "♒︎", "longitude_dms": "26° 3’ 48\u2033" }
+  },
+  "arudha_padas": {
+    "AL": { "sign": "Aries",       "symbol": "♈" },
+    "A2": { "sign": "Taurus",      "symbol": "♉︎" },
+    "A3": { "sign": "Capricorn",   "symbol": "♑︎" },
+    "A4": { "sign": "Virgo",       "symbol": "♍︎" },
+    "A5": { "sign": "Pisces",      "symbol": "♓︎" },
+    "A6": { "sign": "Taurus",      "symbol": "♉︎" },
+    "A7": { "sign": "Aries",       "symbol": "♈" },
+    "A8": { "sign": "Sagittarius", "symbol": "♐︎" },
+    "A9": { "sign": "Capricorn",   "symbol": "♑︎" },
+    "A10": { "sign": "Cancer",     "symbol": "♋︎" },
+    "A11": { "sign": "Leo",        "symbol": "♌︎" },
+    "UL": { "sign": "Libra",       "symbol": "♎︎" }
+  },
+  "planets": {
+    "Sun": {
+      "sign": "Sagittarius",
+      "symbol": "♐︎",
+      "longitude_dms": "27° 51’ 57\u2033",
+      "nakshatra": { "name": "Uttara Ashadha", "pada": 1 },
+      "notes": "Atma Karaka"
+    },
+    "Moon": {
+      "sign": "Gemini",
+      "symbol": "♊︎",
+      "longitude_dms": "2° 18’ 46\u2033",
+      "nakshatra": { "name": "Mrigashira", "pada": 3 },
+      "notes": "Jnaati Karaka"
+    },
+    "Mars": {
+      "sign": "Aries",
+      "symbol": "♈",
+      "longitude_dms": "20° 23’ 34\u2033",
+      "nakshatra": { "name": "Bharani", "pada": 3 },
+      "notes": "Bhratri Karaka"
+    },
+    "Mercury": {
+      "sign": "Sagittarius",
+      "symbol": "♐︎",
+      "longitude_dms": "18° 48’ 9\u2033",
+      "nakshatra": { "name": "Purva Ashadha", "pada": 2 },
+      "notes": "Maitra Karaka"
+    },
+    "Jupiter": {
+      "sign": "Libra",
+      "symbol": "♎︎",
+      "longitude_dms": "21° 3’ 54\u2033",
+      "nakshatra": { "name": "Vishakha", "pada": 1 },
+      "notes": "Amatya Karaka"
+    },
+    "Venus": {
+      "sign": "Capricorn",
+      "symbol": "♑︎",
+      "longitude_dms": "0° 52’ 42\u2033",
+      "nakshatra": { "name": "Uttara Ashadha", "pada": 2 },
+      "retrograde": true,
+      "notes": "Dhatha Karaka"
+    },
+    "Saturn": {
+      "sign": "Cancer",
+      "symbol": "♋︎",
+      "longitude_dms": "15° 11’ 59\u2033",
+      "nakshatra": { "name": "Pushya", "pada": 4 },
+      "retrograde": true,
+      "notes": "Putra Karaka"
+    },
+    "Rahu": {
+      "sign": "Pisces",
+      "symbol": "♓︎",
+      "longitude_dms": "14° 28’ 49\u2033",
+      "nakshatra": { "name": "Uttara Bhadrapada", "pada": 4 },
+      "notes": "Pitri Karaka (North Node)"
+    },
+    "Ketu": {
+      "sign": "Virgo",
+      "symbol": "♍︎",
+      "longitude_dms": "14° 28’ 49\u2033",
+      "nakshatra": { "name": "Hasta", "pada": 2 },
+      "notes": "South Node"
+    },
+    "Uranus": {
+      "sign": "Aquarius",
+      "symbol": "⛢",
+      "longitude_dms": "14° 14’ 59\u2033",
+      "nakshatra": { "name": "Shatabhisha", "pada": 3 }
+    },
+    "Neptune": {
+      "sign": "Capricorn",
+      "symbol": "♑︎",
+      "longitude_dms": "22° 26’ 10\u2033",
+      "nakshatra": { "name": "Shravana", "pada": 4 }
+    },
+    "Pluto": {
+      "sign": "Sagittarius",
+      "symbol": "♐︎",
+      "longitude_dms": "1° 21’ 56\u2033",
+      "nakshatra": { "name": "Mula", "pada": 1 }
+    }
+  },
+  "houses": [
+    {
+      "house": 1,
+      "cusp": { "sign": "Aquarius", "symbol": "♒︎", "longitude_dms": "6° 39’ 58\u2033" },
+      "occupants": ["Ascendantℒ", "Uranus⛢", "Neptune♆"]
+    },
+    {
+      "house": 2,
+      "cusp": { "sign": "Pisces", "symbol": "♓︎", "longitude_dms": "6° 39’ 58\u2033" },
+      "occupants": ["Raagu☊"]
+    },
+    {
+      "house": 3,
+      "cusp": { "sign": "Aries", "symbol": "♈", "longitude_dms": "6° 39’ 58\u2033" },
+      "occupants": ["Mars♂"]
+    },
+    {
+      "house": 4,
+      "cusp": { "sign": "Taurus", "symbol": "♉︎", "longitude_dms": "6° 39’ 58\u2033" },
+      "occupants": []
+    },
+    {
+      "house": 5,
+      "cusp": { "sign": "Gemini", "symbol": "♊︎", "longitude_dms": "6° 39’ 58\u2033" },
+      "occupants": ["Moon☾"]
+    },
+    {
+      "house": 6,
+      "cusp": { "sign": "Cancer", "symbol": "♋︎", "longitude_dms": "6° 39’ 58\u2033" },
+      "occupants": ["Saturn♄℞"]
+    },
+    {
+      "house": 7,
+      "cusp": { "sign": "Leo", "symbol": "♌︎", "longitude_dms": "6° 39’ 58\u2033" },
+      "occupants": []
+    },
+    {
+      "house": 8,
+      "cusp": { "sign": "Virgo", "symbol": "♍︎", "longitude_dms": "6° 39’ 58\u2033" },
+      "occupants": ["Kethu☋"]
+    },
+    {
+      "house": 9,
+      "cusp": { "sign": "Libra", "symbol": "♎︎", "longitude_dms": "6° 39’ 58\u2033" },
+      "occupants": ["Jupiter♃"]
+    },
+    {
+      "house": 10,
+      "cusp": { "sign": "Scorpio", "symbol": "♏︎", "longitude_dms": "6° 39’ 58\u2033" },
+      "occupants": []
+    },
+    {
+      "house": 11,
+      "cusp": { "sign": "Sagittarius", "symbol": "♐︎", "longitude_dms": "6° 39’ 58\u2033" },
+      "occupants": ["Mercury☿", "Pluto♇"]
+    },
+    {
+      "house": 12,
+      "cusp": { "sign": "Capricorn", "symbol": "♑︎", "longitude_dms": "6° 39’ 58\u2033" },
+      "occupants": ["Sun☉", "Venus♀℞"]
+    }
+  ],
+  "sensitive_points": {
+    "Kaala (Kl)": { "sign": "Aries",    "symbol": "♈",  "longitude_dms": "16° 1’ 17\u2033" },
+    "Mrithyu (Mr)": { "sign": "Taurus", "symbol": "♉︎", "longitude_dms": "28° 58’ 48\u2033" },
+    "Artha Praharaka (Ap)": { "sign": "Gemini", "symbol": "♊︎", "longitude_dms": "18° 32’ 50\u2033" },
+    "Yama Ghantaka (Yg)": { "sign": "Capricorn", "symbol": "♑︎", "longitude_dms": "8° 24’ 47\u2033" },
+    "Gulika (Gk)": { "sign": "Aquarius", "symbol": "♒︎", "longitude_dms": "13° 28’ 4\u2033" },
+    "Dhuma (Dm)": { "sign": "Taurus",   "symbol": "♉︎", "longitude_dms": "11° 11’ 57\u2033" },
+    "Vyathipatha (Vp)": { "sign": "Aquarius", "symbol": "♒︎", "longitude_dms": "18° 48’ 3\u2033" },
+    "Parivesha (Pv)": { "sign": "Leo",     "symbol": "♌︎", "longitude_dms": "18° 48’ 3\u2033" },
+    "Indrachapa (Ic)": { "sign": "Scorpio", "symbol": "♏︎", "longitude_dms": "11° 11’ 57\u2033" },
+    "Upakethu (Uk)": { "sign": "Scorpio",  "symbol": "♏︎", "longitude_dms": "27° 51’ 57\u2033" }
+  }
+}

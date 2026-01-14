@@ -1,0 +1,38 @@
+{
+  "label": "Sapthamsa (D7)",
+  "houses": {
+    "1": [],
+    "2": [],
+    "3": [
+      "Mercury☿",
+      "Uranus⛢"
+    ],
+    "4": [],
+    "5": [
+      "Sun☉"
+    ],
+    "6": [
+      "Mars♂℞",
+      "Kethu☋"
+    ],
+    "7": [
+      "Moon☾",
+      "Venus♀"
+    ],
+    "8": [
+      "Saturn♄"
+    ],
+    "9": [
+      "Jupiter♃",
+      "Neptune♆",
+      "Pluto♇"
+    ],
+    "10": [],
+    "11": [
+      "Ascendantℒ"
+    ],
+    "12": [
+      "Raagu☊"
+    ]
+  }
+}

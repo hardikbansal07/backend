@@ -1,0 +1,39 @@
+{
+  "label": "Shodamsa (D16)",
+  "houses": {
+    "1": [
+      "Venus♀"
+    ],
+    "2": [
+      "Neptune♆"
+    ],
+    "3": [],
+    "4": [
+      "Uranus⛢"
+    ],
+    "5": [
+      "Ascendantℒ",
+      "Mars♂℞"
+    ],
+    "6": [],
+    "7": [],
+    "8": [
+      "Mercury☿"
+    ],
+    "9": [
+      "Raagu☊",
+      "Kethu☋"
+    ],
+    "10": [
+      "Jupiter♃"
+    ],
+    "11": [
+      "Moon☾",
+      "Pluto♇"
+    ],
+    "12": [
+      "Sun☉",
+      "Saturn♄"
+    ]
+  }
+}

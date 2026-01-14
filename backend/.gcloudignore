@@ -1,0 +1,15 @@
+# .gcloudignore
+.git
+.gitignore
+__pycache__/
+venv/
+node_modules/
+calculation/calculation-main/frontend/node_modules/
+*.pyc
+*.pyo
+.env
+.DS_Store
+logs/
+tmp/
+.vscode/
+.idea/

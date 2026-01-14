@@ -1,0 +1,37 @@
+{
+  "label": "Ashtotharamsa (D108)",
+  "houses": {
+    "1": [
+      "Mercury☿",
+      "Raagu☊",
+      "Neptune♆"
+    ],
+    "2": [],
+    "3": [],
+    "4": [
+      "Uranus⛢",
+      "Pluto♇"
+    ],
+    "5": [],
+    "6": [],
+    "7": [
+      "Ascendantℒ",
+      "Kethu☋"
+    ],
+    "8": [
+      "Jupiter♃",
+      "Saturn♄"
+    ],
+    "9": [
+      "Moon☾"
+    ],
+    "10": [
+      "Venus♀"
+    ],
+    "11": [],
+    "12": [
+      "Sun☉",
+      "Mars♂℞"
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "label": "Shashthamsa (D6)",
+  "houses": {
+    "1": [
+      "Ascendantℒ",
+      "Jupiter♃",
+      "Venus♀",
+      "Pluto♇"
+    ],
+    "2": [
+      "Raagu☊",
+      "Kethu☋"
+    ],
+    "3": [
+      "Moon☾",
+      "Saturn♄"
+    ],
+    "4": [
+      "Mars♂℞"
+    ],
+    "5": [
+      "Uranus⛢"
+    ],
+    "6": [],
+    "7": [],
+    "8": [
+      "Mercury☿"
+    ],
+    "9": [
+      "Sun☉"
+    ],
+    "10": [],
+    "11": [],
+    "12": [
+      "Neptune♆"
+    ]
+  }
+}

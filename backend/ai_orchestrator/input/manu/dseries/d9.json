@@ -1,0 +1,39 @@
+{
+  "label": "Navamsam (D9)",
+  "houses": {
+    "1": [
+      "Jupiter♃",
+      "Uranus⛢"
+    ],
+    "2": [
+      "Pluto♇"
+    ],
+    "3": [
+      "Kethu☋"
+    ],
+    "4": [
+      "Moon☾"
+    ],
+    "5": [
+      "Mercury☿",
+      "Saturn♄",
+      "Neptune♆"
+    ],
+    "6": [],
+    "7": [
+      "Ascendantℒ",
+      "Venus♀"
+    ],
+    "8": [
+      "Sun☉"
+    ],
+    "9": [
+      "Raagu☊"
+    ],
+    "10": [],
+    "11": [],
+    "12": [
+      "Mars♂℞"
+    ]
+  }
+}

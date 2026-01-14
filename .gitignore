@@ -1,0 +1,5 @@
+google-cloud-sdk/
+.DS_Store
+*.pyc
+__pycache__/
+.env
