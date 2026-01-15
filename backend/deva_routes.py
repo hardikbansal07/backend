@@ -661,10 +661,25 @@ async def submit_feedback(
         )
         
         if not success:
-            raise HTTPException(
-                status_code=400,
-                detail="Feedback already submitted for this question"
-            )
+            # Idempotent response: If already submitted, treat as success but indicate it
+            tracking = await mongo_db.db.chat_question_tracking.find_one({
+                "user_email": current_user.email
+            }) or {}
+            
+            questions_asked = tracking.get("questions_asked", 0)
+            feedback_given = tracking.get("feedback_given", 0)
+            
+            base_limit = 3
+            effective_feedback = min(feedback_given, questions_asked)
+            total_limit = base_limit + effective_feedback
+            remaining = total_limit - questions_asked
+            
+            return {
+                "status": "already_submitted",
+                "message": "Feedback already recorded.",
+                "questions_remaining": max(0, remaining),
+                "feedback_count": feedback_given
+            }
         
         tracking = await mongo_db.db.chat_question_tracking.find_one({
             "user_email": current_user.email
