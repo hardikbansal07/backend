@@ -89,25 +89,62 @@ class VertexGenAIClient(ChatCompletionClient):
         Generate a response from the model based on the messages.
         """
         try:
-            # Separate System Message from History
+            # Separate System Message from History and Merge Consecutive Roles
             system_instruction = None
             history: List[Content] = []
 
+            current_role = None
+            current_parts = []
+
             for msg in messages:
                 if isinstance(msg, SystemMessage):
-                    # Vertex AI takes system instruction at model init or generation config (depending on SDK version)
-                    # For current SDK, passing it to GenerativeModel constructor is best, 
-                    # but we are re-instantiating or using a shared instance.
-                    # We will collect it and init a fresh model instance for this call if system prompt exists.
                     system_instruction = msg.content
+                    continue
+                
+                # Determine role for this message
+                role = "user"
+                if isinstance(msg, AssistantMessage):
+                    role = "model"
                 elif isinstance(msg, UserMessage):
-                    history.append(Content(role="user", parts=[Part.from_text(msg.content)]))
-                elif isinstance(msg, AssistantMessage):
-                     history.append(Content(role="model", parts=[Part.from_text(msg.content)]))
+                    role = "user"
                 else:
-                    # Fallback for other message types
-                    content = str(msg.content) if hasattr(msg, "content") else str(msg)
-                    history.append(Content(role="user", parts=[Part.from_text(content)]))
+                    # Fallback
+                    role = "user"
+                
+                try:
+                    content_val = msg.content
+                    if callable(content_val):
+                         logger.warning(f"[VertexGenAIClient] msg.content is callable for {type(msg)}! calling it.")
+                         content_str = str(content_val())
+                    else:
+                         content_str = str(content_val) if content_val else ""
+                except Exception as e:
+                    logger.error(f"[VertexGenAIClient] Error accessing msg.content: {e}")
+                    content_str = ""
+
+                if not content_str: continue # Skip empty messages
+
+                if role == current_role:
+                    # Merge with previous
+                    current_parts.append(Part.from_text(content_str))
+                else:
+                    # Push previous if exists
+                    if current_role and current_parts:
+                        history.append(Content(role=current_role, parts=current_parts))
+                    
+                    # Start new
+                    current_role = role
+                    current_parts = [Part.from_text(content_str)]
+
+            # Push final buffer
+            if current_role and current_parts:
+                history.append(Content(role=current_role, parts=current_parts))
+            
+            # Ensure history starts with 'user' (Gemini requirement)
+            # If first message is model, prepend empty user message? Or generic prompt.
+            if history and history[0].role == "model":
+                history.insert(0, Content(role="user", parts=[Part.from_text("Start conversation.")]))
+
 
             # Instantiate model
             # We instantiate per call to support changing system instructions per agent

@@ -339,12 +339,27 @@ IMPORTANT: Provide your final response in {preferred_language} language.
         )
         
         # Collect messages
+        # Collect messages
         messages = []
         async for msg in council.run_stream(task=context_message):
-            source = getattr(msg, "source", "Unknown")
-            content = getattr(msg, "content", str(msg))
-            messages.append({"source": source, "content": content})
-            logger.debug(f"[DEVA] {source}: {content[:50]}...")
+            try:
+                # Debugging msg structure
+                source = getattr(msg, "source", "Unknown")
+                # Handle potentially missing content or if it's a method
+                raw_content = getattr(msg, "content", "")
+                if callable(raw_content):
+                     content = str(raw_content)
+                else:
+                     content = str(raw_content)
+                
+                messages.append({"source": str(source), "content": content})
+                
+                # Safe logging
+                log_snippet = content[:50] if content else "Empty"
+                logger.debug(f"[DEVA] {source}: {log_snippet}...")
+            except Exception as inner_e:
+                logger.error(f"[DEVA] Error processing message stream item: {inner_e} - Type: {type(msg)}")
+
         
         # Extract final response
         final_response = ""
