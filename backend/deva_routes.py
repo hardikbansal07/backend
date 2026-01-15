@@ -296,16 +296,20 @@ async def run_deva_agent(
     Run Deva Agent analysis programmatically using VertexGenAIClient
     """
     try:
+        logger.info("[DEVA] Starting run_deva_agent")
         # Import Deva Agent components
         from agents.specialists import get_specialists
         from agents.principals import get_principal
         from autogen_agentchat.teams import RoundRobinGroupChat
         
         # Initialize Vertex Client
+        logger.info("[DEVA] Initializing VertexGenAIClient")
         client = VertexGenAIClient()
         
         # Initialize agents with Vertex Client
+        logger.info("[DEVA] Getting specialists")
         lagna_pati, kala_purusha, varga_vizier = get_specialists(model_client=client)
+        logger.info("[DEVA] Getting principal")
         maha_rishi = get_principal(model_client=client)
         
         # Construct context message
@@ -325,20 +329,17 @@ INSTRUCTIONS FOR COUNCIL:
 1. LagnaPati: Analyze D1 strength.
 2. KalaPurusha: Check current Dasha relative to TODAY ({date_str}).
 3. VargaVizier: Check D10 Career strength.
-1. LagnaPati: Analyze D1 strength.
-2. KalaPurusha: Check current Dasha relative to TODAY ({date_str}).
-3. VargaVizier: Check D10 Career strength.
 4. MahaRishi (Astro Care AI): Synthesize final answer.
 IMPORTANT: Provide your final response in {preferred_language} language.
 """
-        
+        logger.info("[DEVA] Creating council")
         # Create council
         council = RoundRobinGroupChat(
             participants=[lagna_pati, kala_purusha, varga_vizier, maha_rishi],
             max_turns=4
         )
         
-        # Collect messages
+        logger.info("[DEVA] Running council stream")
         # Collect messages
         messages = []
         async for msg in council.run_stream(task=context_message):
