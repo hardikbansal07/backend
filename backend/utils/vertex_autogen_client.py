@@ -52,14 +52,19 @@ class VertexGenAIClient(ChatCompletionClient):
     def capabilities(self) -> ModelCapabilities:
         return ModelCapabilities(
             vision=False,
-            function_calling=False,
-            json_output=False
+            function_calling=True,
+            json_output=True
         )
 
+    @property
     def model_info(self) -> Dict[str, Any]:
         return {
             "model": self.model_name,
-            "provider": "google-vertex"
+            "provider": "google-vertex",
+            "family": "gemini-pro",
+            "function_calling": True,
+            "vision": False,
+            "json_output": True
         }
 
     async def count_tokens(self, messages: List[LLMMessage], **kwargs) -> int:
