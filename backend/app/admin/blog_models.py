@@ -1,7 +1,9 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List, Generic, TypeVar
 from pydantic import BaseModel, Field, HttpUrl, ConfigDict
 from bson import ObjectId
+
+T = TypeVar('T')
 
 class PyObjectId(ObjectId):
     @classmethod
@@ -25,7 +27,7 @@ class BlogSchema(BaseModel):
     image: str = Field(..., description="URL of the blog image")
     author: str
     short_description: str = Field(..., max_length=150)
-    content: str
+    content: Optional[str] = ""
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -48,3 +50,10 @@ class UpdateBlogSchema(BaseModel):
         arbitrary_types_allowed=True,
         json_encoders={ObjectId: str}
     )
+
+class PaginatedResponse(BaseModel, Generic[T]):
+    items: List[T]
+    total: int
+    page: int
+    size: int
+    pages: int

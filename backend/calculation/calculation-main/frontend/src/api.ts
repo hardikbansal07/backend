@@ -476,3 +476,32 @@ export async function chatWithAstrologer(query: string, history: any[] = []) {
   const res = await api.post('/api/v1/ai/chat', { query, history });
   return res.data;
 }
+// Blogs
+export interface BlogItem {
+  _id: string;
+  title: string;
+  short_description: string;
+  image: string;
+  category: string;
+  author: string;
+  created_at: string;
+  content?: string; // Optional in list view
+}
+
+export interface PaginatedBlogs {
+  items: BlogItem[];
+  total: number;
+  page: number;
+  size: number;
+  pages: number;
+}
+
+export async function fetchBlogs(page: number = 1, limit: number = 10) {
+  const res = await api.get('/api/blogs', { params: { page, limit } });
+  return res.data as PaginatedBlogs;
+}
+
+export async function fetchBlogDetail(id: string) {
+  const res = await api.get(`/api/blogs/${id}`);
+  return res.data as BlogItem;
+}
