@@ -27,9 +27,16 @@ GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8080/ap
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
-optional_oauth2_scheme = HTTPBearer(auto_error=False)
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
+optional_oauth2_scheme = HTTPBearer(auto_error=False) # Keep existing one if used elsewhere
 
 logger = logging.getLogger(__name__)
+
+# ... (skip lines)
+
+async def get_optional_user(
+    token: Optional[str] = Depends(oauth2_scheme_optional)
+) -> Optional[UserInDB]:
 
 
 
@@ -165,7 +172,7 @@ async def get_current_user_optional(credentials: Optional[HTTPAuthorizationCrede
         return None
 
 async def get_optional_user(
-    token: Optional[str] = Depends(oauth2_scheme)
+    token: Optional[str] = Depends(oauth2_scheme_optional)
 ) -> Optional[UserInDB]:
     """
     Returns user if token is valid, otherwise None.
