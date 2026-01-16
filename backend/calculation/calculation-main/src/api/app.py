@@ -748,10 +748,9 @@ async def health():
     return info
 
 @app.get('/api/places')
-def search_places(q: str):
+def search_places(q: str, limit: int = 50):
     """Simple offline place search backed by world_cities_with_tz.csv.
-    Returns all matches for the given prefix (no limit).
-    Frontend will filter further as user types.
+    Returns matches for the given prefix, limited by 'limit'.
     """
     if not q or len(q.strip()) < 3:
         return {'items': []}
@@ -765,9 +764,16 @@ def search_places(q: str):
     # Get all candidates from index
     candidates = _PLACES_INDEX.get(prefix, [])
     
-    # Return all candidates that match the prefix (no limit)
+    # Return candidates that match the prefix
     # Frontend will filter as user types more
-    results = [p for p in candidates if p['label'].lower().startswith(ql)]
+    results = []
+    count = 0
+    for p in candidates:
+        if p['label'].lower().startswith(ql):
+            results.append(p)
+            count += 1
+            if count >= limit:
+                break
     
     return {'items': results}
 
