@@ -32,13 +32,6 @@ optional_oauth2_scheme = HTTPBearer(auto_error=False) # Keep existing one if use
 
 logger = logging.getLogger(__name__)
 
-# ... (skip lines)
-
-async def get_optional_user(
-    token: Optional[str] = Depends(oauth2_scheme_optional)
-) -> Optional[UserInDB]:
-
-
 
 
 
