@@ -164,6 +164,26 @@ async def get_current_user_optional(credentials: Optional[HTTPAuthorizationCrede
     except (JWTError, Exception):
         return None
 
+async def get_optional_user(
+    token: Optional[str] = Depends(oauth2_scheme)
+) -> Optional[UserInDB]:
+    """
+    Returns user if token is valid, otherwise None.
+    Does NOT raise HTTPException.
+    """
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+             return None
+        token_data = TokenData(email=email)
+        user = await get_user(email=token_data.email)
+        return user
+    except (JWTError, Exception):
+        return None
+
 async def verify_google_token(token: str) -> Dict[str, Any]:
     """
     Verify Google OAuth ID token (JWT) and return user info
@@ -228,3 +248,26 @@ async def get_or_create_google_user(google_user_info: Dict[str, Any]) -> UserInD
     logger.info(f"Created new Google OAuth user: {email}")
     
     return new_user
+
+async def merge_guest_data(user_email: str, guest_id: str):
+    """
+    [FUTURE IMPLEMENTATION] Merge Guest Data Strategy
+    
+    When a user signs up or logs in, checking for an 'x-guest-id' header or cookie allow us to:
+    1. Find all 'deva_conversations' where 'request_id' == "guest_session" AND (somehow linked to guest_id).
+       Note: Currently conversations are stored with user_email. For guests, we used f"guest_{guest_id}".
+       
+    2. Update these documents:
+       - Set 'user_email' to the real 'user_email'
+       - Set 'request_id' to a new or existing valid horoscope request_id if applicable, 
+         or keep as "guest_imported" to denote origin.
+         
+    3. Option: Grant bonus credits if they converted?
+    
+    4. Remove 'guest_usage' record for this guest_id to clean up.
+    
+    Implementation Steps:
+    - In login/signup endpoint, accept optional 'guest_id'.
+    - If provided, background task: await merge_guest_data(email, guest_id)
+    """
+    pass

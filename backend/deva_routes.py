@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from typing import Dict, Any, Optional, List
 from datetime import datetime
-from auth import get_current_active_user
+from auth import get_current_active_user, get_optional_user
 from models import User
 from mongo import mongo_db
 from horoscope_service import get_user_horoscope
@@ -21,7 +21,10 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 # Import Vertex AI components
 from services.vertex_service import init_vertex_ai, get_model_name
 from vertexai.generative_models import GenerativeModel, Content, Part
+from services.vertex_service import init_vertex_ai, get_model_name
+from vertexai.generative_models import GenerativeModel, Content, Part
 from utils.vertex_autogen_client import VertexGenAIClient
+from guest_dependency import get_guest_id, check_guest_limit, increment_guest_usage
 
 logger = logging.getLogger(__name__)
 
@@ -71,136 +74,141 @@ async def deva_status():
 @router.post("/chat", response_model=ChatResponse)
 async def deva_chat(
     request: ChatRequest,
-    current_user: User = Depends(get_current_active_user)
+    current_user: Optional[User] = Depends(get_optional_user),
+    guest_id: Optional[str] = Depends(get_guest_id)
 ):
     """
     Chat with Deva Agent
-    Requires user authentication and horoscope data
+    Requires user authentication OR guest limit check
     """
     try:
-        logger.info(f"[DEVA] Chat request from user: {current_user.email}, question: {request.question[:50]}...")
+        user_email = current_user.email if current_user else f"guest_{guest_id}"
+        is_guest = current_user is None
         
-        # Step 0: Check Credit Balance
-        if current_user.credits < 1:
-            return ChatResponse(
-                status="limit_reached",
-                response="You have 0 credits. Please recharge your credits to continue asking questions.",
-                conversation_id="",
-                has_horoscope_data=False,
-                questions_remaining=0,
-                total_questions_asked=0
-            )
-            
-        # Deduct 1 Credit
-        await mongo_db.db.users.update_one(
-            {"email": current_user.email},
-            {"$inc": {"credits": -1}}
-        )
-        current_user.credits -= 1
-        logger.info(f"Deducted 1 credit for user {current_user.email}. New balance: {current_user.credits}")
+        logger.info(f"[DEVA] Chat request from: {user_email}, question: {request.question[:50]}...")
         
-        # Step 1: Find user's most recent horoscope if request_id not provided
-        if not request.request_id:
-            logger.info(f"[DEVA] No request_id provided, fetching most recent horoscope for {current_user.email}")
-            horoscopes = await mongo_db.db.horoscopes.find({
-                "user_email": current_user.email
-            }).sort("created_at", -1).limit(1).to_list(length=1)
-            
-            if not horoscopes:
-                logger.warning(f"[DEVA] No horoscopes found for user {current_user.email}")
+        # --- GUEST FLOW ---
+        if is_guest:
+             if not guest_id:
+                 raise HTTPException(status_code=401, detail="Authentication required")
+             
+             # Check Guest Limit (Raises 403 if limit reached)
+             await check_guest_limit(guest_id)
+             
+             # Create a valid request_id for basic astrology if none (Guests don't have horoscopes usually)
+             if not request.request_id:
+                 request.request_id = "guest_session"
+        
+        # --- LOGGED IN FLOW ---
+        else:
+            # Step 0: Check Credit Balance
+            if current_user.credits < 1:
+                return ChatResponse(
+                    status="limit_reached",
+                    response="You have 0 credits. Please recharge your credits to continue asking questions.",
+                    conversation_id="",
+                    has_horoscope_data=False,
+                    questions_remaining=0,
+                    total_questions_asked=0
+                )
                 
-                # Check if user has saved birth details
+            # Deduct 1 Credit
+            await mongo_db.db.users.update_one(
+                {"email": current_user.email},
+                {"$inc": {"credits": -1}}
+            )
+            current_user.credits -= 1
+            logger.info(f"Deducted 1 credit for user {current_user.email}. New balance: {current_user.credits}")
+
+        # Common Logic
+        response_text = ""
+        has_horoscope_data = False
+        
+        # Step 1: Find horoscope (Only for logged in users)
+        horoscope_data = None
+        if not is_guest:
+            if not request.request_id:
+                logger.info(f"[DEVA] No request_id provided, fetching most recent horoscope for {current_user.email}")
+                horoscopes = await mongo_db.db.horoscopes.find({
+                    "user_email": current_user.email
+                }).sort("created_at", -1).limit(1).to_list(length=1)
+                
+                if horoscopes:
+                    request.request_id = horoscopes[0]["request_id"]
+                    logger.info(f"[DEVA] Using request_id: {request.request_id}")
+                    
+                    # Fetch horoscope Data
+                    horoscope_data = await get_user_horoscope(
+                        user_email=current_user.email,
+                        request_id=request.request_id
+                    )
+                    has_horoscope_data = True
+        
+        # Step 2: Generate Response
+        if horoscope_data:
+            # Full Deva Agent with Horoscope
+            chart_data = convert_to_deva_format(horoscope_data)
+            logger.info(f"[DEVA] Running Deva Agent analysis (Vertex AI)")
+            response_text = await run_deva_agent(
+                question=request.question,
+                chart_data=chart_data,
+                user_email=user_email,
+                request_id=request.request_id,
+                preferred_language=getattr(current_user, "preferred_language", "English") if current_user else "English"
+            )
+        else:
+            # Basic analysis (Guests or Users without horoscope)
+            # Try to get birth details if logged in
+            birth_details = None
+            if current_user:
                 birth_details = await mongo_db.db.user_birth_details.find_one({
                     "user_email": current_user.email
                 })
-                
-                if birth_details:
-                    logger.info(f"[DEVA] User has birth details but no horoscope, providing basic analysis")
-                    # Provide analysis based on birth details
-                    response_text = await run_basic_astrology_analysis(
-                        question=request.question,
-                        birth_details=birth_details,
-                        user_email=current_user.email,
-                        preferred_language=getattr(current_user, "preferred_language", "English")
-                    )
-                    
-                    logger.info(f"[DEVA] Basic analysis response generated, length: {len(response_text)}")
-                    
-                    # Store conversation
-                    conversation_id = await store_conversation(
-                        user_email=current_user.email,
-                        request_id="birth_details_only",
-                        question=request.question,
-                        response=response_text
-                    )
-                    
-                    return ChatResponse(
-                        status="success",
-                        response=response_text,
-                        conversation_id=conversation_id,
-                        has_horoscope_data=False,
-                        questions_remaining=int(current_user.credits),
-                        total_questions_asked=0
-                    )
-                
-                # No horoscope and no birth details
-                return ChatResponse(
-                    status="no_data",
-                    response="Please provide your birth details or generate your full horoscope first.",
-                    conversation_id="",
-                    has_horoscope_data=False,
-                    questions_remaining=int(current_user.credits),
-                    total_questions_asked=0
-                )
             
-            request.request_id = horoscopes[0]["request_id"]
-            logger.info(f"[DEVA] Using request_id: {request.request_id}")
-        
-        # Step 2: Fetch horoscope chunks
-        logger.info(f"[DEVA] Fetching horoscope data for request_id: {request.request_id}")
-        horoscope_data = await get_user_horoscope(
-            user_email=current_user.email,
-            request_id=request.request_id
-        )
-        
-        if not horoscope_data:
-            logger.warning(f"[DEVA] Horoscope data not found for request_id: {request.request_id}")
-            return ChatResponse(
-                status="no_data",
-                response="Horoscope data not found. Please generate your horoscope first.",
-                conversation_id="",
-                has_horoscope_data=False,
-                questions_remaining=int(current_user.credits),
-                total_questions_asked=0
-            )
-        
-        # Step 3: Convert horoscope chunks to Deva Agent format
-        chart_data = convert_to_deva_format(horoscope_data)
-        
-        # Step 4: Run Deva Agent analysis (Vertex AI)
-        logger.info(f"[DEVA] Running Deva Agent analysis (Vertex AI)")
-        response_text = await run_deva_agent(
-            question=request.question,
-            chart_data=chart_data,
-            user_email=current_user.email,
-            request_id=request.request_id,
-            preferred_language=getattr(current_user, "preferred_language", "English")
-        )
-        
-        # Step 5: Store conversation
+            # If guest, use generic/basic context
+            # We don't have birth details for guests usually unless passed in request (not in current scope)
+            # So we act as a general financial/astrology advisor
+            
+            if birth_details:
+                 response_text = await run_basic_astrology_analysis(
+                    question=request.question,
+                    birth_details=birth_details,
+                    user_email=user_email,
+                    preferred_language=getattr(current_user, "preferred_language", "English")
+                )
+            else:
+                # Fallback for guests or no-data users
+                # Use run_basic_astrology_analysis with dummy/empty details or a specific guest function
+                # For now, let's misuse run_basic_astrology_analysis or create a simpler one?
+                # Let's use run_basic_astrology_analysis with handled "Not provided"
+                response_text = await run_basic_astrology_analysis(
+                    question=request.question,
+                    birth_details={}, 
+                    user_email=user_email,
+                    preferred_language="English"
+                )
+
+        # Step 3: Store conversation
         conversation_id = await store_conversation(
-            user_email=current_user.email,
+            user_email=user_email,
             request_id=request.request_id,
             question=request.question,
             response=response_text
         )
         
+        # Step 4: Post-Processing (Increment usage)
+        remaining_credits = 0
+        if is_guest:
+             await increment_guest_usage(guest_id)
+        else:
+             remaining_credits = int(current_user.credits)
+
         return ChatResponse(
             status="success",
             response=response_text,
             conversation_id=conversation_id,
-            has_horoscope_data=True,
-            questions_remaining=int(current_user.credits),
+            has_horoscope_data=has_horoscope_data,
+            questions_remaining=remaining_credits,
             total_questions_asked=0
         )
     
@@ -208,14 +216,15 @@ async def deva_chat(
         raise
     except Exception as e:
         logger.error(f"Deva Agent chat failed: {e}", exc_info=True)
-        # Refund credit
-        try:
-            if mongo_db.db:
-                await mongo_db.db.users.update_one(
-                    {"email": current_user.email},
-                    {"$inc": {"credits": 1}}
-                )
-        except: pass
+        # Refund credit if user
+        if current_user:
+            try:
+                if mongo_db.db:
+                    await mongo_db.db.users.update_one(
+                        {"email": current_user.email},
+                        {"$inc": {"credits": 1}}
+                    )
+            except: pass
         
         raise HTTPException(
             status_code=500,

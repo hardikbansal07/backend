@@ -51,7 +51,8 @@ class MongoDB:
                 "user_birth_details",
                 "chat_question_tracking",
                 "question_feedback",
-                "blogs"
+                "blogs",
+                "guest_usage"
             ]
             
             for collection_name in required_collections:
@@ -101,6 +102,9 @@ class MongoDB:
             # Blog indexes
             await self.db.blogs.create_index([("created_at", -1)])
             await self.db.blogs.create_index("category")
+
+            # Guest Usage indexes
+            await self.db.guest_usage.create_index("guest_id", unique=True)
             
             logger.info("All collections and indexes initialized successfully")
         except Exception as e:
