@@ -4,6 +4,7 @@ Manages the complete flow: Calculation → Compression → MongoDB Storage
 """
 from typing import Dict, Any, List, Optional
 from datetime import datetime
+import asyncio
 from mongo import mongo_db
 from compression_service import compress_horoscope, split_into_chunks
 import logging
@@ -45,7 +46,9 @@ async def compress_and_store_horoscope(
                     
                     if jd and place:
                         # Get Vimsottari dasha with antardhasa (2 layers)
-                        bal, res = _vimsottari.get_vimsottari_dhasa_bhukthi(jd, place, include_antardhasa=True)
+                        bal, res = await asyncio.to_thread(
+                             _vimsottari.get_vimsottari_dhasa_bhukthi, jd, place, include_antardhasa=True
+                        )
                         
                         # Planet names mapping
                         planet_names = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu']
@@ -97,10 +100,10 @@ async def compress_and_store_horoscope(
             logger.warning(f"Could not fetch birth details for {user_email}: {birth_error}")
         
         # Step 1: Compress the horoscope data (with birth details if available)
-        compressed = compress_horoscope(horoscope_data, birth_details)
+        compressed = await asyncio.to_thread(compress_horoscope, horoscope_data, birth_details)
         
         # Step 2: Split into chunks
-        chunks = split_into_chunks(compressed)
+        chunks = await asyncio.to_thread(split_into_chunks, compressed)
         
         # Step 3: Delete existing chunks for this horoscope (if any)
         await mongo_db.db.horoscope_chunks.delete_many({

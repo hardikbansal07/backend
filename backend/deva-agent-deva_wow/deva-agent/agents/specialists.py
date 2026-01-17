@@ -12,10 +12,18 @@ from tools.astro_tools import (
 )
 
 # Load Prompts
+# Load Prompts
+_PROMPT_CACHE = {}
+
 def load_prompt(filename):
+    if filename in _PROMPT_CACHE:
+        return _PROMPT_CACHE[filename]
+        
     base_path = os.path.join(os.path.dirname(__file__), "..", "prompts", "library")
     with open(os.path.join(base_path, filename), "r", encoding="utf-8") as f:
-        return f.read()
+        content = f.read()
+        _PROMPT_CACHE[filename] = content
+        return content
 
 # Factory function to create fresh instances
 def get_specialists(model_client=None):
