@@ -99,6 +99,21 @@ async def deva_chat(
         current_user.credits -= 1
         logger.info(f"Deducted 1 credit for user {current_user.email}. New balance: {current_user.credits}")
         
+        # Step 0.5: Fetch Chat History (MOVED UP)
+        chat_history = []
+        try:
+            history_cursor = mongo_db.db.deva_conversations.find({
+                "user_email": current_user.email
+            }).sort("created_at", -1).limit(5)
+            
+            recent_convs = await history_cursor.to_list(length=5)
+            for conv in reversed(recent_convs):
+                chat_history.append(f"User: {conv.get('question')}")
+                chat_history.append(f"Astro Care AI: {conv.get('response')}")
+            logger.info(f"[DEVA] Fetched {len(recent_convs)} previous conversations")
+        except Exception as e:
+            logger.warning(f"[DEVA] Failed to fetch chat history: {e}")
+
         # Step 1: Find user's most recent horoscope if request_id not provided
         if not request.request_id:
             logger.info(f"[DEVA] No request_id provided, fetching most recent horoscope for {current_user.email}")
@@ -116,47 +131,48 @@ async def deva_chat(
                 
                 if birth_details:
                     logger.info(f"[DEVA] User has birth details but no horoscope, providing basic analysis")
-                    # Provide analysis based on birth details
-                    response_text = await run_basic_astrology_analysis(
-                        question=request.question,
-                        birth_details=birth_details,
-                        user_email=current_user.email,
-                        preferred_language=getattr(current_user, "preferred_language", "English")
-                    )
-                    
-                    logger.info(f"[DEVA] Basic analysis response generated, length: {len(response_text)}")
-                    
-                    # Store conversation
-                    conversation_id = await store_conversation(
-                        user_email=current_user.email,
-                        request_id="birth_details_only",
-                        question=request.question,
-                        response=response_text
-                    )
-                    
-                    return ChatResponse(
-                        status="success",
-                        response=response_text,
-                        conversation_id=conversation_id,
-                        has_horoscope_data=False,
-                        questions_remaining=int(current_user.credits),
-                        total_questions_asked=0
-                    )
+                else:
+                    logger.info(f"[DEVA] No stored birth details. Using chat context only.")
+                    birth_details = {}
+
+                # Provide analysis based on birth details (or lack thereof)
+                response_text = await run_basic_astrology_analysis(
+                    question=request.question,
+                    birth_details=birth_details,
+                    user_email=current_user.email,
+                    preferred_language=getattr(current_user, "preferred_language", "English"),
+                    chat_history=chat_history
+                )
                 
-                # No horoscope and no birth details
+                logger.info(f"[DEVA] Basic analysis response generated, length: {len(response_text)}")
+                
+                # Store conversation
+                conversation_id = await store_conversation(
+                    user_email=current_user.email,
+                    request_id="birth_details_only",
+                    question=request.question,
+                    response=response_text
+                )
+                
                 return ChatResponse(
-                    status="no_data",
-                    response="Please provide your birth details or generate your full horoscope first.",
-                    conversation_id="",
+                    status="success",
+                    response=response_text,
+                    conversation_id=conversation_id,
                     has_horoscope_data=False,
                     questions_remaining=int(current_user.credits),
                     total_questions_asked=0
                 )
+
+                
+
             
             request.request_id = horoscopes[0]["request_id"]
             logger.info(f"[DEVA] Using request_id: {request.request_id}")
         
+
+
         # Step 2: Fetch horoscope chunks
+
         logger.info(f"[DEVA] Fetching horoscope data for request_id: {request.request_id}")
         horoscope_data = await get_user_horoscope(
             user_email=current_user.email,
@@ -184,7 +200,8 @@ async def deva_chat(
             chart_data=chart_data,
             user_email=current_user.email,
             request_id=request.request_id,
-            preferred_language=getattr(current_user, "preferred_language", "English")
+            preferred_language=getattr(current_user, "preferred_language", "English"),
+            chat_history=chat_history
         )
         
         # Step 5: Store conversation
@@ -239,7 +256,8 @@ async def run_basic_astrology_analysis(
     question: str,
     birth_details: Dict[str, Any],
     user_email: str,
-    preferred_language: str = "English"
+    preferred_language: str = "English",
+    chat_history: List[str] = None
 ) -> str:
     """
     Provide basic astrology analysis using DIRECT Vertex AI
@@ -262,11 +280,17 @@ INSTRUCTIONS:
 4. Make reasonable astrological interpretations based on the date, time, and place of birth.
 5. RESPOND IN {preferred_language} LANGUAGE."""
 
+        formatted_history = "\n".join(chat_history) if chat_history else "No previous context."
+
         user_prompt = f"""BIRTH INFORMATION:
 - Date: {dob}
 - Time: {tob}
 - Place: {pob}
-USER'S QUESTION: {question}
+
+PREVIOUS CONVERSATION:
+{formatted_history}
+
+USER'S NEW QUESTION: {question}
 Provide a detailed astrological response."""
 
         model = GenerativeModel(
@@ -290,7 +314,8 @@ async def run_deva_agent(
     chart_data: Dict[str, Any],
     user_email: str,
     request_id: str,
-    preferred_language: str = "English"
+    preferred_language: str = "English",
+    chat_history: List[str] = None
 ) -> str:
     """
     Run Deva Agent analysis programmatically using VertexGenAIClient
@@ -319,6 +344,10 @@ EXISTING CHART DATA
 -----------------------------------
 {json.dumps(chart_data, indent=2, default=str)}
 -----------------------------------
+
+PREVIOUS CONVERSATION:
+{chr(10).join(chat_history) if chat_history else "No previous context."}
+
 USER QUESTION: {question}
 
 INSTRUCTIONS FOR COUNCIL:
