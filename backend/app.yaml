@@ -6,6 +6,7 @@ instance_class: F2
 entrypoint: uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1
 
 automatic_scaling:
+  min_instances: 1
   max_instances: 1
 
 env_variables:
@@ -20,8 +21,16 @@ env_variables:
   DATABASE_URL: "mongodb+srv://Astrocare7:Rekha%407337@cluster0.ydviwil.mongodb.net/?appName=Cluster0"
   GOOGLE_CLOUD_PROJECT: "ai-astrology-481805"
   GOOGLE_CLOUD_LOCATION: "us-central1"
+
+liveness_check:
+  path: "/calc/chk"
+  check_interval_sec: 30
+  timeout_sec: 4
+  failure_threshold: 2
+  success_threshold: 2
+
 readiness_check:
-  path: "/health"
+  path: "/calc/chk"
   check_interval_sec: 10
   timeout_sec: 4
   failure_threshold: 2
