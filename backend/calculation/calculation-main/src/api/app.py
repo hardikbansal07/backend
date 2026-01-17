@@ -187,6 +187,7 @@ def _load_places() -> list[dict[str, Any]]:
     if not os.path.exists(csv_path):
         logging.warning(f"Place database missing at {csv_path}")
         _PLACES = []
+        _PLACES_INDEX = {}
         return _PLACES
     try:
         with open(csv_path, newline='', encoding='utf-8') as f:
