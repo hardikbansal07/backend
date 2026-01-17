@@ -1,0 +1,38 @@
+{
+  "label": "Dhasamsa (D10)",
+  "houses": {
+    "1": [
+      "Raagu☊"
+    ],
+    "2": [
+      "Neptune♆"
+    ],
+    "3": [],
+    "4": [],
+    "5": [
+      "Mercury☿",
+      "Uranus⛢"
+    ],
+    "6": [],
+    "7": [
+      "Venus♀",
+      "Kethu☋"
+    ],
+    "8": [
+      "Sun☉",
+      "Moon☾",
+      "Mars♂℞"
+    ],
+    "9": [
+      "Jupiter♃",
+      "Saturn♄"
+    ],
+    "10": [
+      "Pluto♇"
+    ],
+    "11": [
+      "Ascendantℒ"
+    ],
+    "12": []
+  }
+}

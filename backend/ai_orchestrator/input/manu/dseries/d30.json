@@ -1,0 +1,37 @@
+{
+  "label": "Thrisamsa (D30)",
+  "houses": {
+    "1": [
+      "Ascendantℒ",
+      "Jupiter♃",
+      "Venus♀",
+      "Pluto♇"
+    ],
+    "2": [],
+    "3": [
+      "Uranus⛢"
+    ],
+    "4": [],
+    "5": [],
+    "6": [
+      "Mercury☿"
+    ],
+    "7": [],
+    "8": [
+      "Neptune♆"
+    ],
+    "9": [
+      "Moon☾",
+      "Mars♂℞",
+      "Saturn♄"
+    ],
+    "10": [],
+    "11": [
+      "Raagu☊",
+      "Kethu☋"
+    ],
+    "12": [
+      "Sun☉"
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "label": "Vimsamsa (D20)",
+  "houses": {
+    "1": [
+      "Venus♀"
+    ],
+    "2": [
+      "Raagu☊",
+      "Kethu☋"
+    ],
+    "3": [],
+    "4": [
+      "Moon☾",
+      "Mars♂℞"
+    ],
+    "5": [],
+    "6": [
+      "Sun☉",
+      "Jupiter♃",
+      "Saturn♄",
+      "Neptune♆"
+    ],
+    "7": [
+      "Pluto♇"
+    ],
+    "8": [],
+    "9": [
+      "Ascendantℒ"
+    ],
+    "10": [
+      "Uranus⛢"
+    ],
+    "11": [],
+    "12": [
+      "Mercury☿"
+    ]
+  }
+}

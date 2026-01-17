@@ -1,0 +1,38 @@
+{
+  "label": "Khavedamsa (D40)",
+  "houses": {
+    "1": [
+      "Ascendantℒ"
+    ],
+    "2": [
+      "Sun☉",
+      "Mercury☿",
+      "Venus♀"
+    ],
+    "3": [
+      "Jupiter♃"
+    ],
+    "4": [
+      "Moon☾",
+      "Uranus⛢"
+    ],
+    "5": [
+      "Neptune♆"
+    ],
+    "6": [
+      "Pluto♇"
+    ],
+    "7": [],
+    "8": [
+      "Saturn♄"
+    ],
+    "9": [],
+    "10": [],
+    "11": [
+      "Mars♂℞",
+      "Raagu☊",
+      "Kethu☋"
+    ],
+    "12": []
+  }
+}

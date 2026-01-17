@@ -1,0 +1,37 @@
+{
+  "label": "Panchamsa (D5)",
+  "houses": {
+    "1": [
+      "Ascendantℒ",
+      "Jupiter♃",
+      "Venus♀",
+      "Pluto♇"
+    ],
+    "2": [
+      "Mercury☿"
+    ],
+    "3": [
+      "Uranus⛢"
+    ],
+    "4": [],
+    "5": [],
+    "6": [],
+    "7": [],
+    "8": [
+      "Neptune♆"
+    ],
+    "9": [
+      "Mars♂℞",
+      "Saturn♄"
+    ],
+    "10": [],
+    "11": [
+      "Moon☾",
+      "Raagu☊",
+      "Kethu☋"
+    ],
+    "12": [
+      "Sun☉"
+    ]
+  }
+}

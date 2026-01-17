@@ -1,0 +1,39 @@
+{
+  "label": "Ashtamsa (D8)",
+  "houses": {
+    "1": [
+      "Venus♀"
+    ],
+    "2": [
+      "Uranus⛢"
+    ],
+    "3": [],
+    "4": [],
+    "5": [
+      "Jupiter♃"
+    ],
+    "6": [
+      "Pluto♇"
+    ],
+    "7": [
+      "Neptune♆"
+    ],
+    "8": [],
+    "9": [
+      "Ascendantℒ",
+      "Mars♂℞"
+    ],
+    "10": [
+      "Mercury☿"
+    ],
+    "11": [
+      "Raagu☊",
+      "Kethu☋"
+    ],
+    "12": [
+      "Sun☉",
+      "Moon☾",
+      "Saturn♄"
+    ]
+  }
+}

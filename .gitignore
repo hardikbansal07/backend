@@ -1,0 +1,12 @@
+google-cloud-sdk/
+.DS_Store
+*.pyc
+__pycache__/
+.env
+node_modules/
+agent_events.db
+google-cloud-cli.tar.gz
+dist/
+build/
+.next/
+.serverless/

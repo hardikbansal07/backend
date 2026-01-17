@@ -1,0 +1,39 @@
+{
+  "label": "Chaturvimsamsa (D24)",
+  "houses": {
+    "1": [],
+    "2": [
+      "Moon☾"
+    ],
+    "3": [
+      "Sun☉"
+    ],
+    "4": [
+      "Saturn♄"
+    ],
+    "5": [
+      "Ascendantℒ",
+      "Venus♀"
+    ],
+    "6": [
+      "Mars♂℞",
+      "Jupiter♃"
+    ],
+    "7": [],
+    "8": [
+      "Mercury☿",
+      "Pluto♇"
+    ],
+    "9": [
+      "Uranus⛢"
+    ],
+    "10": [],
+    "11": [
+      "Raagu☊",
+      "Kethu☋"
+    ],
+    "12": [
+      "Neptune♆"
+    ]
+  }
+}

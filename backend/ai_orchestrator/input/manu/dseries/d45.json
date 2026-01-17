@@ -1,0 +1,36 @@
+{
+  "label": "Akshavedamsa (D45)",
+  "houses": {
+    "1": [
+      "Mercury☿"
+    ],
+    "2": [
+      "Venus♀",
+      "Saturn♄"
+    ],
+    "3": [
+      "Sun☉",
+      "Neptune♆",
+      "Pluto♇"
+    ],
+    "4": [],
+    "5": [
+      "Ascendantℒ",
+      "Raagu☊",
+      "Kethu☋"
+    ],
+    "6": [],
+    "7": [],
+    "8": [],
+    "9": [],
+    "10": [
+      "Moon☾",
+      "Mars♂℞"
+    ],
+    "11": [],
+    "12": [
+      "Jupiter♃",
+      "Uranus⛢"
+    ]
+  }
+}

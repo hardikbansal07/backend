@@ -1,0 +1,310 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2024-08-31T12:00:00Z",
+  "factor": 10,
+  "label": "D10",
+  "ascendantHouse": 1,
+  "ascendantSignNumber": 2,
+  "ascendantSign": "♉︎Taurus",
+  "ascendantHouseRel": 1,
+  "houses": [
+    {
+      "index": 1,
+      "items": [
+        "Ascendantℒ",
+        "Moon☾"
+      ],
+      "signNumber": 2
+    },
+    {
+      "index": 2,
+      "items": [
+        "Jupiter♃"
+      ],
+      "signNumber": 3
+    },
+    {
+      "index": 3,
+      "items": [
+        "Venus♀"
+      ],
+      "signNumber": 4
+    },
+    {
+      "index": 4,
+      "items": [],
+      "signNumber": 5
+    },
+    {
+      "index": 5,
+      "items": [
+        "Mercury☿℞"
+      ],
+      "signNumber": 6
+    },
+    {
+      "index": 6,
+      "items": [
+        "Kethu☋"
+      ],
+      "signNumber": 7
+    },
+    {
+      "index": 7,
+      "items": [],
+      "signNumber": 8
+    },
+    {
+      "index": 8,
+      "items": [],
+      "signNumber": 9
+    },
+    {
+      "index": 9,
+      "items": [],
+      "signNumber": 10
+    },
+    {
+      "index": 10,
+      "items": [
+        "Sun☉",
+        "Mars♂"
+      ],
+      "signNumber": 11
+    },
+    {
+      "index": 11,
+      "items": [
+        "Saturn♄"
+      ],
+      "signNumber": 12
+    },
+    {
+      "index": 12,
+      "items": [
+        "Raagu☊"
+      ],
+      "signNumber": 1
+    }
+  ],
+  "planets": [
+    {
+      "name": "Sun☉",
+      "house": 10,
+      "houseRel": 10,
+      "houseAbs": 11,
+      "longitudeDMS": "3° 7’ 46\"",
+      "rawLongitudeDeg": 3.1294444444444447,
+      "retrograde": false,
+      "charaKaraka": "Atma Karaka",
+      "sign": "♒︎Aquarius",
+      "absoluteLongitude": 303.12944444444446,
+      "nakshatra": "Dhanishtha",
+      "nakshatraPada": 3,
+      "dignity": "Neutral",
+      "isExalted": null,
+      "isDebilitated": null,
+      "isOwnSign": null,
+      "isMoolatrikona": null,
+      "isCombust": null,
+      "isVargottama": null
+    },
+    {
+      "name": "Moon☾",
+      "house": 1,
+      "houseRel": 1,
+      "houseAbs": 2,
+      "longitudeDMS": "16° 12’ 47\"",
+      "rawLongitudeDeg": 16.213055555555556,
+      "retrograde": false,
+      "charaKaraka": "Maitra Karaka",
+      "sign": "♉︎Taurus",
+      "absoluteLongitude": 46.213055555555556,
+      "nakshatra": "Rohini",
+      "nakshatraPada": 2,
+      "dignity": "Exalted",
+      "isExalted": true,
+      "isDebilitated": null,
+      "isOwnSign": null,
+      "isMoolatrikona": true,
+      "isCombust": null,
+      "isVargottama": null
+    },
+    {
+      "name": "Mars♂",
+      "house": 10,
+      "houseRel": 10,
+      "houseAbs": 11,
+      "longitudeDMS": "8° 54’ 32\"",
+      "rawLongitudeDeg": 8.908888888888889,
+      "retrograde": false,
+      "charaKaraka": "Putra Karaka",
+      "sign": "♒︎Aquarius",
+      "absoluteLongitude": 308.9088888888889,
+      "nakshatra": "Shatabhisha",
+      "nakshatraPada": 1,
+      "dignity": "Neutral",
+      "isExalted": null,
+      "isDebilitated": null,
+      "isOwnSign": null,
+      "isMoolatrikona": null,
+      "isCombust": true,
+      "isVargottama": null
+    },
+    {
+      "name": "Mercury☿",
+      "house": 5,
+      "houseRel": 5,
+      "houseAbs": 6,
+      "longitudeDMS": "18° 16’ 20\"",
+      "rawLongitudeDeg": 18.272222222222222,
+      "retrograde": true,
+      "charaKaraka": "Pitri Karaka",
+      "sign": "♍︎Virgo",
+      "absoluteLongitude": 168.2722222222222,
+      "nakshatra": "Hasta",
+      "nakshatraPada": 3,
+      "dignity": "Own",
+      "isExalted": null,
+      "isDebilitated": null,
+      "isOwnSign": true,
+      "isMoolatrikona": true,
+      "isCombust": null,
+      "isVargottama": null
+    },
+    {
+      "name": "Jupiter♃",
+      "house": 2,
+      "houseRel": 2,
+      "houseAbs": 3,
+      "longitudeDMS": "25° 47’ 18\"",
+      "rawLongitudeDeg": 25.788333333333334,
+      "retrograde": false,
+      "charaKaraka": "Bhratri Karaka",
+      "sign": "♊︎Gemini",
+      "absoluteLongitude": 85.78833333333333,
+      "nakshatra": "Punarvasu",
+      "nakshatraPada": 2,
+      "dignity": "Neutral",
+      "isExalted": null,
+      "isDebilitated": null,
+      "isOwnSign": null,
+      "isMoolatrikona": null,
+      "isCombust": null,
+      "isVargottama": null
+    },
+    {
+      "name": "Venus♀",
+      "house": 3,
+      "houseRel": 3,
+      "houseAbs": 4,
+      "longitudeDMS": "5° 41’ 22\"",
+      "rawLongitudeDeg": 5.689444444444445,
+      "retrograde": false,
+      "charaKaraka": "Dhatha Karaka",
+      "sign": "♋︎Cancer",
+      "absoluteLongitude": 95.68944444444445,
+      "nakshatra": "Pushya",
+      "nakshatraPada": 1,
+      "dignity": "Neutral",
+      "isExalted": null,
+      "isDebilitated": null,
+      "isOwnSign": null,
+      "isMoolatrikona": null,
+      "isCombust": null,
+      "isVargottama": null
+    },
+    {
+      "name": "Saturn♄",
+      "house": 11,
+      "houseRel": 11,
+      "houseAbs": 12,
+      "longitudeDMS": "18° 16’ 13\"",
+      "rawLongitudeDeg": 18.27027777777778,
+      "retrograde": false,
+      "charaKaraka": "Amatya Karaka",
+      "sign": "♓︎Pisces",
+      "absoluteLongitude": 348.2702777777778,
+      "nakshatra": "Revati",
+      "nakshatraPada": 1,
+      "dignity": "Neutral",
+      "isExalted": null,
+      "isDebilitated": null,
+      "isOwnSign": null,
+      "isMoolatrikona": null,
+      "isCombust": null,
+      "isVargottama": null
+    },
+    {
+      "name": "Raagu☊",
+      "house": 12,
+      "houseRel": 12,
+      "houseAbs": 1,
+      "longitudeDMS": "1° 38’ 46\"",
+      "rawLongitudeDeg": 1.646111111111111,
+      "retrograde": false,
+      "charaKaraka": "Jnaati Karaka",
+      "sign": "♈Aries",
+      "absoluteLongitude": 1.646111111111111,
+      "nakshatra": "Ashwini",
+      "nakshatraPada": 1,
+      "dignity": "Neutral",
+      "isExalted": null,
+      "isDebilitated": null,
+      "isOwnSign": null,
+      "isMoolatrikona": null,
+      "isCombust": null,
+      "isVargottama": null
+    },
+    {
+      "name": "Kethu☋",
+      "house": 6,
+      "houseRel": 6,
+      "houseAbs": 7,
+      "longitudeDMS": "1° 38’ 46\"",
+      "rawLongitudeDeg": 1.646111111111111,
+      "retrograde": false,
+      "charaKaraka": null,
+      "sign": "♎︎Libra",
+      "absoluteLongitude": 181.6461111111111,
+      "nakshatra": "Chitra",
+      "nakshatraPada": 3,
+      "dignity": "Neutral",
+      "isExalted": null,
+      "isDebilitated": null,
+      "isOwnSign": null,
+      "isMoolatrikona": null,
+      "isCombust": null,
+      "isVargottama": null
+    }
+  ],
+  "specialLagna": {
+    "bhava": "♑︎Capricorn 28° 20’ 46\"",
+    "hora": "♉︎Taurus 23° 38’ 23\"",
+    "ghati": "♎︎Libra 20° 40’ 11\"",
+    "vighati": null,
+    "pranapada": "♉︎Taurus 28° 27’ 46\"",
+    "indu": "♊︎Gemini 16° 12’ 47\"",
+    "bhriguBindhu": "♈Aries 23° 55’ 46\"",
+    "kunda": "♊︎Gemini 12° 26’ 39\"",
+    "sree": "♓︎Pisces 4° 56’ 24\"",
+    "varnada": null,
+    "maandhi": null
+  },
+  "sphuta": {
+    "Tri": "♑︎Capricorn 22° 53’ 49\"",
+    "Chatur": "♎︎Libra 26° 1’ 35\"",
+    "Pancha": "♑︎Capricorn 27° 40’ 21\"",
+    "Prana": "♑︎Capricorn 15° 26’ 48\"",
+    "Deha": "♍︎Virgo 29° 11’ 49\"",
+    "Mrityu": "♒︎Aquarius 19° 34’ 59\"",
+    "Sookshma Tri": "♑︎Capricorn 4° 13’ 36\"",
+    "Beeja": "♍︎Virgo 4° 36’ 26\"",
+    "Kshetra": "♊︎Gemini 20° 54’ 37\"",
+    "Tithi": "♒︎Aquarius 13° 5’ 1\"",
+    "Yoga": "♐︎Sagittarius 19° 20’ 32\"",
+    "Yogi": "♋︎Cancer 22° 40’ 32\"",
+    "Avayogi": "♋︎Cancer 29° 20’ 32\"",
+    "Rahu Tithi": "♏︎Scorpio 28° 31’ 0\""
+  }
+}

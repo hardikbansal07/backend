@@ -1,0 +1,37 @@
+{
+  "label": "Dhwadhamsa (D12)",
+  "houses": {
+    "1": [
+      "Sun☉"
+    ],
+    "2": [
+      "Raagu☊"
+    ],
+    "3": [],
+    "4": [],
+    "5": [],
+    "6": [],
+    "7": [
+      "Venus♀",
+      "Uranus⛢"
+    ],
+    "8": [
+      "Kethu☋",
+      "Neptune♆"
+    ],
+    "9": [
+      "Moon☾",
+      "Mars♂℞",
+      "Jupiter♃"
+    ],
+    "10": [
+      "Mercury☿",
+      "Saturn♄",
+      "Pluto♇"
+    ],
+    "11": [
+      "Ascendantℒ"
+    ],
+    "12": []
+  }
+}

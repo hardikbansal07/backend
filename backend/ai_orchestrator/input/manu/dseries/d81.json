@@ -1,0 +1,37 @@
+{
+  "label": "Nava-Navamsa (D81)",
+  "houses": {
+    "1": [],
+    "2": [],
+    "3": [
+      "Saturn♄",
+      "Uranus⛢"
+    ],
+    "4": [
+      "Mars♂℞",
+      "Raagu☊"
+    ],
+    "5": [],
+    "6": [
+      "Jupiter♃"
+    ],
+    "7": [
+      "Ascendantℒ",
+      "Sun☉",
+      "Moon☾",
+      "Mercury☿",
+      "Neptune♆"
+    ],
+    "8": [],
+    "9": [
+      "Venus♀"
+    ],
+    "10": [
+      "Kethu☋"
+    ],
+    "11": [
+      "Pluto♇"
+    ],
+    "12": []
+  }
+}

@@ -1,0 +1,80 @@
+{
+"chart_type": "D1 (Rāśi / Natal)",
+"ascendant": {
+"sign": "Aries",
+"symbol": "♈",
+"longitude_dms": "0° 24’ 7″"
+},
+"planets": {
+"Sun": {
+"sign": "Libra",
+"symbol": "♎︎",
+"longitude_dms": "16° 27’ 47″",
+"notes": "Pitri Karaka"
+},
+"Moon": {
+"sign": "Sagittarius",
+"symbol": "♐︎",
+"longitude_dms": "6° 14’ 38″",
+"notes": "Jnaati Karaka"
+},
+"Mars": {
+"sign": "Libra",
+"symbol": "♎︎",
+"longitude_dms": "26° 13’ 13″",
+"notes": "Atma Karaka"
+},
+"Mercury": {
+"sign": "Libra",
+"symbol": "♎︎",
+"longitude_dms": "2° 32’ 51″",
+"notes": "Dhatha Karaka"
+},
+"Jupiter": {
+"sign": "Sagittarius",
+"symbol": "♐︎",
+"longitude_dms": "23° 6’ 10″",
+"notes": "Maitra Karaka"
+},
+"Venus": {
+"sign": "Scorpio",
+"symbol": "♏︎",
+"longitude_dms": "23° 50’ 2″",
+"notes": "Bhratri Karaka"
+},
+"Saturn": {
+"sign": "Leo",
+"symbol": "♌︎",
+"longitude_dms": "24° 48’ 21″",
+"notes": "Amatya Karaka"
+},
+"Rahu": {
+"sign": "Capricorn",
+"symbol": "♑︎",
+"longitude_dms": "20° 8’ 45″",
+"notes": "Putra Karaka (North Node)"
+},
+"Ketu": {
+"sign": "Cancer",
+"symbol": "♋︎",
+"longitude_dms": "20° 8’ 45″",
+"notes": "South Node"
+},
+"Uranus": {
+"sign": "Aquarius",
+"symbol": "⛢",
+"longitude_dms": "25° 1’ 51″",
+"retrograde": true
+},
+"Neptune": {
+"sign": "Capricorn",
+"symbol": "♑︎",
+"longitude_dms": "27° 30’ 2″"
+},
+"Pluto": {
+"sign": "Sagittarius",
+"symbol": "♐︎",
+"longitude_dms": "5° 17’ 14″"
+}
+}
+}

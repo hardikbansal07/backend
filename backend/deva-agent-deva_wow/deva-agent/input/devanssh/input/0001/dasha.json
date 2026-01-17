@@ -1,0 +1,419 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2024-08-31T12:00:00Z",
+  "requestId": "cedc7294a2e7a6d4540832b646f8fcfeb0fae810af836ebaefa13c8130d039c2",
+  "balance": [
+    13,
+    3,
+    1
+  ],
+  "periods": [
+    {
+      "dhasaLord": "Mercury☿",
+      "bhuktiLord": "Mercury☿",
+      "start": "2005-01-14 21:21:09"
+    },
+    {
+      "dhasaLord": "Mercury☿",
+      "bhuktiLord": "Kethu☋",
+      "start": "2007-06-13 13:10:14"
+    },
+    {
+      "dhasaLord": "Mercury☿",
+      "bhuktiLord": "Venus♀",
+      "start": "2008-06-09 18:16:19"
+    },
+    {
+      "dhasaLord": "Mercury☿",
+      "bhuktiLord": "Sun☉",
+      "start": "2011-04-10 15:42:17"
+    },
+    {
+      "dhasaLord": "Mercury☿",
+      "bhuktiLord": "Moon☾",
+      "start": "2012-02-15 02:56:04"
+    },
+    {
+      "dhasaLord": "Mercury☿",
+      "bhuktiLord": "Mars♂",
+      "start": "2013-07-16 13:39:03"
+    },
+    {
+      "dhasaLord": "Mercury☿",
+      "bhuktiLord": "Raagu☊",
+      "start": "2014-07-13 18:45:08"
+    },
+    {
+      "dhasaLord": "Mercury☿",
+      "bhuktiLord": "Jupiter♃",
+      "start": "2017-01-30 04:26:31"
+    },
+    {
+      "dhasaLord": "Mercury☿",
+      "bhuktiLord": "Saturn♄",
+      "start": "2019-05-08 02:23:17"
+    },
+    {
+      "dhasaLord": "Kethu☋",
+      "bhuktiLord": "Kethu☋",
+      "start": "2022-01-15 05:56:57"
+    },
+    {
+      "dhasaLord": "Kethu☋",
+      "bhuktiLord": "Venus♀",
+      "start": "2022-06-13 09:27:41"
+    },
+    {
+      "dhasaLord": "Kethu☋",
+      "bhuktiLord": "Sun☉",
+      "start": "2023-08-13 12:38:23"
+    },
+    {
+      "dhasaLord": "Kethu☋",
+      "bhuktiLord": "Moon☾",
+      "start": "2023-12-19 08:47:35"
+    },
+    {
+      "dhasaLord": "Kethu☋",
+      "bhuktiLord": "Mars♂",
+      "start": "2024-07-19 10:22:56"
+    },
+    {
+      "dhasaLord": "Kethu☋",
+      "bhuktiLord": "Raagu☊",
+      "start": "2024-12-15 13:53:41"
+    },
+    {
+      "dhasaLord": "Kethu☋",
+      "bhuktiLord": "Jupiter♃",
+      "start": "2026-01-03 02:21:18"
+    },
+    {
+      "dhasaLord": "Kethu☋",
+      "bhuktiLord": "Saturn♄",
+      "start": "2026-12-10 00:05:51"
+    },
+    {
+      "dhasaLord": "Kethu☋",
+      "bhuktiLord": "Mercury☿",
+      "start": "2028-01-18 19:55:01"
+    },
+    {
+      "dhasaLord": "Venus♀",
+      "bhuktiLord": "Venus♀",
+      "start": "2029-01-15 01:01:06"
+    },
+    {
+      "dhasaLord": "Venus♀",
+      "bhuktiLord": "Sun☉",
+      "start": "2032-05-16 13:31:39"
+    },
+    {
+      "dhasaLord": "Venus♀",
+      "bhuktiLord": "Moon☾",
+      "start": "2033-05-16 19:40:49"
+    },
+    {
+      "dhasaLord": "Venus♀",
+      "bhuktiLord": "Mars♂",
+      "start": "2035-01-15 13:56:05"
+    },
+    {
+      "dhasaLord": "Venus♀",
+      "bhuktiLord": "Raagu☊",
+      "start": "2036-03-16 17:06:46"
+    },
+    {
+      "dhasaLord": "Venus♀",
+      "bhuktiLord": "Jupiter♃",
+      "start": "2039-03-17 11:34:16"
+    },
+    {
+      "dhasaLord": "Venus♀",
+      "bhuktiLord": "Saturn♄",
+      "start": "2041-11-15 11:58:42"
+    },
+    {
+      "dhasaLord": "Venus♀",
+      "bhuktiLord": "Mercury☿",
+      "start": "2045-01-15 03:27:43"
+    },
+    {
+      "dhasaLord": "Venus♀",
+      "bhuktiLord": "Kethu☋",
+      "start": "2047-11-16 00:53:41"
+    },
+    {
+      "dhasaLord": "Sun☉",
+      "bhuktiLord": "Sun☉",
+      "start": "2049-01-15 04:04:23"
+    },
+    {
+      "dhasaLord": "Sun☉",
+      "bhuktiLord": "Moon☾",
+      "start": "2049-05-04 17:55:08"
+    },
+    {
+      "dhasaLord": "Sun☉",
+      "bhuktiLord": "Mars♂",
+      "start": "2049-11-03 08:59:43"
+    },
+    {
+      "dhasaLord": "Sun☉",
+      "bhuktiLord": "Raagu☊",
+      "start": "2050-03-11 05:08:55"
+    },
+    {
+      "dhasaLord": "Sun☉",
+      "bhuktiLord": "Jupiter♃",
+      "start": "2051-02-02 22:41:10"
+    },
+    {
+      "dhasaLord": "Sun☉",
+      "bhuktiLord": "Saturn♄",
+      "start": "2051-11-22 03:36:30"
+    },
+    {
+      "dhasaLord": "Sun☉",
+      "bhuktiLord": "Mercury☿",
+      "start": "2052-11-03 03:27:12"
+    },
+    {
+      "dhasaLord": "Sun☉",
+      "bhuktiLord": "Kethu☋",
+      "start": "2053-09-09 14:41:00"
+    },
+    {
+      "dhasaLord": "Sun☉",
+      "bhuktiLord": "Venus♀",
+      "start": "2054-01-15 10:50:12"
+    },
+    {
+      "dhasaLord": "Moon☾",
+      "bhuktiLord": "Moon☾",
+      "start": "2055-01-15 16:59:22"
+    },
+    {
+      "dhasaLord": "Moon☾",
+      "bhuktiLord": "Mars♂",
+      "start": "2055-11-16 02:07:00"
+    },
+    {
+      "dhasaLord": "Moon☾",
+      "bhuktiLord": "Raagu☊",
+      "start": "2056-06-16 03:42:21"
+    },
+    {
+      "dhasaLord": "Moon☾",
+      "bhuktiLord": "Jupiter♃",
+      "start": "2057-12-16 00:56:06"
+    },
+    {
+      "dhasaLord": "Moon☾",
+      "bhuktiLord": "Saturn♄",
+      "start": "2059-04-17 01:08:19"
+    },
+    {
+      "dhasaLord": "Moon☾",
+      "bhuktiLord": "Mercury☿",
+      "start": "2060-11-15 08:52:49"
+    },
+    {
+      "dhasaLord": "Moon☾",
+      "bhuktiLord": "Kethu☋",
+      "start": "2062-04-16 19:35:48"
+    },
+    {
+      "dhasaLord": "Moon☾",
+      "bhuktiLord": "Venus♀",
+      "start": "2062-11-15 21:11:09"
+    },
+    {
+      "dhasaLord": "Moon☾",
+      "bhuktiLord": "Sun☉",
+      "start": "2064-07-16 15:26:26"
+    },
+    {
+      "dhasaLord": "Mars♂",
+      "bhuktiLord": "Mars♂",
+      "start": "2065-01-15 06:31:00"
+    },
+    {
+      "dhasaLord": "Mars♂",
+      "bhuktiLord": "Raagu☊",
+      "start": "2065-06-13 10:01:45"
+    },
+    {
+      "dhasaLord": "Mars♂",
+      "bhuktiLord": "Jupiter♃",
+      "start": "2066-07-01 22:29:22"
+    },
+    {
+      "dhasaLord": "Mars♂",
+      "bhuktiLord": "Saturn♄",
+      "start": "2067-06-07 20:13:56"
+    },
+    {
+      "dhasaLord": "Mars♂",
+      "bhuktiLord": "Mercury☿",
+      "start": "2068-07-16 16:03:05"
+    },
+    {
+      "dhasaLord": "Mars♂",
+      "bhuktiLord": "Kethu☋",
+      "start": "2069-07-13 21:09:10"
+    },
+    {
+      "dhasaLord": "Mars♂",
+      "bhuktiLord": "Venus♀",
+      "start": "2069-12-10 00:39:55"
+    },
+    {
+      "dhasaLord": "Mars♂",
+      "bhuktiLord": "Sun☉",
+      "start": "2071-02-09 03:50:36"
+    },
+    {
+      "dhasaLord": "Mars♂",
+      "bhuktiLord": "Moon☾",
+      "start": "2071-06-16 23:59:49"
+    },
+    {
+      "dhasaLord": "Raagu☊",
+      "bhuktiLord": "Raagu☊",
+      "start": "2072-01-16 01:35:09"
+    },
+    {
+      "dhasaLord": "Raagu☊",
+      "bhuktiLord": "Jupiter♃",
+      "start": "2074-09-28 06:11:54"
+    },
+    {
+      "dhasaLord": "Raagu☊",
+      "bhuktiLord": "Saturn♄",
+      "start": "2077-02-20 20:57:54"
+    },
+    {
+      "dhasaLord": "Raagu☊",
+      "bhuktiLord": "Mercury☿",
+      "start": "2079-12-28 20:30:01"
+    },
+    {
+      "dhasaLord": "Raagu☊",
+      "bhuktiLord": "Kethu☋",
+      "start": "2082-07-17 06:11:23"
+    },
+    {
+      "dhasaLord": "Raagu☊",
+      "bhuktiLord": "Venus♀",
+      "start": "2083-08-04 18:39:00"
+    },
+    {
+      "dhasaLord": "Raagu☊",
+      "bhuktiLord": "Sun☉",
+      "start": "2086-08-04 13:06:30"
+    },
+    {
+      "dhasaLord": "Raagu☊",
+      "bhuktiLord": "Moon☾",
+      "start": "2087-06-29 06:38:45"
+    },
+    {
+      "dhasaLord": "Raagu☊",
+      "bhuktiLord": "Mars♂",
+      "start": "2088-12-28 03:52:29"
+    },
+    {
+      "dhasaLord": "Jupiter♃",
+      "bhuktiLord": "Jupiter♃",
+      "start": "2090-01-15 16:20:07"
+    },
+    {
+      "dhasaLord": "Jupiter♃",
+      "bhuktiLord": "Saturn♄",
+      "start": "2092-03-04 21:27:40"
+    },
+    {
+      "dhasaLord": "Jupiter♃",
+      "bhuktiLord": "Mercury☿",
+      "start": "2094-09-16 05:02:53"
+    },
+    {
+      "dhasaLord": "Jupiter♃",
+      "bhuktiLord": "Kethu☋",
+      "start": "2096-12-22 02:59:39"
+    },
+    {
+      "dhasaLord": "Jupiter♃",
+      "bhuktiLord": "Venus♀",
+      "start": "2097-11-28 00:44:12"
+    },
+    {
+      "dhasaLord": "Jupiter♃",
+      "bhuktiLord": "Sun☉",
+      "start": "2100-07-30 01:08:38"
+    },
+    {
+      "dhasaLord": "Jupiter♃",
+      "bhuktiLord": "Moon☾",
+      "start": "2101-05-18 06:03:58"
+    },
+    {
+      "dhasaLord": "Jupiter♃",
+      "bhuktiLord": "Mars♂",
+      "start": "2102-09-17 06:16:11"
+    },
+    {
+      "dhasaLord": "Jupiter♃",
+      "bhuktiLord": "Raagu☊",
+      "start": "2103-08-24 04:00:45"
+    },
+    {
+      "dhasaLord": "Saturn♄",
+      "bhuktiLord": "Saturn♄",
+      "start": "2106-01-16 18:46:44"
+    },
+    {
+      "dhasaLord": "Saturn♄",
+      "bhuktiLord": "Mercury☿",
+      "start": "2109-01-19 14:17:18"
+    },
+    {
+      "dhasaLord": "Saturn♄",
+      "bhuktiLord": "Kethu☋",
+      "start": "2111-09-29 17:50:58"
+    },
+    {
+      "dhasaLord": "Saturn♄",
+      "bhuktiLord": "Venus♀",
+      "start": "2112-11-07 13:40:08"
+    },
+    {
+      "dhasaLord": "Saturn♄",
+      "bhuktiLord": "Sun☉",
+      "start": "2116-01-08 05:09:09"
+    },
+    {
+      "dhasaLord": "Saturn♄",
+      "bhuktiLord": "Moon☾",
+      "start": "2116-12-20 04:59:51"
+    },
+    {
+      "dhasaLord": "Saturn♄",
+      "bhuktiLord": "Mars♂",
+      "start": "2118-07-21 12:44:22"
+    },
+    {
+      "dhasaLord": "Saturn♄",
+      "bhuktiLord": "Raagu☊",
+      "start": "2119-08-30 08:33:31"
+    },
+    {
+      "dhasaLord": "Saturn♄",
+      "bhuktiLord": "Jupiter♃",
+      "start": "2122-07-06 08:05:38"
+    }
+  ],
+  "total": 81,
+  "returned": 81
+}
