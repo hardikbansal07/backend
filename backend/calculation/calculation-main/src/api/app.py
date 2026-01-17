@@ -182,7 +182,7 @@ def _load_places() -> list[dict[str, Any]]:
     global _PLACES, _PLACES_INDEX
     if _PLACES is not None:
         return _PLACES
-    csv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'jhora', 'data', 'world_cities_with_tz.csv'))
+    csv_path = str(service.WORLD_CITY_DATA_PATH)
     items: list[dict[str, Any]] = []
     if not os.path.exists(csv_path):
         logging.warning(f"Place database missing at {csv_path}")
