@@ -292,3 +292,57 @@ async def logout(request: RefreshTokenRequest):
     await revoke_refresh_token(request.refresh_token)
     
     return {"message": "Logged out successfully"}
+@router.delete("/delete", response_model=dict)
+async def delete_account(current_user: User = Depends(get_current_active_user)):
+    """
+    Permanently delete the current user account and all associated data.
+    """
+    if mongo_db.db is None:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+
+    user_email = current_user.email
+    user_id = str(current_user.id) if hasattr(current_user, 'id') else None
+    
+    # 1. Cascading Delete Logic
+    
+    # --- Collections using ID ---
+    if user_id:
+        try:
+            from bson import ObjectId
+            uid_oid = ObjectId(user_id)
+            # Delete sessions, api keys, etc.
+            await mongo_db.db.api_keys.delete_many({"user_id": user_id})
+            await mongo_db.db.sessions.delete_many({"user_id": user_id})
+            await mongo_db.db.feedback.delete_many({"user_id": user_id})
+            
+            # Delete Chats
+            cursor = mongo_db.db.chats.find({"user_id": user_id}, {"_id": 1})
+            chat_ids = [str(doc["_id"]) async for doc in cursor]
+            if chat_ids:
+                await mongo_db.db.chat_messages.delete_many({"chat_id": {"$in": chat_ids}})
+                await mongo_db.db.chats.delete_many({"user_id": user_id})
+        except Exception as e:
+            print(f"Error cleaning up ID-based records: {e}")
+
+    # --- Collections using Email ---
+    if user_email:
+        # Auth & Tokens
+        await mongo_db.db.refresh_tokens.delete_many({"user_email": user_email})
+        
+        # Horoscopes & Calculations
+        await mongo_db.db.horoscopes.delete_many({"user_email": user_email})
+        await mongo_db.db.horoscope_chunks.delete_many({"user_email": user_email})
+        await mongo_db.db.user_birth_details.delete_many({"user_email": user_email})
+        
+        # Deva Agent Data
+        await mongo_db.db.deva_conversations.delete_many({"user_email": user_email})
+        await mongo_db.db.chat_question_tracking.delete_many({"user_email": user_email})
+        await mongo_db.db.question_feedback.delete_many({"user_email": user_email})
+
+    # 2. Finally delete the user record
+    result = await mongo_db.db.users.delete_one({"email": user_email})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User could not be deleted")
+
+    return {"message": "Account and all associated data deleted successfully"}
