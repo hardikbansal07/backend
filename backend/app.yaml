@@ -1,25 +1,33 @@
 runtime: python311
-service: backend
-instance_class: F2  
+env: standard
+instance_class: F2
 
 # Full application entrypoint
 entrypoint: uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1
 
 automatic_scaling:
+  min_instances: 1
   max_instances: 1
+  min_idle_instances: automatic
+  max_idle_instances: automatic
+  min_pending_latency: automatic
+  max_pending_latency: automatic
 
 env_variables:
-  MONGO_URI: "mongodb+srv://Astrocare7:Rekha%407337@cluster0.ydviwil.mongodb.net/?appName=Cluster0"
+  DATABASE_URL: "mongodb+srv://Astrocare7:Rekha%407337@cluster0.ydviwil.mongodb.net/?appName=Cluster0"
   DB_NAME: "astrocare7"
   GEMINI_API_KEY: "AIzaSyBuu5Pw3aq38MIuTA24qu4M1sPhDfdMEc0"
-  SECRET_KEY: "9bc5f5ce2dc60b380533703ed545b71a40b807d5269a41358eb0e6a6ebe2342e"
+  GEMINI_MODEL: "gemini-2.5-flash-lite"
   GOOGLE_CLIENT_ID: "292043291680-ud9pk0cnv2fp0jtt5joaj68dn1oad2h1.apps.googleusercontent.com"
   GOOGLE_CLIENT_SECRET: "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"
-  GOOGLE_REDIRECT_URI: "https://ai-astrology-481805.as.r.appspot.com/api/v1/auth/google/callback"
-  GEMINI_MODEL: "gemini-2.5-flash-lite"
-  DATABASE_URL: "mongodb+srv://Astrocare7:Rekha%407337@cluster0.ydviwil.mongodb.net/?appName=Cluster0"
-  GOOGLE_CLOUD_PROJECT: "ai-astrology-481805"
   GOOGLE_CLOUD_LOCATION: "us-central1"
+  GOOGLE_CLOUD_PROJECT: "ai-astrology-481805"
+  GOOGLE_REDIRECT_URI: "https://ai-astrology-481805.as.r.appspot.com/api/v1/auth/google/callback"
+  MONGO_URI: "mongodb+srv://Astrocare7:Rekha%407337@cluster0.ydviwil.mongodb.net/?appName=Cluster0"
+  SECRET_KEY: "9bc5f5ce2dc60b380533703ed545b71a40b807d5269a41358eb0e6a6ebe2342e"
+
+service_account: ai-astrology@ai-astrology-481805.iam.gserviceaccount.com
+
 readiness_check:
   path: "/health"
   check_interval_sec: 10
