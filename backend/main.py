@@ -185,6 +185,7 @@ def health_check():
 
 @app.get("/calc/chk")
 def check_imports():
+    registered_routes = [route.path for route in app.routes]
     return {
         "status": "debug",
         "errors": import_errors,
@@ -194,7 +195,8 @@ def check_imports():
             "deva": deva_router is not None,
             "blog_public": blog_public_router is not None,
             "blog_public_routes": len(blog_public_router.routes) if blog_public_router else 0
-        }
+        },
+        "all_routes": registered_routes
     }
 
 horoscope_frontend_dist = os.path.join(os.path.dirname(__file__), "calculation", "calculation-main", "frontend", "dist")
