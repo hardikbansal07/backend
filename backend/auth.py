@@ -122,6 +122,7 @@ async def get_user(email: str):
         raise HTTPException(status_code=500, detail="Database not initialized")
     user_dict = await mongo_db.db.users.find_one({"email": email})
     if user_dict:
+        print(f"DEBUG: Loaded user {email} from DB. Language: {user_dict.get('preferred_language')}")
         return UserInDB(**user_dict)
     return None
 

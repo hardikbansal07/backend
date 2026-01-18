@@ -21,6 +21,7 @@ class User(BaseModel):
     role: str = "user"
     last_active: Optional[datetime] = None
     credits: float = 5.0
+    is_guest: bool = False
     preferred_language: str = "English"
 
 class UserInDB(User):

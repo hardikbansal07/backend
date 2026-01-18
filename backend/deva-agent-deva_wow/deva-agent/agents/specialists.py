@@ -47,4 +47,4 @@ def get_specialists(model_client=None):
     )
     
     return lagna_pati, kala_purusha, varga_vizier
-lke 
+ 

@@ -134,6 +134,10 @@ except Exception as e:
 
 # Register routers
 app.include_router(auth_router, prefix="/calc")
+# Mount Guest Auth Router
+from routers.guest_auth import router as guest_auth_router
+app.include_router(guest_auth_router, prefix="/calc/api/v1/auth")
+
 app.include_router(referral_router, prefix="/calc")
 app.include_router(feedback_router, prefix="/calc", tags=["Feedback"])
 

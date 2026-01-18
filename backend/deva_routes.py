@@ -82,6 +82,16 @@ async def deva_chat(
         
         # Step 0: Check Credit Balance
         if current_user.credits < 1:
+            # Check if guest
+            if getattr(current_user, "is_guest", False):
+                 raise HTTPException(
+                    status_code=403,
+                    detail={
+                        "code": "GUEST_LIMIT_REACHED",
+                        "message": "You have used your 2 free questions. Please login to continue."
+                    }
+                )
+
             return ChatResponse(
                 status="limit_reached",
                 response="You have 0 credits. Please recharge your credits to continue asking questions.",
@@ -329,6 +339,8 @@ async def run_deva_agent(
         # Initialize Vertex Client
         client = VertexGenAIClient()
         
+        logger.info(f"[DEVA] Initializing Deva Agent with preferred_language: {preferred_language}")
+
         # Initialize agents with Vertex Client
         lagna_pati, kala_purusha, varga_vizier = get_specialists(model_client=client)
         maha_rishi = get_principal(model_client=client)
@@ -351,9 +363,6 @@ PREVIOUS CONVERSATION:
 USER QUESTION: {question}
 
 INSTRUCTIONS FOR COUNCIL:
-1. LagnaPati: Analyze D1 strength.
-2. KalaPurusha: Check current Dasha relative to TODAY ({date_str}).
-3. VargaVizier: Check D10 Career strength.
 1. LagnaPati: Analyze D1 strength.
 2. KalaPurusha: Check current Dasha relative to TODAY ({date_str}).
 3. VargaVizier: Check D10 Career strength.
@@ -465,7 +474,9 @@ async def submit_question_feedback(user_email: str, question_id: str, question: 
             upsert=True
         )
         return True
-    except: return False
+    except Exception as e:
+        logger.error(f"Error in submit_question_feedback: {e}")
+        return False
 
 @router.get("/conversations")
 async def list_conversations(
@@ -590,6 +601,42 @@ async def save_birth_details(
         raise HTTPException(
             status_code=500,
             detail=f"Failed to save birth details: {str(e)}"
+        )
+
+@router.post("/birth-details/reset")
+async def reset_user_data(
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    Reset user data: Delete birth details and ALL horoscopes.
+    Keep chat history/credits/account instructions.
+    """
+    if mongo_db.db is None:
+        raise HTTPException(status_code=500, detail="Database not initialized")
+    
+    try:
+        from horoscope_service import delete_all_user_horoscopes
+        
+        # 1. Delete birth details
+        await mongo_db.db.user_birth_details.delete_one({
+            "user_email": current_user.email
+        })
+        
+        # 2. Delete all horoscopes and chunks
+        await delete_all_user_horoscopes(current_user.email)
+        
+        logger.info(f"Reset data for user: {current_user.email}")
+        
+        return {
+            "status": "success",
+            "message": "User data reset successfully"
+        }
+    
+    except Exception as e:
+        logger.error(f"Failed to reset user data: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to reset data: {str(e)}"
         )
 
 @router.get("/chat/history")

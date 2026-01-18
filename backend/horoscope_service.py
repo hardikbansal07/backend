@@ -301,3 +301,34 @@ async def delete_user_horoscope(
     except Exception as e:
         logger.error(f"Failed to delete horoscope: {e}")
         raise
+
+async def delete_all_user_horoscopes(user_email: str) -> bool:
+    """
+    Delete ALL horoscopes and chunks for a user
+    
+    Args:
+        user_email: User's email
+    
+    Returns:
+        True if successful
+    """
+    if mongo_db.db is None:
+        raise Exception("Database not initialized")
+    
+    try:
+        # Delete all chunks
+        await mongo_db.db.horoscope_chunks.delete_many({
+            "user_email": user_email
+        })
+        
+        # Delete all index entries
+        result = await mongo_db.db.horoscopes.delete_many({
+            "user_email": user_email
+        })
+        
+        logger.info(f"Deleted {result.deleted_count} horoscopes for user {user_email}")
+        return True
+    
+    except Exception as e:
+        logger.error(f"Failed to delete all horoscopes: {e}")
+        raise
