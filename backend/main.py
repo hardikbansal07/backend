@@ -175,7 +175,8 @@ def home():
             "calculation": "/calc/api",
             "ai": "/api/v1/ai",
             "deva": "/api/v1/deva"
-        }
+        },
+        "deployed_at": "2026-01-18T18:20:00+05:30" # Deployment Marker
     }
 
 @app.get("/health")
