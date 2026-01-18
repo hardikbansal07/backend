@@ -1,0 +1,12 @@
+dispatch:
+  # Route all API requests to the backend service
+  - url: "*/api/*"
+    service: backend
+
+  # Route calculation endpoints to the backend service
+  - url: "*/calc/*"
+    service: backend
+
+  # Route all other requests to the backend service
+  - url: "*/*"
+    service: backend

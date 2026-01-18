@@ -1,5 +1,5 @@
 runtime: python311
-service: default
+service: backend
 instance_class: F2  
 
 # Full application entrypoint
@@ -8,6 +8,8 @@ entrypoint: uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1
 automatic_scaling:
   min_instances: 1
   max_instances: 1
+  min_idle_instances: 1
+  max_idle_instances: 1
 
 env_variables:
   MONGO_URI: "mongodb+srv://Astrocare7:Rekha%407337@cluster0.ydviwil.mongodb.net/?appName=Cluster0"
