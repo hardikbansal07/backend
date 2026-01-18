@@ -1351,5 +1351,32 @@
     "latitude": null,
     "longitude": null,
     "compact": false
+  },
+  "150b56caf6552e7f4658c0673cd960d362b83d9465c4109a0d4096ab7bf41296": {
+    "birthDateTime": "2019-06-21T05:57:00",
+    "location": {
+      "place": "Gokak, India",
+      "latitude": 16.16901,
+      "longitude": 74.82393,
+      "tzOffset": 5.5
+    },
+    "ayanamsaMode": "TRUE_CITRA",
+    "calcType": "drik",
+    "houseSystem": "DEFAULT",
+    "language": "en",
+    "years": 1,
+    "months": 1,
+    "sixtyHours": 1,
+    "praveshaType": 0,
+    "divisionalFactors": null,
+    "sendToAgent": true,
+    "sendToAgentMode": "summary",
+    "name": null,
+    "date": null,
+    "time": null,
+    "tzOffsetMinutes": null,
+    "latitude": null,
+    "longitude": null,
+    "compact": false
   }
 }
