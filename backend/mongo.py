@@ -51,7 +51,8 @@ class MongoDB:
                 "user_birth_details",
                 "chat_question_tracking",
                 "question_feedback",
-                "blogs"
+                "blogs",
+                "refresh_tokens"
             ]
             
             for collection_name in required_collections:
@@ -70,6 +71,10 @@ class MongoDB:
             await self.db.referrals.create_index("referrer_id")
             await self.db.sessions.create_index("user_id")
             await self.db.sessions.create_index("token_hash", unique=True)
+            
+            # Auth indexes
+            await self.db.refresh_tokens.create_index("token", unique=True)
+            await self.db.refresh_tokens.create_index("user_email")
             
             # Horoscope indexes
             await self.db.horoscopes.create_index([("user_email", 1), ("request_id", 1)], unique=True)

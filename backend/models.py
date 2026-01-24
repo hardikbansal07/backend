@@ -18,7 +18,6 @@ class User(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     role: str = "user"
-    role: str = "user"
     last_active: Optional[datetime] = None
     credits: float = 5.0
     is_guest: bool = False

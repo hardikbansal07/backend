@@ -68,6 +68,13 @@ async def register_user(user: UserRegister):
                     "created_at": datetime.utcnow()
                 }
                 await mongo_db.db.referrals.insert_one(referral_record)
+                
+                # Update referrer credits (BUG FIX: Award 100 credits)
+                await mongo_db.db.users.update_one(
+                    {"email": referrer["email"]},
+                    {"$inc": {"credits": 100.0}}
+                )
+                print(f"DEBUG: Awarded 100 credits to referrer {referrer['email']} for registering {user.email}")
         
         return user_in_db
     except HTTPException:
