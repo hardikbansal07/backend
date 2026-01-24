@@ -15,7 +15,26 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-logging.basicConfig(level=logging.INFO)
+import logging
+from logging.handlers import RotatingFileHandler
+
+# Configure Logging
+log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+log_file = os.path.join(os.path.dirname(__file__), "backend.log")
+
+# Console Handler
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(log_formatter)
+
+# File Handler (10MB max per file, keep 5 backups)
+file_handler = RotatingFileHandler(log_file, maxBytes=10*1024*1024, backupCount=5)
+file_handler.setFormatter(log_formatter)
+
+# Root Logger Config
+logging.basicConfig(
+    level=logging.INFO,
+    handlers=[stream_handler, file_handler]
+)
 logger = logging.getLogger(__name__)
 
 @asynccontextmanager
