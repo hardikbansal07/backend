@@ -1378,5 +1378,32 @@
     "latitude": null,
     "longitude": null,
     "compact": false
+  },
+  "3f5a5ee6a7a88e7049ff74445efbbcfe197c756f27c2bdc283cab5c97b482766": {
+    "birthDateTime": "2005-06-29T00:05:00",
+    "location": {
+      "place": "Ahmedabad, India",
+      "latitude": 23.02579,
+      "longitude": 72.58727,
+      "tzOffset": 5.5
+    },
+    "ayanamsaMode": "TRUE_CITRA",
+    "calcType": "drik",
+    "houseSystem": "DEFAULT",
+    "language": "en",
+    "years": 1,
+    "months": 1,
+    "sixtyHours": 1,
+    "praveshaType": 0,
+    "divisionalFactors": null,
+    "sendToAgent": true,
+    "sendToAgentMode": "summary",
+    "name": null,
+    "date": null,
+    "time": null,
+    "tzOffsetMinutes": null,
+    "latitude": null,
+    "longitude": null,
+    "compact": false
   }
 }
