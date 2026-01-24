@@ -22,18 +22,18 @@ from logging.handlers import RotatingFileHandler
 log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 log_file = os.path.join(os.path.dirname(__file__), "backend.log")
 
-# Console Handler
+# 1. Console Handler (Always enabled)
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(log_formatter)
 
-# File Handler (10MB max per file, keep 5 backups)
-file_handler = RotatingFileHandler(log_file, maxBytes=10*1024*1024, backupCount=5)
-file_handler.setFormatter(log_formatter)
+# 2. File Handler (COMMENT THESE 3 LINES FOR GOOGLE CLOUD DEPLOYMENT)
+# file_handler = RotatingFileHandler(log_file, maxBytes=10*1024*1024, backupCount=5)
+# file_handler.setFormatter(log_formatter)
 
-# Root Logger Config
+# 3. Final Config (IF DEPLOYING TO CLOUD, REMOVE file_handler FROM THE LIST BELOW)
 logging.basicConfig(
     level=logging.INFO,
-    handlers=[stream_handler, file_handler]
+    handlers=[stream_handler] #, file_handler 
 )
 logger = logging.getLogger(__name__)
 
