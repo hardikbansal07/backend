@@ -140,6 +140,14 @@ except Exception as e:
     import_errors['admin_auth'] = str(e)
     logger.error(f"Failed to import Admin Auth router: {e}")
 
+# Love Chat Router (AstroEngine 2.0)
+love_chat_router = None
+try:
+    from love_chat_routes import router as love_chat_router
+except Exception as e:
+    import_errors['love_chat'] = str(e)
+    logger.error(f"Failed to import Love Chat router: {e}")
+
 blog_admin_router = None
 blog_public_router = None
 try:
@@ -188,6 +196,9 @@ if blog_public_router:
 if admin_router:
     app.include_router(admin_router) # Configured with prefix /admin inside the router itself
 
+if love_chat_router:
+    app.include_router(love_chat_router, tags=["Love Chat - AstroEngine 2.0"])
+
 @app.get("/")
 def home():
     return {
@@ -198,7 +209,8 @@ def home():
             "auth": "/api/v1/auth",
             "calculation": "/calc/api",
             "ai": "/api/v1/ai",
-            "deva": "/api/v1/deva"
+            "deva": "/api/v1/deva",
+            "love_chat": "/api/v1/love-chat"
         },
         "deployed_at": "2026-01-18T18:20:00+05:30" # Deployment Marker
     }

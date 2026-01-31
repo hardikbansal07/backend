@@ -1,0 +1,348 @@
+{
+    "chart_house_mapping": {
+        "description": "Mapping of divisional charts to specific houses for focused analysis",
+        "version": "1.0",
+        "mappings": [
+            {
+                "divisional_chart": "D1",
+                "chart_name": "Rasi Chart (Birth Chart)",
+                "factor": 1,
+                "houses": [
+                    1,
+                    5,
+                    7
+                ],
+                "house_details": {
+                    "1": {
+                        "house_number": 1,
+                        "house_name": "Lagna (Ascendant)",
+                        "significance": "Self, personality, physical body, overall life path",
+                        "analysis_focus": [
+                            "Physical appearance and constitution",
+                            "Basic nature and temperament",
+                            "Overall life direction",
+                            "Health and vitality"
+                        ]
+                    },
+                    "5": {
+                        "house_number": 5,
+                        "house_name": "Putra Bhava",
+                        "significance": "Children, creativity, intelligence, past life merits",
+                        "analysis_focus": [
+                            "Children and progeny",
+                            "Creative intelligence",
+                            "Romance and love affairs",
+                            "Speculative gains",
+                            "Spiritual practices"
+                        ]
+                    },
+                    "7": {
+                        "house_number": 7,
+                        "house_name": "Kalatra Bhava",
+                        "significance": "Marriage, partnerships, spouse, business associations",
+                        "analysis_focus": [
+                            "Marriage and married life",
+                            "Spouse characteristics",
+                            "Business partnerships",
+                            "Trade and commerce",
+                            "Public relations"
+                        ]
+                    }
+                }
+            },
+            {
+                "divisional_chart": "D5",
+                "chart_name": "Panchamsa",
+                "factor": 5,
+                "houses": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12
+                ],
+                "significance": "Merits from past lives, spiritual inclinations, children",
+                "house_details": {
+                    "1": {
+                        "house_number": 1,
+                        "house_name": "Lagna in D5",
+                        "significance": "Past life karmic inheritance affecting current personality",
+                        "analysis_focus": [
+                            "Karmic patterns from past lives",
+                            "Inherent spiritual tendencies",
+                            "Core dharmic duties"
+                        ]
+                    },
+                    "5": {
+                        "house_number": 5,
+                        "house_name": "5th House in D5",
+                        "significance": "Children's well-being, creative merit from past actions",
+                        "analysis_focus": [
+                            "Number and quality of children",
+                            "Children's health and prosperity",
+                            "Karmic bonds with children",
+                            "Creative expressions rooted in past merit"
+                        ]
+                    },
+                    "7": {
+                        "house_number": 7,
+                        "house_name": "7th House in D5",
+                        "significance": "Partnership karma, spouse's spiritual connection",
+                        "analysis_focus": [
+                            "Karmic relationship with spouse",
+                            "Past life connections in marriage",
+                            "Partnership dharma"
+                        ]
+                    }
+                }
+            },
+            {
+                "divisional_chart": "D7",
+                "chart_name": "Saptamsa",
+                "factor": 7,
+                "houses": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12
+                ],
+                "significance": "Children, progeny, descendants",
+                "house_details": {
+                    "1": {
+                        "house_number": 1,
+                        "house_name": "Lagna in D7",
+                        "significance": "Overall capacity for having children",
+                        "analysis_focus": [
+                            "Fertility and reproductive health",
+                            "Relationship with own children",
+                            "Parental capabilities"
+                        ]
+                    },
+                    "5": {
+                        "house_number": 5,
+                        "house_name": "5th House in D7",
+                        "significance": "Primary indicator of children in D7",
+                        "analysis_focus": [
+                            "Number of children",
+                            "Gender of children",
+                            "Children's health and longevity",
+                            "Success of children",
+                            "Relationship quality with children"
+                        ]
+                    },
+                    "7": {
+                        "house_number": 7,
+                        "house_name": "7th House in D7",
+                        "significance": "Spouse's fertility, grandchildren",
+                        "analysis_focus": [
+                            "Partner's reproductive capacity",
+                            "Compatibility in having children",
+                            "Grandchildren prospects"
+                        ]
+                    }
+                }
+            },
+            {
+                "divisional_chart": "D9",
+                "chart_name": "Navamsa",
+                "factor": 9,
+                "houses": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12
+                ],
+                "significance": "Marriage, spouse, dharma, spiritual life, second half of life",
+                "house_details": {
+                    "1": {
+                        "house_number": 1,
+                        "house_name": "Lagna in D9",
+                        "significance": "True inner nature, spiritual self, fortunes after marriage",
+                        "analysis_focus": [
+                            "Inner character and soul nature",
+                            "Post-marriage personality",
+                            "Spiritual evolution",
+                            "Second half of life prospects"
+                        ]
+                    },
+                    "5": {
+                        "house_number": 5,
+                        "house_name": "5th House in D9",
+                        "significance": "Romance in marriage, children from spouse's perspective",
+                        "analysis_focus": [
+                            "Romantic compatibility in marriage",
+                            "Children's fortune in marriage context",
+                            "Creative fulfillment in married life",
+                            "Spiritual practices with spouse"
+                        ]
+                    },
+                    "7": {
+                        "house_number": 7,
+                        "house_name": "7th House in D9",
+                        "significance": "PRIMARY indicator for marriage quality and spouse characteristics",
+                        "analysis_focus": [
+                            "Spouse's physical appearance",
+                            "Spouse's character and temperament",
+                            "Marriage harmony and happiness",
+                            "Sexual compatibility",
+                            "Longevity of marriage",
+                            "Partner's professional success"
+                        ]
+                    }
+                }
+            },
+            {
+                "divisional_chart": "D30",
+                "chart_name": "Trimsamsa",
+                "factor": 30,
+                "houses": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12
+                ],
+                "significance": "Misfortunes, evils, weaknesses, hidden enemies, diseases",
+                "house_details": {
+                    "1": {
+                        "house_number": 1,
+                        "house_name": "Lagna in D30",
+                        "significance": "Personal vulnerabilities, hidden weaknesses",
+                        "analysis_focus": [
+                            "Hidden enemies and obstacles",
+                            "Personal weaknesses and vices",
+                            "Chronic health issues",
+                            "Secret fears and anxieties"
+                        ]
+                    },
+                    "5": {
+                        "house_number": 5,
+                        "house_name": "5th House in D30",
+                        "significance": "Troubles related to children, loss of creativity",
+                        "analysis_focus": [
+                            "Children's health problems",
+                            "Difficulties in conception",
+                            "Loss through speculation",
+                            "Mental health challenges",
+                            "Obstacles in education"
+                        ]
+                    },
+                    "7": {
+                        "house_number": 7,
+                        "house_name": "7th House in D30",
+                        "significance": "Marriage troubles, partnership conflicts",
+                        "analysis_focus": [
+                            "Marital discord and separation risks",
+                            "Spouse's health issues",
+                            "Partnership betrayals",
+                            "Business partnership failures",
+                            "Legal troubles in relationships"
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "analysis_guidelines": {
+        "description": "How to use this mapping for comprehensive analysis",
+        "steps": [
+            "1. Extract planetary positions from D1, D5, D7, D9, D30 charts",
+            "2. For each chart, analyze the 1st, 5th, and 7th houses specifically",
+            "3. Note planets placed in these houses in each divisional chart",
+            "4. Check the lords of these houses in each divisional chart",
+            "5. Synthesize findings across all charts for holistic interpretation",
+            "6. D1 provides the foundation, divisional charts provide detailed insights",
+            "7. D9 is most important for marriage (7th house)",
+            "8. D7 is most important for children (5th house)",
+            "9. D30 reveals hidden problems in all areas"
+        ],
+        "interpretation_priority": {
+            "for_marriage_analysis": [
+                "D9-7th",
+                "D1-7th",
+                "D30-7th",
+                "D5-7th",
+                "D7-7th"
+            ],
+            "for_children_analysis": [
+                "D7-5th",
+                "D1-5th",
+                "D5-5th",
+                "D9-5th",
+                "D30-5th"
+            ],
+            "for_self_analysis": [
+                "D1-1st",
+                "D9-1st",
+                "D30-1st",
+                "D5-1st",
+                "D7-1st"
+            ]
+        }
+    },
+    "planetary_significance": {
+        "description": "Key planets to check in each house across all charts",
+        "1st_house_key_planets": [
+            "Ascendant Lord - Overall life direction",
+            "Sun - Soul and vitality",
+            "Moon - Mind and emotions",
+            "Mars - Energy and courage"
+        ],
+        "5th_house_key_planets": [
+            "Jupiter - Children, wisdom, creativity",
+            "Venus - Romance, artistic talents",
+            "5th Lord - Primary significator",
+            "Mercury - Intelligence, education"
+        ],
+        "7th_house_key_planets": [
+            "Venus - Marriage, spouse (especially for males)",
+            "Jupiter - Spouse (especially for females)",
+            "7th Lord - Primary marriage significator",
+            "Mars - Sexual compatibility"
+        ]
+    },
+    "usage_example": {
+        "description": "Example workflow for analyzing marriage prospects",
+        "steps": [
+            "1. Load generated horoscope JSON file",
+            "2. Extract D1, D9, D30 divisional charts",
+            "3. For each chart, identify planets in the 7th house",
+            "4. Check the position and strength of Venus and Jupiter",
+            "5. Check the 7th house lord's placement",
+            "6. In D9-7th: Analyze for spouse characteristics and marriage quality",
+            "7. In D1-7th: Analyze for general partnership tendencies",
+            "8. In D30-7th: Identify potential marriage problems to avoid",
+            "9. Synthesize all findings for comprehensive marriage prediction"
+        ]
+    }
+}
