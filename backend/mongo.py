@@ -47,10 +47,8 @@ class MongoDB:
                 "horoscopes",
                 "horoscope_chunks",
                 "deva_conversations",
-                "feedback",
                 "user_birth_details",
                 "chat_question_tracking",
-                "question_feedback",
                 "blogs",
                 "refresh_tokens"
             ]
@@ -76,6 +74,9 @@ class MongoDB:
             await self.db.refresh_tokens.create_index("token", unique=True)
             await self.db.refresh_tokens.create_index("user_email")
             
+            # Guest session persistence index
+            await self.db.users.create_index([("is_guest", 1), ("device_id", 1)])
+            
             # Horoscope indexes
             await self.db.horoscopes.create_index([("user_email", 1), ("request_id", 1)], unique=True)
             await self.db.horoscopes.create_index("user_email")
@@ -88,20 +89,11 @@ class MongoDB:
             await self.db.deva_conversations.create_index("request_id")
             await self.db.deva_conversations.create_index("created_at")
             
-            # Feedback indexes
-            await self.db.feedback.create_index("user_id")
-            await self.db.feedback.create_index("created_at")
-            
             # Birth details indexes
             await self.db.user_birth_details.create_index("user_email", unique=True)
             
             # Chat question tracking indexes
             await self.db.chat_question_tracking.create_index("user_email", unique=True)
-            
-            # Question feedback indexes
-            await self.db.question_feedback.create_index([("user_email", 1), ("question_id", 1)])
-            await self.db.question_feedback.create_index("user_email")
-            await self.db.question_feedback.create_index("created_at")
             
             # Blog indexes
             await self.db.blogs.create_index([("created_at", -1)])

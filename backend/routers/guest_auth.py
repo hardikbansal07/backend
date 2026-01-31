@@ -12,11 +12,6 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 class GuestLoginRequest(BaseModel):
-    date_of_birth: str
-    time_of_birth: str
-    place_of_birth: str
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
     preferred_language: str = "English"
 
 @router.post("/guest-login")
@@ -41,7 +36,7 @@ async def guest_login(details: GuestLoginRequest):
             hashed_password=get_password_hash(guest_uuid), # Use UUID as password
             disabled=False,
             is_guest=True,
-            credits=2.0, # Strict limit
+            credits=2.0, # Strict limit preserved
             role="user",
             preferred_language=details.preferred_language,
             created_at=datetime.utcnow(),
@@ -50,30 +45,11 @@ async def guest_login(details: GuestLoginRequest):
         
         await mongo_db.db.users.insert_one(guest_user.dict())
         
-        # 3. Save Birth Details
-        birth_details = {
-            "user_email": guest_email,
-            "date_of_birth": details.date_of_birth,
-            "time_of_birth": details.time_of_birth,
-            "place_of_birth": details.place_of_birth,
-            "latitude": details.latitude,
-            "longitude": details.longitude,
-            "preferred_language": details.preferred_language,
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow()
-        }
-        
-        await mongo_db.db.user_birth_details.update_one(
-            {"user_email": guest_email},
-            {"$set": birth_details},
-            upsert=True
-        )
-        
-        # 4. Generate Tokens
+        # 3. Generate Tokens
         access_token = create_access_token(data={"sub": guest_email})
         refresh_token = await create_refresh_token(guest_email)
         
-        logger.info(f"Created guest user: {guest_email}")
+        logger.info(f"Created instant guest user: {guest_email}")
         
         return {
             "access_token": access_token,

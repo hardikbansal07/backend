@@ -45,18 +45,14 @@ class ChatResponse(BaseModel):
     total_questions_asked: int
 
 class BirthDetailsRequest(BaseModel):
+    name: str  # User's name
+    gender: str  # Male, Female, or Other
     date_of_birth: str  # Format: YYYY-MM-DD
     time_of_birth: str  # Format: HH:MM
     place_of_birth: str
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     preferred_language: str = "English"
-
-class QuestionFeedbackRequest(BaseModel):
-    question_id: str
-    question: str  # "Are you satisfied?", "Do you have suggestions?", "Are you willing to pay?"
-    answer: str  # "Yes", "No", or the actual suggestion text
-    reason: Optional[str] = None  # Optional reason or price range
 
 @router.get("/")
 async def deva_status():
@@ -428,55 +424,28 @@ async def store_conversation(
         return ""
 
 async def check_and_update_question_limit(user_email: str) -> Dict[str, int]:
-    """Check user's question limit"""
-    # (Existing logic preserved, compacted for brevity in this replace block, 
-    # ensuring no functionality loss from original file)
+    """Check user's question limit - simplified without feedback system"""
     if mongo_db.db is None: raise Exception("Database not initialized")
     try:
         tracking = await mongo_db.db.chat_question_tracking.find_one({"user_email": user_email})
         if not tracking:
-            tracking = {"user_email": user_email, "questions_asked": 0, "feedback_given": 0}
+            tracking = {"user_email": user_email, "questions_asked": 0}
             await mongo_db.db.chat_question_tracking.insert_one(tracking)
         
         questions_asked = tracking.get("questions_asked", 0)
-        feedback_given = tracking.get("feedback_given", 0)
         base_limit = 3
-        effective_feedback = min(feedback_given, questions_asked)
-        total_limit = base_limit + effective_feedback
-        remaining = total_limit - questions_asked
+        remaining = base_limit - questions_asked
         
         if remaining <= 0:
-            return {"allowed": False, "remaining": 0, "total_asked": questions_asked, "feedback_needed": True}
+            return {"allowed": False, "remaining": 0, "total_asked": questions_asked, "feedback_needed": False}
         
         update_op = {"$inc": {"questions_asked": 1}, "$set": {"updated_at": datetime.utcnow()}}
-        if feedback_given > questions_asked:
-             update_op["$set"]["feedback_given"] = questions_asked
-        
         await mongo_db.db.chat_question_tracking.update_one({"user_email": user_email}, update_op)
         return {"allowed": True, "remaining": remaining - 1, "total_asked": questions_asked + 1, "feedback_needed": False}
     except Exception as e:
         logger.error(f"Limit check failed: {e}")
         raise
 
-async def submit_question_feedback(user_email: str, question_id: str, question: str, answer: str, reason: Optional[str] = None) -> bool:
-    if mongo_db.db is None: raise Exception("No DB")
-    try:
-        existing = await mongo_db.db.question_feedback.find_one({"user_email": user_email, "question_id": question_id})
-        if existing and not question_id.startswith("general"): return False
-        
-        await mongo_db.db.question_feedback.insert_one({
-            "user_email": user_email, "question_id": question_id, "question": question, 
-            "answer": answer, "reason": reason, "created_at": datetime.utcnow()
-        })
-        await mongo_db.db.chat_question_tracking.update_one(
-            {"user_email": user_email}, 
-            {"$inc": {"feedback_given": 1}, "$set": {"updated_at": datetime.utcnow()}}, 
-            upsert=True
-        )
-        return True
-    except Exception as e:
-        logger.error(f"Error in submit_question_feedback: {e}")
-        return False
 
 @router.get("/conversations")
 async def list_conversations(
@@ -574,6 +543,8 @@ async def save_birth_details(
     try:
         birth_details = {
             "user_email": current_user.email,
+            "name": details.name,
+            "gender": details.gender,
             "date_of_birth": details.date_of_birth,
             "time_of_birth": details.time_of_birth,
             "place_of_birth": details.place_of_birth,
@@ -717,59 +688,6 @@ async def get_birth_details(
         raise HTTPException(
             status_code=500,
             detail=f"Failed to get birth details: {str(e)}"
-        )
-
-@router.post("/question-feedback")
-async def submit_feedback(
-    feedback: QuestionFeedbackRequest,
-    current_user: User = Depends(get_current_active_user)
-):
-    """
-    Submit feedback for a question to unlock more questions
-    """
-    try:
-        success = await submit_question_feedback(
-            user_email=current_user.email,
-            question_id=feedback.question_id,
-            question=feedback.question,
-            answer=feedback.answer,
-            reason=feedback.reason
-        )
-        
-        if not success:
-            raise HTTPException(
-                status_code=400,
-                detail="Feedback already submitted for this question"
-            )
-        
-        tracking = await mongo_db.db.chat_question_tracking.find_one({
-            "user_email": current_user.email
-        })
-        
-        questions_asked = tracking.get("questions_asked", 0)
-        feedback_given = tracking.get("feedback_given", 0)
-        feedback_given = tracking.get("feedback_given", 0)
-        
-        # Recalculate remaining with cap logic
-        base_limit = 3
-        effective_feedback = min(feedback_given, questions_asked)
-        total_limit = base_limit + effective_feedback
-        remaining = total_limit - questions_asked
-        
-        return {
-            "status": "success",
-            "message": "Thank you for your feedback! You've unlocked 1 more question.",
-            "questions_remaining": max(0, remaining),
-            "feedback_count": feedback_given
-        }
-    
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Failed to submit question feedback: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to submit feedback: {str(e)}"
         )
 
 @router.get("/question-status")

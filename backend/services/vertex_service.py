@@ -5,7 +5,7 @@ import google.auth
 from typing import List, Dict, Optional
 
 # Constants
-PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "astrocare1") # Default fallback
+PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "ai-astrology-481805") # Default fallback
 LOCATION = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
 MODEL_NAME = "gemini-pro" # Or gemini-1.5-pro-preview-0409, etc.
 
@@ -22,20 +22,44 @@ def init_vertex_ai():
     """
     global _model_initialized, _chat_model
     try:
-        # Check if project and location are available
-        credentials, project = google.auth.default()
+        # 1. Get Project ID from our priority list
+        # .env / system env > Hardcoded Fallback
+        config_project = os.getenv("GOOGLE_CLOUD_PROJECT") or PROJECT_ID
         
-        # Prefer env var project if set, else use ADC project
-        active_project = PROJECT_ID or project
+        # 2. Get credentials and ADC project
+        try:
+            credentials, adc_project = google.auth.default()
+            quota_project = getattr(credentials, "quota_project_id", "Not Set")
+        except Exception as auth_err:
+            print(f"Warning: Could not get default credentials: {auth_err}")
+            credentials, adc_project = None, None
+            quota_project = "Error"
         
+        # 3. Resolve Active Project (FORCE our config if it differs from ADC)
+        active_project = config_project or adc_project
+        
+        print(f"--- Vertex AI Diagnostic ---")
+        print(f"Config Project: {config_project}")
+        print(f"ADC Project: {adc_project}")
+        print(f"Quota Project (Billing): {quota_project}")
+        print(f"Final Active Project: {active_project}")
+        print(f"Location: {LOCATION}")
+        print(f"---------------------------")
+        
+        if not active_project:
+            print("Error: Vertex AI initialization failed. No Project ID found.")
+            print("Please set GOOGLE_CLOUD_PROJECT in your .env file or run 'gcloud auth application-default login'.")
+            _model_initialized = False
+            return
+
+        # Initialize with explicit project and credentials
         vertexai.init(project=active_project, location=LOCATION, credentials=credentials)
         
         _chat_model = GenerativeModel(MODEL_NAME)
         _model_initialized = True
-        print(f"Vertex AI initialized for project {active_project}, location {LOCATION}")
+        print(f"Vertex AI successfully initialized for {active_project}")
     except Exception as e:
         print(f"Failed to initialize Vertex AI: {e}")
-        # Make sure to not crash the app, but log error
         _model_initialized = False
 
 def get_astrology_response(user_query: str, chat_history: List[Dict[str, str]] = None) -> str:

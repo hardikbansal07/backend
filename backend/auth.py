@@ -166,9 +166,21 @@ async def get_current_user_optional(credentials: Optional[HTTPAuthorizationCrede
 
 async def verify_google_token(token: str) -> Dict[str, Any]:
     """
-    Verify Google OAuth ID token (JWT) and return user info
+    Verify Google OAuth ID token (JWT) OR Access Token (ya29...) and return user info
     """
     try:
+        # 1. Handle Access Token (ya29...) - Typically from Native/Expo Proxy
+        if token.startswith("ya29."):
+            async with httpx.AsyncClient() as client:
+                resp = await client.get(
+                    "https://www.googleapis.com/oauth2/v3/userinfo",
+                    headers={"Authorization": f"Bearer {token}"}
+                )
+                if resp.status_code != 200:
+                    raise ValueError(f"Invalid Access Token: {resp.text}")
+                return resp.json()
+
+        # 2. Handle ID Token (JWT) - Typically from Web
         idinfo = id_token.verify_oauth2_token(
             token, 
             requests.Request(), 
@@ -179,6 +191,7 @@ async def verify_google_token(token: str) -> Dict[str, Any]:
             raise ValueError('Invalid issuer')
         
         return idinfo
+
     except ValueError as e:
         logger.error(f"Google token verification failed: {e}")
         raise HTTPException(

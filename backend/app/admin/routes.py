@@ -295,7 +295,6 @@ async def delete_user(
     # Collections using user_id (str)
     await mongo_db.db.api_keys.delete_many({"user_id": uid_str})
     await mongo_db.db.sessions.delete_many({"user_id": uid_str})
-    await mongo_db.db.feedback.delete_many({"user_id": uid_str})
     
     # Delete Chats and Messages
     # Find all chat IDs first
@@ -313,7 +312,6 @@ async def delete_user(
         await mongo_db.db.deva_conversations.delete_many({"user_email": email})
         await mongo_db.db.user_birth_details.delete_many({"user_email": email})
         await mongo_db.db.chat_question_tracking.delete_many({"user_email": email})
-        await mongo_db.db.question_feedback.delete_many({"user_email": email})
 
     # 3. Finally delete the user
     result = await mongo_db.db.users.delete_one({"_id": user_oid})

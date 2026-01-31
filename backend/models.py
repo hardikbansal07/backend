@@ -12,6 +12,7 @@ class User(BaseModel):
     username: Optional[str] = None
     email: EmailStr
     full_name: Optional[str] = None
+    gender: Optional[str] = None
     profile_photo: Optional[str] = None
     disabled: Optional[bool] = False
     referral_code: Optional[str] = None
@@ -21,6 +22,7 @@ class User(BaseModel):
     last_active: Optional[datetime] = None
     credits: float = 5.0
     is_guest: bool = False
+    device_id: Optional[str] = None  # Persistent device identifier for guest sessions
     preferred_language: str = "English"
 
 class UserInDB(User):
@@ -88,12 +90,6 @@ class Session(BaseModel):
     expires_at: datetime
     is_active: bool = True
 
-class Feedback(BaseModel):
-    username: str = "Anonymous"
-    user_id: Optional[str] = None
-    rating: int = Field(..., ge=1, le=5)
-    review_text: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
 
 # --- Admin Models ---
 class AdminActionType(str, Enum):

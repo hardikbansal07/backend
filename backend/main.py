@@ -15,7 +15,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-import logging
+
 from logging.handlers import RotatingFileHandler
 
 # Configure Logging
@@ -45,10 +45,7 @@ async def lifespan(app: FastAPI):
         from mongo import connect_to_mongo, close_mongo_connection
         await connect_to_mongo()
         
-        logging.info("Preloading world city index...")
-        from api import service as calc_service
-        await calc_service.preload_world_city_index()
-        logging.info("World city index loaded successfully.")
+        # World city index preloading removed - now using Photon API for place search
         
     except Exception as e:
         logging.error(f"Startup failed: {e}", exc_info=True)
@@ -83,7 +80,8 @@ app.add_middleware(
         "http://10.0.2.2:8000",
         "https://astrocare-frontend-vercel.vercel.app",
         "https://frontend-dot-ai-astrology-481805.as.r.appspot.com",
-        "https://ai-astrology-481805.as.r.appspot.com"
+        "https://ai-astrology-481805.as.r.appspot.com",
+        "http://localhost:8081"
     ],
     allow_origin_regex=r"https://.*-dot-ai-astrology-481805\.as\.r\.appspot\.com",
     allow_credentials=True,
@@ -94,9 +92,9 @@ app.add_middleware(
 # Import routers
 # Import routers (Auth is critical)
 try:
-    from user_routes import router as auth_router
+    from routers.auth_routes import router as central_auth_router
+    from user_routes import router as user_router
     from referral_routes import router as referral_router
-    from feedback_routes import router as feedback_router
 except ImportError as e:
     logger.critical(f"Critical import failed: {e}")
     raise e
@@ -152,13 +150,20 @@ except Exception as e:
     raise e
 
 # Register routers
-app.include_router(auth_router, prefix="/calc")
-# Mount Guest Auth Router
-from routers.guest_auth import router as guest_auth_router
-app.include_router(guest_auth_router, prefix="/calc/api/v1/auth")
+
+# 1. Central Auth Router (Handles Login, Register, Google, Guest)
+# Internal prefix: /auth
+# Mount prefix: /calc/api/v1
+# Final path: /calc/api/v1/auth/login
+app.include_router(central_auth_router, prefix="/calc/api/v1")
+
+# 2. User Router (Handles Profile, Users/Me)
+# Internal prefix: /api/v1/auth (legacy)
+# Mount prefix: /calc
+# Final path: /calc/api/v1/auth/users/me
+app.include_router(user_router, prefix="/calc")
 
 app.include_router(referral_router, prefix="/calc")
-app.include_router(feedback_router, prefix="/calc", tags=["Feedback"])
 
 if calculation_router:
     app.include_router(calculation_router, prefix="/calc", tags=["Calculation"])
@@ -218,9 +223,6 @@ def check_imports():
         "all_routes": registered_routes
     }
 
-horoscope_frontend_dist = os.path.join(os.path.dirname(__file__), "calculation", "calculation-main", "frontend", "dist")
-if os.path.exists(horoscope_frontend_dist):
-    app.mount("/horoscope", StaticFiles(directory=horoscope_frontend_dist, html=True), name="horoscope-frontend")
-    logger.info(f"Serving horoscope frontend from {horoscope_frontend_dist}")
-else:
-    logger.warning(f"Horoscope frontend dist not found at {horoscope_frontend_dist}. Build it first with: cd backend/calculation/calculation-main/frontend && npm run build")
+# Static file mounting for 'horoscope' frontend removed.
+# The project has moved to a native/React Native frontend structure.
+# horoscope_frontend_dist code is deprecated.

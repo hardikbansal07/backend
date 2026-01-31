@@ -191,6 +191,8 @@ def compress_horoscope(data: Dict[str, Any], birth_details: Optional[Dict[str, A
     
     # 1.5. Add birth details to meta if provided
     if birth_details:
+        compressed["meta"]["name"] = birth_details.get("name")
+        compressed["meta"]["gender"] = birth_details.get("gender")
         compressed["meta"]["birth_date"] = birth_details.get("date_of_birth")
         compressed["meta"]["birth_time"] = birth_details.get("time_of_birth")
         compressed["meta"]["birth_place"] = birth_details.get("place_of_birth")
