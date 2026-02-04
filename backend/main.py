@@ -4,7 +4,9 @@ import logging
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 
+
 load_dotenv()
+# Trigger reload for env update
 
 # Add local directories to sys.path
 calculation_src_path = os.path.join(os.path.dirname(__file__), "calculation", "calculation-main", "src")
@@ -140,6 +142,14 @@ except Exception as e:
     import_errors['admin_auth'] = str(e)
     logger.error(f"Failed to import Admin Auth router: {e}")
 
+# Razorpay Router
+razorpay_router = None
+try:
+    from razorpay_service.api import router as razorpay_router
+except Exception as e:
+    import_errors['razorpay'] = str(e)
+    logger.error(f"Failed to import Razorpay router: {e}")
+
 # Love Chat Router (AstroEngine 2.0)
 love_chat_router = None
 try:
@@ -156,6 +166,13 @@ except Exception as e:
     import_errors['blog'] = str(e)
     logger.critical(f"Failed to import Blog routers: {e}")
     raise e
+
+report_router = None
+try:
+    from routers.report_routes import router as report_router
+except Exception as e:
+    import_errors['report'] = str(e)
+    logger.error(f"Failed to import Report router: {e}")
 
 # Register routers
 
@@ -196,8 +213,14 @@ if blog_public_router:
 if admin_router:
     app.include_router(admin_router) # Configured with prefix /admin inside the router itself
 
+if razorpay_router:
+    app.include_router(razorpay_router, prefix="/calc") # Final: /calc/api/v1/payment/...
+
 if love_chat_router:
-    app.include_router(love_chat_router, tags=["Love Chat - AstroEngine 2.0"])
+    app.include_router(love_chat_router, prefix="/calc", tags=["Love Chat - AstroEngine 2.0"])
+
+if report_router:
+    app.include_router(report_router, prefix="/calc/api/v1")
 
 @app.get("/")
 def home():

@@ -19,7 +19,9 @@ class SubAgent:
         self.use_thinking = use_thinking
         self.logger.info(f"SubAgent initialized with model: gemini-3-flash-preview (thinking={'enabled' if use_thinking else 'disabled'})")
         self.request_id = None
+        self.request_id = None
         self.email = None
+        self.user_context = None
         self.tools = None
         self.tool_definitions = get_tool_definitions()
         self.max_turns = 10  # Maximum number of tool-calling turns
@@ -37,10 +39,11 @@ class SubAgent:
             self.logger.error(f"Failed to load planet_roles.json: {e}")
             return {}
 
-    def set_identity(self, request_id: Optional[str] = None, email: Optional[str] = None):
+    def set_identity(self, request_id: Optional[str] = None, email: Optional[str] = None, user_context: Optional[dict] = None):
         """Set the identity context for data retrieval."""
         self.request_id = request_id
         self.email = email
+        self.user_context = user_context
         self.tools = AstroTools(request_id=request_id, email=email)
         self.logger.info(f"SubAgent identity set: ID={request_id}, Email={email}")
 
@@ -218,6 +221,8 @@ CURRENT DATE: {current_date}
 
 CRITICAL DATA STATUS: 
 - Birth details (Date, Time, Place) are ALREADY in the database.
+- User Name: {self.user_context.get('name', 'User') if self.user_context else 'User'}
+- User Gender: {self.user_context.get('gender', 'Unknown') if self.user_context else 'Unknown'}
 - DO NOT ask the user for birth details, date, time, or place. 
 
 DOMAIN ANALYSIS: {pattern.get('description', 'General')}

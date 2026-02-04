@@ -13,7 +13,9 @@ from auth import (
     verify_password, 
     get_password_hash,
     verify_google_token,
-    get_or_create_google_user
+    get_or_create_google_user,
+    verify_facebook_token,
+    get_or_create_facebook_user
 )
 from models import User, UserInDB, Token
 from mongo import mongo_db
@@ -115,6 +117,29 @@ async def unified_login(request: UnifiedLoginRequest):
             
             # Get/Create User
             user = await get_or_create_google_user(google_info)
+            
+            # Tokens
+            access_token = create_access_token(data={"sub": user.email})
+            refresh_token = await create_refresh_token(user.email)
+            
+            return {
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "token_type": "bearer",
+                "user": user.dict()
+            }
+
+        # === FACEBOOK LOGIN ===
+        elif request.provider == "facebook":
+            token = request.data.get("token")
+            if not token:
+                raise HTTPException(status_code=400, detail="Missing token in data")
+
+            # Verify Facebook Token
+            facebook_info = await verify_facebook_token(token)
+            
+            # Get/Create User
+            user = await get_or_create_facebook_user(facebook_info)
             
             # Tokens
             access_token = create_access_token(data={"sub": user.email})

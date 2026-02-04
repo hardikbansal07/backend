@@ -29,6 +29,9 @@ if str(astro_engine_path) not in sys.path:
 try:
     from main_agent import MainAgent
     from horoscope_manager import HoroscopeManager
+    from api.service import compute_horoscope
+    from api.models import HoroscopeRequest, LocationIn
+    from horoscope_service import compress_and_store_horoscope
     logger.info("✅ AstroEngine 2.0 modules imported successfully")
 except Exception as e:
     logger.error(f"❌ Failed to import AstroEngine modules: {e}")
@@ -102,10 +105,17 @@ async def analyze_love_question(
         
         # Set user identity (email or request_id)
         if request.request_id:
-            agent.set_identity(request_id=request.request_id, email=current_user.email)
+            agent.set_identity(
+                request_id=request.request_id, 
+                email=current_user.email,
+                user_context=request.birth_details
+            )
             logger.info(f"Using horoscope request_id: {request.request_id}")
         else:
-            agent.set_identity(email=current_user.email)
+            agent.set_identity(
+                email=current_user.email,
+                user_context=request.birth_details
+            )
             logger.info("No request_id provided, using email-based horoscope lookup")
         
         # Run analysis
@@ -143,6 +153,17 @@ async def analyze_love_question(
         raise
     except Exception as e:
         logger.error(f"Error in love chat analysis: {e}", exc_info=True)
+        
+        # Refund credit on failure
+        try:
+            await mongo_db.db.users.update_one(
+                {"email": current_user.email},
+                {"$inc": {"credits": 1}}
+            )
+            logger.info(f"Refunded 1 credit to {current_user.email} due to error")
+        except Exception as refund_error:
+            logger.error(f"Failed to refund credit: {refund_error}")
+            
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -158,41 +179,53 @@ async def generate_horoscope(
         
         logger.info(f"Generating horoscope for {request.name}")
         
-        manager = HoroscopeManager()
-        
-        horoscope = manager.generate_horoscope(
-            name=request.name,
-            birth_date=request.birth_date,
-            birth_time=request.birth_time,
+        # Construct proper Location object
+        loc = LocationIn(
+            place=request.place,
             latitude=request.latitude,
             longitude=request.longitude,
-            timezone=request.timezone,
-            place=request.place
+            tzOffset=request.timezone
         )
         
-        if not horoscope:
-            raise HTTPException(status_code=500, detail="Failed to generate horoscope")
+        # Parse datetime
+        # request.birth_time might be HH:MM or HH:MM:SS
+        time_str = request.birth_time
+        if len(time_str.split(':')) == 2:
+            time_str += ":00"
+            
+        dt_str = f"{request.birth_date}T{time_str}"
+        birth_dt = datetime.fromisoformat(dt_str)
         
-        # Save to database
-        horoscope_doc = {
-            "user_email": current_user.email,
-            "name": request.name,
-            "birth_date": request.birth_date,
-            "birth_time": request.birth_time,
-            "latitude": request.latitude,
-            "longitude": request.longitude,
-            "timezone": request.timezone,
-            "place": request.place,
-            "horoscope_data": horoscope,
-            "created_at": datetime.utcnow()
-        }
+        # Create HoroscopeRequest
+        req_obj = HoroscopeRequest(
+            birthDateTime=birth_dt,
+            location=loc,
+            language="en",
+            name=request.name  # For legacy/logging support if needed
+        )
         
-        result = await mongo_db.db.astroengine_horoscopes.insert_one(horoscope_doc)
+        # Compute using the calculation engine
+        stored = compute_horoscope(req_obj)
         
+        # Extract response data
+        if hasattr(stored.response, 'model_dump'):
+            horoscope_data = stored.response.model_dump()
+        else:
+            horoscope_data = stored.response.dict()
+            
+        # Store using the service (handles chunking, compression, and MongoDB storage)
+        request_id = stored.response.requestId
+        store_result = await compress_and_store_horoscope(
+            user_email=current_user.email,
+            horoscope_data=horoscope_data,
+            request_id=request_id
+        )
+
         return {
-            "status": "success",
-            "request_id": str(result.inserted_id),
-            "message": "Horoscope generated successfully"
+            "status": "success", 
+            "horoscope_id": request_id,
+            "message": "Horoscope generated and stored successfully",
+            "chunks_count": store_result.get("chunks_count", 0)
         }
         
     except HTTPException:

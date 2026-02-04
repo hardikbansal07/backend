@@ -1,4 +1,5 @@
 import json
+from typing import Optional
 from llm_interface import GeminiLLM
 from sub_agent import SubAgent
 from horoscope_manager import HoroscopeManager
@@ -6,14 +7,21 @@ from logger_config import setup_logger
 
 
 class MainAgent:
-    def __init__(self, patterns_path="patterns.json"):
+    def __init__(self, patterns_path=None):
+        if patterns_path is None:
+            import os
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            patterns_path = os.path.join(base_dir, "patterns.json")
+            
         self.logger = setup_logger("MainAgent")
         self.llm = GeminiLLM()
         self.sub_agent = SubAgent()
         self.horoscope_manager = HoroscopeManager()
         self.patterns = self._load_patterns(patterns_path)
         self.request_id = None
+        self.request_id = None
         self.email = None
+        self.user_context = None
 
     def _load_patterns(self, path):
         """Load domain patterns from JSON file."""
@@ -26,12 +34,13 @@ class MainAgent:
             self.logger.error(f"Patterns file not found at {path}")
             return {}
 
-    def set_identity(self, request_id: Optional[str] = None, email: Optional[str] = None):
+    def set_identity(self, request_id: Optional[str] = None, email: Optional[str] = None, user_context: Optional[dict] = None):
         """Set identity for analysis."""
         self.request_id = request_id
         self.email = email
-        self.sub_agent.set_identity(request_id, email)
-        self.logger.info(f"Identity set in MainAgent: ID={request_id}, Email={email}")
+        self.user_context = user_context
+        self.sub_agent.set_identity(request_id, email, user_context)
+        self.logger.info(f"Identity set in MainAgent: ID={request_id}, Email={email}, Context={user_context}")
 
     def analyze_intent(self, query: str):
         """Analyze user query intent using LLM."""
@@ -124,11 +133,19 @@ If no domain matches well, set "intent" to "general" for a general life analysis
             # Default to general analysis
             intent = "general"
             self.logger.info(f"Defaulting to 'general' analysis")
-        
-        self.logger.info(f"Intent: {intent} | Confidence: {confidence:.2f} | Method: {method}")
-        
+
         # 2. Get Pattern
-        pattern = self.patterns[intent]
+        if intent in self.patterns:
+            pattern = self.patterns[intent]
+        else:
+            # Fallback if even "general" is missing from patterns.json
+            self.logger.warning("'general' intent not found in patterns.json. Using hardcoded fallback.")
+            pattern = {
+                "description": "General Life Analysis",
+                "focus_houses": ["1", "5", "9"],
+                "key_planets": ["Sun", "Moon", "Jupiter"],
+                "required_tools": ["get_planet_details", "get_house_details", "get_panchanga_details"]
+            }
         self.logger.info(f"Domain: {pattern.get('description', 'Unknown')}")
         
         # 3. Delegate to Sub Agent

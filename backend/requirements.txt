@@ -37,3 +37,6 @@ certifi
 dnspython
 tenacity
 google-cloud-aiplatform
+razorpay
+reportlab
+supabase
