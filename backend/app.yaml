@@ -24,17 +24,3 @@ env_variables:
   GOOGLE_CLOUD_PROJECT: "ai-astrology-481805"
   GOOGLE_CLOUD_LOCATION: "us-central1"
 
-liveness_check:
-  path: "/calc/chk"
-  check_interval_sec: 30
-  timeout_sec: 4
-  failure_threshold: 2
-  success_threshold: 2
-
-readiness_check:
-  path: "/calc/chk"
-  check_interval_sec: 10
-  timeout_sec: 4
-  failure_threshold: 2
-  success_threshold: 2
-  app_start_timeout_sec: 300
