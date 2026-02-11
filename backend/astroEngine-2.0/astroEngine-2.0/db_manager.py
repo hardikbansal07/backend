@@ -19,7 +19,8 @@ class MongoDBManager:
             raise ValueError("MONGODB_URI environment variable not set")
         
         self.client = MongoClient(self.uri)
-        self.db = self.client["astrocare7Test"]
+        db_name = os.getenv("DB_NAME", "astrocare7")
+        self.db = self.client[db_name]
         self.horoscopes_coll = self.db["horoscopes"]
         self.chunks_coll = self.db["horoscope_chunks"]
         
