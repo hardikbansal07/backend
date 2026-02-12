@@ -174,6 +174,13 @@ except Exception as e:
     import_errors['report'] = str(e)
     logger.error(f"Failed to import Report router: {e}")
 
+place_router = None
+try:
+    from routers.place_routes import router as place_router
+except Exception as e:
+    import_errors['place'] = str(e)
+    logger.error(f"Failed to import Place router: {e}")
+
 # Register routers
 
 # 1. Central Auth Router (Handles Login, Register, Google, Guest)
@@ -221,6 +228,9 @@ if love_chat_router:
 
 if report_router:
     app.include_router(report_router, prefix="/calc/api/v1")
+
+if place_router:
+    app.include_router(place_router, prefix="/calc/api/v1")
 
 @app.get("/")
 def home():

@@ -35,6 +35,7 @@ if str(deva_agent_path) not in sys.path:
 class ChatRequest(BaseModel):
     question: str
     request_id: Optional[str] = None  # Horoscope request ID
+    preferred_language: Optional[str] = None
 
 class ChatResponse(BaseModel):
     status: str
@@ -141,12 +142,15 @@ async def deva_chat(
                     logger.info(f"[DEVA] No stored birth details. Using chat context only.")
                     birth_details = {}
 
+                # Determine language: Request > User Profile > Default
+                language = request.preferred_language or getattr(current_user, "preferred_language", "English")
+
                 # Provide analysis based on birth details (or lack thereof)
                 response_text = await run_basic_astrology_analysis(
                     question=request.question,
                     birth_details=birth_details,
                     user_email=current_user.email,
-                    preferred_language=getattr(current_user, "preferred_language", "English"),
+                    preferred_language=language,
                     chat_history=chat_history
                 )
                 
@@ -199,14 +203,17 @@ async def deva_chat(
         # Step 3: Convert horoscope chunks to Deva Agent format
         chart_data = convert_to_deva_format(horoscope_data)
         
+        # Determine language: Request > User Profile > Default
+        language = request.preferred_language or getattr(current_user, "preferred_language", "English")
+
         # Step 4: Run Deva Agent analysis (Vertex AI)
-        logger.info(f"[DEVA] Running Deva Agent analysis (Vertex AI)")
+        logger.info(f"[DEVA] Running Deva Agent analysis (Vertex AI) in {language}")
         response_text = await run_deva_agent(
             question=request.question,
             chart_data=chart_data,
             user_email=current_user.email,
             request_id=request.request_id,
-            preferred_language=getattr(current_user, "preferred_language", "English"),
+            preferred_language=language,
             chat_history=chat_history
         )
         
@@ -284,20 +291,25 @@ INSTRUCTIONS:
 2. Use Vedic astrology terminology.
 3. Be warm, compassionate, and helpful.
 4. Make reasonable astrological interpretations based on the date, time, and place of birth.
-5. RESPOND IN {preferred_language} LANGUAGE."""
+5. FORMATTING RULES:
+   - You MUST use these exact section headers: **To The Point**, **Advice**, **Closing Question**.
+   - These headers must be in ENGLISH.
+   - The CONTENT of each section must be in {preferred_language}.
+   - DO NOT mix languages. If {preferred_language} is Telugu, write ALL content in Telugu.
+"""
 
         formatted_history = "\n".join(chat_history) if chat_history else "No previous context."
 
-        user_prompt = f"""BIRTH INFORMATION:
-- Date: {dob}
-- Time: {tob}
-- Place: {pob}
-
-PREVIOUS CONVERSATION:
-{formatted_history}
-
-USER'S NEW QUESTION: {question}
-Provide a detailed astrological response."""
+        user_prompt = (
+            f"BIRTH INFORMATION:\n"
+            f"- Date: {dob}\n"
+            f"- Time: {tob}\n"
+            f"- Place: {pob}\n\n"
+            f"PREVIOUS CONVERSATION:\n"
+            f"{formatted_history}\n\n"
+            f"USER'S NEW QUESTION: {question}\n"
+            f"Provide a detailed astrological response."
+        )
 
         model = GenerativeModel(
             get_model_name(),
@@ -363,7 +375,11 @@ INSTRUCTIONS FOR COUNCIL:
 2. KalaPurusha: Check current Dasha relative to TODAY ({date_str}).
 3. VargaVizier: Check D10 Career strength.
 4. MahaRishi (Astro Care AI): Synthesize final answer.
-IMPORTANT: Provide your final response in {preferred_language} language.
+IMPORTANT FORMATTING:
+- Use standard headers: **To The Point**, **Advice**, **Closing Question**.
+- Keep headers in ENGLISH for parsing.
+- Write ALL section CONTENT in {preferred_language}.
+- Ensure the ENTIRE response content is in {preferred_language}, not just the first part.
 """
         
         # Create council
