@@ -81,7 +81,7 @@ class SpouseNatureEngine:
         if l7_data and "nakshatra" in l7_data:
              nak = l7_data["nakshatra"] # e.g., "Revathi"
              # We need a mapping.
-             from src.core.constants import NAKSHATRA_SOUNDS
+             from .constants import NAKSHATRA_SOUNDS
              # Ensure this constant exists or define it here if missing. 
              # Safe fallback:
              sounds = NAKSHATRA_SOUNDS.get(nak, "Unknown")

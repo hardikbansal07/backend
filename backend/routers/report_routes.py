@@ -9,6 +9,7 @@ import datetime
 import asyncio
 import logging
 import json
+import os
 from r1_algo import generate_report as generate_r1_report
 
 logger = logging.getLogger(__name__)
@@ -85,13 +86,20 @@ async def process_report(job_id: str, user: User, report_type: str, birth_detail
         jobs[job_id]["message"] = "Uploading secure report..."
         filename = f"report_{job_id}_{datetime.datetime.now().strftime('%Y%m%d')}.pdf"
         
+        # Save locally first (Always safe)
+        local_path = os.path.join("generated", filename)
+        with open(local_path, "wb") as f:
+            f.write(pdf_bytes)
+        
         # Attempt upload
         url = await upload_to_supabase(pdf_bytes, filename)
         
         if not url:
-            logger.warning("Supabase upload failed or not configured. Using DEMO fallback.")
-            url = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
-            jobs[job_id]["message"] = "Report generated (Upload Failed - Demo Link)"
+            logger.warning("Supabase upload failed. Using LOCAL fallback.")
+            # Construct local URL (Assuming running on localhost:8000 for now)
+            # Ideally use a config var for BASE_URL
+            url = f"http://localhost:8000/generated/{filename}"
+            jobs[job_id]["message"] = "Report generated (Local View)"
         
         jobs[job_id]["download_url"] = url
         jobs[job_id]["message"] = "Report generation complete."

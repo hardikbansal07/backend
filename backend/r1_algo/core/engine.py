@@ -3,10 +3,10 @@ FACADE for new Modular Engines.
 This file is maintained for backward compatibility but all logic is delegated.
 """
 
-from src.core.timing_engine import TimingEngine
-from src.core.love_vs_arranged_engine import LoveVsArrangedEngine
-from src.core.spouse_meeting_place_engine import SpouseMeetingPlaceEngine
-from src.core.spouse_nature_engine import SpouseNatureEngine
+from .timing_engine import TimingEngine
+from .love_vs_arranged_engine import LoveVsArrangedEngine
+from .spouse_meeting_place_engine import SpouseMeetingPlaceEngine
+from .spouse_nature_engine import SpouseNatureEngine
 
 # --- Legacy Wrapper Functions ---
 

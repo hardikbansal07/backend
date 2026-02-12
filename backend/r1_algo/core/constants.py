@@ -33,6 +33,23 @@ AVAKAHADA_CHAKRA = {
 SIGNS = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", 
          "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
 
+# Mapping of Sign Index (0-11) or Name to Lord might be useful, but here we stick to simple lists or dicts.
+# RULERS map Sign Name to Ruling Planet
+RULERS = {
+    "Aries": "Mars",
+    "Taurus": "Venus",
+    "Gemini": "Mercury",
+    "Cancer": "Moon",
+    "Leo": "Sun",
+    "Virgo": "Mercury",
+    "Libra": "Venus",
+    "Scorpio": "Mars",
+    "Sagittarius": "Jupiter",
+    "Capricorn": "Saturn",
+    "Aquarius": "Saturn",
+    "Pisces": "Jupiter"
+}
+
 SIGN_ELEMENTS = {
     "Fire": ["Aries", "Leo", "Sagittarius"],
     "Earth": ["Taurus", "Virgo", "Capricorn"],

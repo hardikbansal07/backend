@@ -67,7 +67,7 @@ class LoveVsArrangedEngine:
             h_data = loader.get_house_details("D9", house_num)
             if "error" in h_data: return None, None, None
             sign_num = h_data.get("signNumber")
-            from src.core.tools_data import _get_sign_name, _get_lord_of_sign
+            from .tools_data import _get_sign_name, _get_lord_of_sign
             s_name = _get_sign_name(sign_num)
             l_name = _get_lord_of_sign(sign_num)
             return s_name, l_name

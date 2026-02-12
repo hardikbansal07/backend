@@ -1,7 +1,7 @@
 from typing import Dict, Any, List, Optional
-from src.core.constants import SIGNS, ASPECTS
-from src.core import tools_data
-from src.core.tools_data import _get_sign_name, _get_lord_of_sign
+from .constants import SIGNS, ASPECTS
+from . import tools_data
+from .tools_data import _get_sign_name, _get_lord_of_sign
 
 class TimingEngine:
     """

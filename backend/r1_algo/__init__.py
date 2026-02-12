@@ -36,7 +36,7 @@ async def generate_report(
         # For now, we import it here to avoid circular imports? 
         # Actually it was in council.py, let's move it out or re-use.
         # It's better to pass the client in, but for now let's build it here.
-        from src.config.settings import build_chat_completion_client
+        from .config.settings import build_chat_completion_client
         client = build_chat_completion_client()
         
         # 3. Create Council

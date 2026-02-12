@@ -232,6 +232,12 @@ if report_router:
 if place_router:
     app.include_router(place_router, prefix="/calc/api/v1")
 
+# Mount 'generated' directory for local report access (fallback)
+generated_path = os.path.join(os.path.dirname(__file__), "generated")
+if not os.path.exists(generated_path):
+    os.makedirs(generated_path)
+app.mount("/generated", StaticFiles(directory=generated_path), name="generated")
+
 @app.get("/")
 def home():
     return {
