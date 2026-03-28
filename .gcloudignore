@@ -16,9 +16,30 @@ google-cloud-cli.tar.gz
 
 # Local/Temp files
 agent_events.db
+backend/agent_events.db
 .DS_Store
 .env
+backend/.env
 
 # Editor config
 .vscode/
 .idea/
+
+# Generated files (PDFs, reports)
+backend/generated/
+
+# Logs
+*.log
+backend/*.log
+
+# Documentation (not needed in container)
+docs/
+*.md
+backend/*.md
+backend/ARCHITECTURE.md
+backend/CHANGES_SUMMARY.md
+backend/README.md
+
+# Test files
+backend/tests/
+backend/test_*.py

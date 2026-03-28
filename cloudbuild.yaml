@@ -1,26 +1,42 @@
 steps:
-  # Step 1: Verify App Engine Infrastructure (Debug)
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: 'bash'
+  # Step 1: Build the container image using the Dockerfile
+  - name: 'gcr.io/cloud-builders/docker'
     args:
-      - '-c'
-      - |
-        echo "Checking App Engine Application Status..."
-        echo "Build configured for Client ID: ${_VITE_GOOGLE_CLIENT_ID}"
-        gcloud app describe || echo "WARNING: App Engine application might be missing!"
-        gcloud app services list || echo "WARNING: Could not list services!"
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/backend:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/backend:latest'
+      - '.'
 
-  # Step 2: Deploy the Backend Service (FastAPI) - Deployed as default service
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: 'bash'
+  # Step 2: Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
     args:
-      - '-c'
-      - |
-        cd backend
-        gcloud app deploy app.yaml --quiet
+      - 'push'
+      - '--all-tags'
+      - 'gcr.io/$PROJECT_ID/backend'
+
+  # Step 3: Deploy the container image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'backend'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/backend:$COMMIT_SHA'
+      - '--region'
+      - '${_REGION}'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+
+images:
+  - 'gcr.io/$PROJECT_ID/backend:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/backend:latest'
 
 timeout: '1600s'
 substitutions:
-  _VITE_GOOGLE_CLIENT_ID: '292043291680-ud9pk0cnv2fp0jtt5joaj68dn1oad2h1.apps.googleusercontent.com'
+  _REGION: 'asia-south1'
 options:
   logging: CLOUD_LOGGING_ONLY

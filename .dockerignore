@@ -1,0 +1,54 @@
+# Version control
+.git
+.gitignore
+.gcloudignore
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+
+# Environment and secrets
+.env
+backend/.env
+
+# Local databases
+agent_events.db
+backend/agent_events.db
+
+# Generated files
+backend/generated/
+
+# Logs
+*.log
+backend/*.log
+backend/backend.log
+
+# Editor config
+.vscode/
+.idea/
+.DS_Store
+
+# Dependencies (not needed, installed via pip)
+node_modules/
+google-cloud-sdk/
+google-cloud-cli.tar.gz
+
+# Documentation
+docs/
+*.md
+
+# Test and utility scripts (not needed in container)
+backend/tests/
+backend/test_*.py
+backend/*_issue.py
+backend/check_*.py
+backend/fix_*.py
+backend/refresh_*.py
+
+# App Engine config (not needed for Cloud Run)
+backend/app.yaml
+dispatch.yaml
