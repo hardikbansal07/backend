@@ -164,8 +164,7 @@ try:
     from app.admin.blog_routes import admin_router as blog_admin_router, public_router as blog_public_router
 except Exception as e:
     import_errors['blog'] = str(e)
-    logger.critical(f"Failed to import Blog routers: {e}")
-    raise e
+    logger.error(f"Failed to import Blog routers: {e}")
 
 report_router = None
 try:
