@@ -3,7 +3,7 @@ service: backend
 instance_class: F2  
 
 # Full application entrypoint
-entrypoint: python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+entrypoint: python -m uvicorn main:app --host 0.0.0.0 --port $PORT
 
 automatic_scaling:
   min_instances: 1
