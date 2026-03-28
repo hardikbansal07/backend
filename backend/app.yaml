@@ -3,7 +3,7 @@ service: backend
 instance_class: F2  
 
 # Full application entrypoint
-entrypoint: uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1
+entrypoint: uvicorn main:app --host 0.0.0.0 --port 8080 --workers 1
 
 automatic_scaling:
   min_instances: 1
@@ -12,8 +12,8 @@ automatic_scaling:
   max_idle_instances: 1
 
 env_variables:
-  MONGO_URI: "mongodb+srv://Astrocare7:Rekha%407337@cluster0.ydviwil.mongodb.net/?appName=Cluster0"
-  DB_NAME: "astrocare7"
+  MONGO_URI: "mongodb+srv://Astrocare7:Astrocare7337@cluster0.ydviwil.mongodb.net/"
+  DB_NAME: "Astrocare7"
   GEMINI_API_KEY: "AIzaSyBuu5Pw3aq38MIuTA24qu4M1sPhDfdMEc0"
   SECRET_KEY: "9bc5f5ce2dc60b380533703ed545b71a40b807d5269a41358eb0e6a6ebe2342e"
   GOOGLE_CLIENT_ID: "292043291680-ud9pk0cnv2fp0jtt5joaj68dn1oad2h1.apps.googleusercontent.com"
