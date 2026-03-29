@@ -20,7 +20,7 @@ env_variables:
   GOOGLE_CLIENT_SECRET: "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"
   GOOGLE_REDIRECT_URI: "https://ai-astrology-481805.as.r.appspot.com/api/v1/auth/google/callback"
   GEMINI_MODEL: "gemini-2.5-flash-lite"
-  DATABASE_URL: "mongodb+srv://Astrocare7:Rekha%407337@cluster0.ydviwil.mongodb.net/?appName=Cluster0"
-  GOOGLE_CLOUD_PROJECT: "ai-astrology-481805"
+  DATABASE_URL: "mongodb+srv://Astrocare7:Astrocare7337@cluster0.ydviwil.mongodb.net/?appName=Cluster0"
+  GOOGLE_CLOUD_PROJECT: "astro-491617"
   GOOGLE_CLOUD_LOCATION: "us-central1"
 
