@@ -21,6 +21,6 @@ steps:
 
 timeout: '1600s'
 substitutions:
-  _VITE_GOOGLE_CLIENT_ID: '292043291680-ud9pk0cnv2fp0jtt5joaj68dn1oad2h1.apps.googleusercontent.com'
+  _VITE_GOOGLE_CLIENT_ID: '209987574410-rpfj1o45f6igoem4fnjiefmhjmbjohf3.apps.googleusercontent.com'
 options:
   logging: CLOUD_LOGGING_ONLY
