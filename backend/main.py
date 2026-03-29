@@ -80,7 +80,7 @@ app.add_middleware(
         "http://localhost:3000",
         "http://localhost:8000",
         "http://10.0.2.2:8000",
-        "https://astrocare-frontend-vercel.vercel.app",
+        "https://astrocare2-7v5j.vercel.app",
         "https://frontend-dot-ai-astrology-481805.as.r.appspot.com",
         "https://ai-astrology-481805.as.r.appspot.com",
         "http://localhost:8081"
