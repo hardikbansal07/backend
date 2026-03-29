@@ -5,9 +5,9 @@ import google.auth
 from typing import List, Dict, Optional
 
 # Constants
-PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "ai-astrology-481805") # Default fallback
-LOCATION = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
-MODEL_NAME = "gemini-pro" # Or gemini-1.5-pro-preview-0409, etc.
+PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "astrocare-backend") # Default fallback
+LOCATION = os.getenv("GOOGLE_CLOUD_LOCATION", "asia-south1")
+MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite") # Or gemini-1.5-pro-preview-0409, etc.
 
 _model_initialized = False
 _chat_model = None
