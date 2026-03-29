@@ -9,7 +9,7 @@ from logger_config import setup_logger
 load_dotenv()
 
 class GeminiLLM:
-    def __init__(self, api_key=None, model_name="gemini-3-flash-preview"):
+    def __init__(self, api_key=None, model_name="gemini-2.5-flash"):
         self.logger = setup_logger("GeminiLLM")
         
         # Determine authentication source

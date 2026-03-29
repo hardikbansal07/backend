@@ -3,7 +3,7 @@ import os
 from autogen_agentchat.ui import Console
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 
-def build_chat_completion_client(model: str = "gemini-3-flash-preview", api_key: str = None):
+def build_chat_completion_client(model: str = "gemini-2.5-flash", api_key: str = None):
     """
     Builds a widely compatible ChatCompletionClient for Gemini.
     """

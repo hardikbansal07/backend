@@ -15,9 +15,9 @@ class SubAgent:
     def __init__(self, use_thinking=True):
         self.logger = setup_logger("SubAgent")
         # Use regular model with thinking enabled
-        self.llm = GeminiLLM(model_name="gemini-3-flash-preview")
+        self.llm = GeminiLLM(model_name="gemini-2.5-flash")
         self.use_thinking = use_thinking
-        self.logger.info(f"SubAgent initialized with model: gemini-3-flash-preview (thinking={'enabled' if use_thinking else 'disabled'})")
+        self.logger.info(f"SubAgent initialized with model: gemini-2.5-flash (thinking={'enabled' if use_thinking else 'disabled'})")
         self.request_id = None
         self.request_id = None
         self.email = None
