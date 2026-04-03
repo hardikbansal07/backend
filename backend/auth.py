@@ -16,7 +16,7 @@ from google.auth.transport import requests
 # Configuration
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-it-in-prod")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 15  # Short-lived access token (15 minutes)
+ACCESS_TOKEN_EXPIRE_MINUTES = 60  # Access token (60 minutes — needed for long report generation)
 REFRESH_TOKEN_EXPIRE_DAYS = 7     # Long-lived refresh token (7 days)
 
 # Google OAuth Configuration
@@ -47,7 +47,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     if expires_delta:
         expire = datetime.now(UTC) + expires_delta
     else:
-        expire = datetime.now(UTC) + timedelta(minutes=15)
+        expire = datetime.now(UTC) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
