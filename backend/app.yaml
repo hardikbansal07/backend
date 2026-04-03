@@ -23,4 +23,6 @@ env_variables:
   DATABASE_URL: "mongodb+srv://Astrocare7:Astrocare7337@cluster0.ydviwil.mongodb.net/?appName=Cluster0"
   GOOGLE_CLOUD_PROJECT: "astro-491617"
   GOOGLE_CLOUD_LOCATION: "asia-south1"
+  SUPABASE_URL: "https://dmlbtfrdrklwytakzzcd.supabase.co"
+  SUPABASE_KEY: "sb_secret__Pka2zfacudUwvGg-ljpyw_GZ-Gml16"
 

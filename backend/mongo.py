@@ -50,7 +50,8 @@ class MongoDB:
                 "user_birth_details",
                 "chat_question_tracking",
                 "blogs",
-                "refresh_tokens"
+                "refresh_tokens",
+                "user_reports"
             ]
             
             for collection_name in required_collections:
@@ -98,6 +99,10 @@ class MongoDB:
             # Blog indexes
             await self.db.blogs.create_index([("created_at", -1)])
             await self.db.blogs.create_index("category")
+            
+            # Report history indexes
+            await self.db.user_reports.create_index("user_email")
+            await self.db.user_reports.create_index("created_at")
             
             logger.info("All collections and indexes initialized successfully")
         except Exception as e:
