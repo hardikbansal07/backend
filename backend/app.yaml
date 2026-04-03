@@ -25,4 +25,5 @@ env_variables:
   GOOGLE_CLOUD_LOCATION: "asia-south1"
   SUPABASE_URL: "https://dmlbtfrdrklwytakzzcd.supabase.co"
   SUPABASE_KEY: "sb_secret__Pka2zfacudUwvGg-ljpyw_GZ-Gml16"
+  BASE_URL: "https://backend-dot-ai-astrology-481805.as.r.appspot.com"
 
