@@ -94,6 +94,18 @@ app.add_middleware(
     allow_headers=["*", "Authorization", "Content-Type"],
 )
 
+# COOP Middleware — Fix for Google OAuth popup "window.closed" error
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+
+class COOPMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
+        return response
+
+app.add_middleware(COOPMiddleware)
+
 # Import routers
 # Import routers (Auth is critical)
 try:
