@@ -149,9 +149,27 @@ async def generate_report_endpoint(
 
 @router.get("/status/{job_id}", response_model=ReportStatus)
 async def get_report_status_endpoint(job_id: str, current_user: User = Depends(get_current_active_user)):
-    if job_id not in jobs:
-        raise HTTPException(status_code=404, detail="Job not found")
-    return jobs[job_id]
+    # 1. Check in-memory store first (for active/in-progress jobs)
+    if job_id in jobs:
+        return jobs[job_id]
+    
+    # 2. Fallback: Check MongoDB (for completed jobs that survived instance restart)
+    if mongo_db.db is not None:
+        saved_report = await mongo_db.db.user_reports.find_one(
+            {"job_id": job_id, "user_email": current_user.email},
+            {"_id": 0}
+        )
+        if saved_report:
+            return ReportStatus(
+                job_id=job_id,
+                status=saved_report.get("status", "completed"),
+                message="Report ready for download.",
+                download_url=saved_report.get("download_url"),
+                estimated_time="0 seconds"
+            )
+    
+    # 3. Not found anywhere
+    raise HTTPException(status_code=404, detail="Job not found. Please generate a new report.")
 
 @router.get("/my-reports")
 async def get_my_reports(current_user: User = Depends(get_current_active_user)):
