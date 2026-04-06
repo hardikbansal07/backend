@@ -86,9 +86,10 @@ app.add_middleware(
         "https://astrocare2-7v5j-elzoq7fhz-hardiks-projects-84769877.vercel.app",
         "https://frontend-dot-ai-astrology-481805.as.r.appspot.com",
         "https://ai-astrology-481805.as.r.appspot.com",
-        "http://localhost:8081"
+        "http://localhost:8081",
+        "https://d22-ten.vercel.app"
     ],
-    allow_origin_regex=r"https://astrocare2-.*\.vercel\.app",
+    allow_origin_regex=r"https://(astrocare2-.*|d22-.*)\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*", "OPTIONS", "GET", "POST", "PUT", "DELETE"],
     allow_headers=["*", "Authorization", "Content-Type"],
@@ -195,6 +196,14 @@ except Exception as e:
     import_errors['place'] = str(e)
     logger.error(f"Failed to import Place router: {e}")
 
+# Legal Pages (Privacy Policy, Terms, Data Deletion — required by Facebook OAuth)
+legal_router = None
+try:
+    from routers.legal_pages import router as legal_router
+except Exception as e:
+    import_errors['legal'] = str(e)
+    logger.error(f"Failed to import Legal Pages router: {e}")
+
 # Register routers
 
 # 1. Central Auth Router (Handles Login, Register, Google, Guest)
@@ -245,6 +254,10 @@ if report_router:
 
 if place_router:
     app.include_router(place_router, prefix="/calc/api/v1")
+
+# Legal pages at ROOT level (no prefix) — Facebook crawler needs direct access
+if legal_router:
+    app.include_router(legal_router)
 
 # Mount 'generated' directory for local report access (fallback)
 generated_path = os.path.join(os.path.dirname(__file__), "generated")
