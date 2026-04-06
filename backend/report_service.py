@@ -8,7 +8,7 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from io import BytesIO
-from supabase import create_client, Client
+from supabase import acreate_client, create_client, Client
 import logging
 from datetime import datetime
 
@@ -25,7 +25,24 @@ EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
 EMAIL_USER = os.getenv("EMAIL_USER")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
+# Cached async client
+_async_supabase_client = None
+
+async def get_async_supabase_client():
+    """Get or create an async Supabase client for use in FastAPI async context."""
+    global _async_supabase_client
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        logger.warning("Supabase credentials not found.")
+        logger.warning(f"  SUPABASE_URL set: {bool(SUPABASE_URL)}")
+        logger.warning(f"  SUPABASE_KEY set: {bool(SUPABASE_KEY)}")
+        return None
+    if _async_supabase_client is None:
+        logger.info(f"Creating async Supabase client for URL: {SUPABASE_URL}")
+        _async_supabase_client = await acreate_client(SUPABASE_URL, SUPABASE_KEY)
+    return _async_supabase_client
+
 def get_supabase_client() -> Client:
+    """Legacy sync client - kept for backward compatibility."""
     if not SUPABASE_URL or not SUPABASE_KEY:
         logger.warning("Supabase credentials not found.")
         return None
@@ -181,32 +198,43 @@ def generate_pdf_report(user_name: str, report_type: str, content_data: dict) ->
 async def upload_to_supabase(pdf_bytes: bytes, filename: str) -> str:
     """
     Uploads bytes to Supabase Storage and returns the public URL.
+    Uses async client for proper FastAPI compatibility.
     """
-    supabase = get_supabase_client()
-    if not supabase:
-        logger.error("Supabase client is not available")
-        return None
-
+    logger.info(f"[SUPABASE] Starting upload for file: {filename} ({len(pdf_bytes)} bytes)")
+    
     try:
-        # Check if bucket exists, if not create? (Supabase-py might not support bucket creation easily via client, usually done in dashboard)
-        # We assume 'reports' bucket exists and is public.
-        
+        supabase = await get_async_supabase_client()
+        if not supabase:
+            logger.error("[SUPABASE] Async client is not available — check SUPABASE_URL and SUPABASE_KEY env vars")
+            return None
+
         file_path = f"generated/{filename}"
+        logger.info(f"[SUPABASE] Uploading to bucket='{SUPABASE_BUCKET}', path='{file_path}'")
         
-        # Upload
-        response = supabase.storage.from_(SUPABASE_BUCKET).upload(
+        # Upload using async client
+        response = await supabase.storage.from_(SUPABASE_BUCKET).upload(
             path=file_path,
             file=pdf_bytes,
             file_options={"content-type": "application/pdf", "upsert": "true"}
         )
         
+        logger.info(f"[SUPABASE] Upload response: {response}")
+        
+        # Validate upload response
+        # supabase-py returns the path on success, or raises on error
+        if response and hasattr(response, 'path'):
+            logger.info(f"[SUPABASE] Upload successful, path: {response.path}")
+        elif response:
+            logger.info(f"[SUPABASE] Upload returned: {type(response)} = {response}")
+        
         # Get Public URL
-        # For public buckets:
         public_url = supabase.storage.from_(SUPABASE_BUCKET).get_public_url(file_path)
+        logger.info(f"[SUPABASE] Public URL generated: {public_url}")
+        
         return public_url
 
     except Exception as e:
-        logger.error(f"Failed to upload to Supabase: {e}")
+        logger.error(f"[SUPABASE] Upload FAILED: {type(e).__name__}: {e}", exc_info=True)
         return None
 
 def send_report_email(to_email: str, user_name: str, report_url: str):

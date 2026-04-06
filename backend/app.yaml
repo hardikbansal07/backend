@@ -26,6 +26,6 @@ env_variables:
   GOOGLE_CLOUD_PROJECT: "astro-491617"
   GOOGLE_CLOUD_LOCATION: "asia-south1"
   SUPABASE_URL: "https://dmlbtfrdrklwytakzzcd.supabase.co"
-  SUPABASE_KEY: "sb_secret__Pka2zfacudUwvGg-ljpyw_GZ-Gml16"
+  SUPABASE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtbGJ0ZnJkcmtsd3l0YWt6emNkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTIzMTkwOCwiZXhwIjoyMDkwODA3OTA4fQ.GMNyy1vGQmRAd7NmuKcoEuI1SoiAB8iF5Jt51OYt0wk"
   BASE_URL: "https://backend-dot-ai-astrology-481805.as.r.appspot.com"
 
