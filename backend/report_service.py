@@ -228,7 +228,21 @@ async def upload_to_supabase(pdf_bytes: bytes, filename: str) -> str:
             logger.info(f"[SUPABASE] Upload returned: {type(response)} = {response}")
         
         # Get Public URL
-        public_url = supabase.storage.from_(SUPABASE_BUCKET).get_public_url(file_path)
+        # get_public_url might be sync or async depending on SDK version
+        public_url_result = supabase.storage.from_(SUPABASE_BUCKET).get_public_url(file_path)
+        
+        # Handle case where it's a coroutine (async client)
+        import asyncio
+        if asyncio.iscoroutine(public_url_result):
+            public_url = await public_url_result
+        else:
+            public_url = public_url_result
+        
+        # Fallback: construct URL manually if we got a coroutine object string
+        if not isinstance(public_url, str) or 'coroutine' in str(public_url):
+            public_url = f"{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET}/{file_path}"
+            logger.warning(f"[SUPABASE] get_public_url returned non-string, using manual URL: {public_url}")
+        
         logger.info(f"[SUPABASE] Public URL generated: {public_url}")
         
         return public_url
