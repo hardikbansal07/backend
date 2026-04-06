@@ -24,6 +24,10 @@ GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
 GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8080/api/v1/auth/google/callback")
 
+# Facebook OAuth Configuration
+FACEBOOK_APP_ID = os.getenv("FACEBOOK_APP_ID", "")
+FACEBOOK_APP_SECRET = os.getenv("FACEBOOK_APP_SECRET", "")
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 optional_oauth2_scheme = HTTPBearer(auto_error=False)
@@ -244,69 +248,167 @@ async def get_or_create_google_user(google_user_info: Dict[str, Any]) -> UserInD
 
 async def verify_facebook_token(token: str) -> Dict[str, Any]:
     """
-    Verify Facebook Access Token and return user info
+    Verify Facebook Access Token using App-level /debug_token validation.
+    This prevents fake or stolen tokens from being accepted.
+    Steps:
+    1. Validate token via Facebook's /debug_token endpoint (requires App Token)
+    2. Confirm token belongs to OUR app (app_id matches)
+    3. Confirm token is valid and not expired
+    4. Fetch user profile from /me endpoint
     """
+    if not FACEBOOK_APP_ID or not FACEBOOK_APP_SECRET:
+        logger.error("Facebook App ID or Secret not configured")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Facebook OAuth not configured on server"
+        )
+
     try:
         async with httpx.AsyncClient() as client:
-            resp = await client.get(
+            # Step 1: Validate token via /debug_token (App-level verification)
+            app_access_token = f"{FACEBOOK_APP_ID}|{FACEBOOK_APP_SECRET}"
+            debug_resp = await client.get(
+                "https://graph.facebook.com/debug_token",
+                params={
+                    "input_token": token,
+                    "access_token": app_access_token
+                }
+            )
+
+            if debug_resp.status_code != 200:
+                raise ValueError(f"Token debug failed: {debug_resp.text}")
+
+            debug_data = debug_resp.json().get("data", {})
+
+            # Step 2: Verify the token is valid and belongs to our app
+            if not debug_data.get("is_valid", False):
+                raise ValueError(f"Token is invalid or expired. Reason: {debug_data.get('error', {}).get('message', 'Unknown')}")
+
+            if str(debug_data.get("app_id")) != str(FACEBOOK_APP_ID):
+                raise ValueError("Token does not belong to this application")
+
+            # Step 3: Fetch user profile from /me
+            user_resp = await client.get(
                 "https://graph.facebook.com/me",
                 params={
                     "access_token": token,
-                    "fields": "id,name,email,picture"
+                    "fields": "id,name,email,picture.type(large)"
                 }
             )
-            
-            if resp.status_code != 200:
-                raise ValueError(f"Invalid Facebook Token: {resp.text}")
-                
-            return resp.json()
 
+            if user_resp.status_code != 200:
+                raise ValueError(f"Failed to fetch user info: {user_resp.text}")
+
+            user_data = user_resp.json()
+            logger.info(f"Facebook token verified for user: {user_data.get('id')}")
+            return user_data
+
+    except HTTPException:
+        raise
+    except ValueError as e:
+        logger.error(f"Facebook token validation failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Invalid Facebook token: {str(e)}"
+        )
     except Exception as e:
         logger.error(f"Facebook token verification error: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Failed to verify Facebook token: {str(e)}"
+            detail="Failed to verify Facebook token"
         )
 
 async def get_or_create_facebook_user(facebook_user_info: Dict[str, Any]) -> UserInDB:
     """
-    Get existing user or create new user from Facebook OAuth data
+    Get existing user or create new user from Facebook OAuth data.
+    Lookup priority:
+    1. By facebook_id (most reliable — prevents duplicates)
+    2. By email (link existing email account to Facebook)
+    3. Create new user
     """
     if mongo_db.db is None:
         raise HTTPException(status_code=500, detail="Database not initialized")
-    
+
+    facebook_id = facebook_user_info.get("id")
+    if not facebook_id:
+        raise HTTPException(status_code=400, detail="No Facebook user ID returned")
+
     email = facebook_user_info.get("email")
-    # Facebook might not return email if user didn't grant permission or signed up with phone
-    # In such cases, we might need to fallback to ID or ask user for email.
-    # For now, we'll construct a placeholder email if missing, but ideally we should require it on frontend.
-    if not email:
-        facebook_id = facebook_user_info.get("id")
-        if not facebook_id:
-             raise HTTPException(status_code=400, detail="No email or ID provided by Facebook")
-        email = f"{facebook_id}@facebook.user" 
-    
-    # Check if user exists
-    existing_user = await mongo_db.db.users.find_one({"email": email})
-    
-    if existing_user:
-        # Update last_active for existing user
+    name = facebook_user_info.get("name", "")
+
+    # Extract high-res profile photo (picture.type(large))
+    profile_photo = None
+    picture_data = facebook_user_info.get("picture", {})
+    if isinstance(picture_data, dict):
+        profile_photo = picture_data.get("data", {}).get("url")
+
+    now = datetime.utcnow()
+
+    # --- Lookup 1: By facebook_id (most reliable, prevents duplicates) ---
+    existing_by_fb_id = await mongo_db.db.users.find_one({"facebook_id": facebook_id})
+    if existing_by_fb_id:
+        # Update profile info on every login (name/photo may change)
+        update_data = {
+            "last_active": now,
+            "updated_at": now,
+            "full_name": name or existing_by_fb_id.get("full_name"),
+            "username": name or existing_by_fb_id.get("username"),
+        }
+        if profile_photo:
+            update_data["profile_photo"] = profile_photo
+        if email and not existing_by_fb_id.get("email", "").endswith("@facebook.user"):
+            update_data["email"] = email  # Update email if we got a real one
+
         await mongo_db.db.users.update_one(
-            {"email": email},
-            {"$set": {"last_active": datetime.utcnow()}}
+            {"facebook_id": facebook_id},
+            {"$set": update_data}
         )
-        return UserInDB(**existing_user)
-    
-    # Create new user
+        updated = await mongo_db.db.users.find_one({"facebook_id": facebook_id})
+        logger.info(f"Facebook re-login: existing user {facebook_id}")
+        return UserInDB(**updated)
+
+    # --- Lookup 2: By email (link Facebook to existing email account) ---
+    if email:
+        existing_by_email = await mongo_db.db.users.find_one({"email": email})
+        if existing_by_email:
+            # Link facebook_id to this existing account
+            update_data = {
+                "facebook_id": facebook_id,
+                "auth_provider": "facebook",
+                "last_active": now,
+                "updated_at": now,
+            }
+            if profile_photo and not existing_by_email.get("profile_photo"):
+                update_data["profile_photo"] = profile_photo
+
+            await mongo_db.db.users.update_one(
+                {"email": email},
+                {"$set": update_data}
+            )
+            updated = await mongo_db.db.users.find_one({"email": email})
+            logger.info(f"Linked Facebook ID to existing email account: {email}")
+            return UserInDB(**updated)
+
+    # --- Lookup 3: Create new user ---
+    # For email-less users, use a stable facebook-based identifier
+    if not email:
+        email = f"facebook_{facebook_id}@astrocare.social"
+        logger.warning(f"No email from Facebook for user {facebook_id}, using fallback: {email}")
+
     new_user = UserInDB(
         email=email,
-        username=facebook_user_info.get("name", email.split("@")[0]),
-        full_name=facebook_user_info.get("name"),
+        username=name or f"user_{facebook_id[:8]}",
+        full_name=name,
         hashed_password="",  # No password for OAuth users
         disabled=False,
-        last_active=datetime.utcnow()
+        last_active=now,
+        created_at=now,
+        updated_at=now,
+        auth_provider="facebook",
+        facebook_id=facebook_id,
+        profile_photo=profile_photo,
     )
-    
+
     await mongo_db.db.users.insert_one(new_user.dict())
-    logger.info(f"Created new Facebook OAuth user: {email}")
-    
+    logger.info(f"Created new Facebook OAuth user: {email} (fb_id: {facebook_id})")
     return new_user

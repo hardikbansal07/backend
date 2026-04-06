@@ -24,6 +24,10 @@ class User(BaseModel):
     is_guest: bool = False
     device_id: Optional[str] = None  # Persistent device identifier for guest sessions
     preferred_language: str = "English"
+    # OAuth provider fields
+    auth_provider: Optional[str] = None  # "google", "facebook", "email", "guest"
+    facebook_id: Optional[str] = None  # Facebook user ID for deduplication
+    google_id: Optional[str] = None    # Google user ID for deduplication
 
 class UserInDB(User):
     hashed_password: str
