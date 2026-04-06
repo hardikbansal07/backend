@@ -19,6 +19,8 @@ env_variables:
   GOOGLE_CLIENT_ID: "209987574410-rpfj1o45f6igoem4fnjiefmhjmbjohf3.apps.googleusercontent.com"
   GOOGLE_CLIENT_SECRET: "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"
   GOOGLE_REDIRECT_URI: "https://ai-astrology-481805.as.r.appspot.com/api/v1/auth/google/callback"
+  FACEBOOK_APP_ID: "4171301276441086"
+  FACEBOOK_APP_SECRET: "dda90c714ffa19271386b4f1b9d854d4"
   GEMINI_MODEL: "gemini-2.5-flash-lite"
   DATABASE_URL: "mongodb+srv://Astrocare7:Astrocare7337@cluster0.ydviwil.mongodb.net/?appName=Cluster0"
   GOOGLE_CLOUD_PROJECT: "astro-491617"
