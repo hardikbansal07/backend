@@ -5,12 +5,83 @@ from autogen_agentchat.base import TaskResult
 import os
 import asyncio
 import logging
+import re
+import json
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
 # Maximum retries for rate-limited API calls
 MAX_RETRIES = 3
+
+
+def _clean_ai_response(text: str) -> str:
+    """
+    Strips raw HTML tags, JSON tool-call blocks, and code fences that
+    Autogen agents sometimes leak into their response text.
+    These must NOT appear in the final Markdown that gets rendered to PDF.
+    """
+    if not text:
+        return text
+
+    # 1. Remove full <div class="json">...</div> blocks (multiline)
+    text = re.sub(r'<div[^>]*>.*?</div>', '', text, flags=re.DOTALL | re.IGNORECASE)
+
+    # 2. Remove <pre>...</pre> blocks (raw code/JSON blocks)
+    text = re.sub(r'<pre[^>]*>.*?</pre>', '', text, flags=re.DOTALL | re.IGNORECASE)
+
+    # 3. Remove remaining HTML tags (e.g. stray <span>, <p>, <br> etc.)
+    text = re.sub(r'<[^>]+>', '', text)
+
+    # 4. Remove fenced code blocks (```json ... ``` or just ``` ... ```)
+    text = re.sub(r'```[\w]*\n.*?```', '', text, flags=re.DOTALL)
+    text = re.sub(r'`[^`]+`', '', text)  # inline code
+
+    # 5. Remove raw JSON-looking blocks that start with { and contain tool_code/tool_name keys
+    # These are Autogen tool-call artifacts
+    def strip_json_blocks(t: str) -> str:
+        lines = t.split('\n')
+        result = []
+        skip = False
+        brace_depth = 0
+        for line in lines:
+            stripped = line.strip()
+            # Detect start of a JSON block containing tool keys
+            if not skip and stripped == '{' and brace_depth == 0:
+                # Peek ahead by tracking — start tentative skip
+                skip = True
+                brace_depth = 1
+                buffer = [line]
+                continue
+            if skip:
+                buffer.append(line)
+                brace_depth += stripped.count('{') - stripped.count('}')
+                if brace_depth <= 0:
+                    # Block ended — check if it's a tool-call JSON
+                    block_text = '\n'.join(buffer)
+                    if '"tool_code"' in block_text or '"tool_name"' in block_text or '"tool_use_id"' in block_text:
+                        # Discard this block entirely
+                        pass
+                    else:
+                        result.extend(buffer)
+                    skip = False
+                    brace_depth = 0
+                    buffer = []
+            else:
+                result.append(line)
+        # If we're still inside a block at EOF, apply same check
+        if skip and buffer:
+            block_text = '\n'.join(buffer)
+            if not ('"tool_code"' in block_text or '"tool_name"' in block_text):
+                result.extend(buffer)
+        return '\n'.join(result)
+
+    text = strip_json_blocks(text)
+
+    # 6. Collapse excessive blank lines (3+ → 2)
+    text = re.sub(r'\n{3,}', '\n\n', text)
+
+    return text.strip()
 INITIAL_BACKOFF_SECONDS = 30
 
 
@@ -177,6 +248,7 @@ Context: Focus on Marital Quality, Financial Status, and Shared Destiny.
         final_report.append(f"## {section['title']}\n\n")
         
         answer = await _run_section_with_retry(council, section['prompt'], section['title'])
+        answer = _clean_ai_response(answer)
         final_report.append(answer + "\n\n")
         
     return "".join(final_report)

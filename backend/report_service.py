@@ -92,6 +92,23 @@ def generate_pdf_report(user_name: str, report_type: str, content_data: dict) ->
         
         return text
 
+    # --- Pre-process: strip stray code blocks and JSON tool-call artifacts ---
+    import re as _re
+
+    def _preprocess_markdown(md: str) -> str:
+        # Remove fenced code blocks entirely (```...```)
+        md = _re.sub(r'```[\w]*\n.*?```', '', md, flags=_re.DOTALL)
+        # Remove <div ...>...</div> and <pre>...</pre> blocks
+        md = _re.sub(r'<div[^>]*>.*?</div>', '', md, flags=_re.DOTALL | _re.IGNORECASE)
+        md = _re.sub(r'<pre[^>]*>.*?</pre>', '', md, flags=_re.DOTALL | _re.IGNORECASE)
+        # Remove bare HTML tags
+        md = _re.sub(r'<[^>]+>', '', md)
+        # Collapse 3+ newlines to 2
+        md = _re.sub(r'\n{3,}', '\n\n', md)
+        return md
+
+    content_data = _preprocess_markdown(content_data)
+
     # --- Markdown Parsing Logic ---
     lines = content_data.split('\n')
     
