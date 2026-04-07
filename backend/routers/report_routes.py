@@ -77,6 +77,10 @@ async def process_report(job_id: str, user: User, report_type: str, birth_detail
             report_type=report_type
         )
         
+        # Validate: R1 now raises on failure, but double-check content isn't error text
+        if not markdown_report or markdown_report.strip().startswith("Error generating report:"):
+            raise Exception(f"R1 returned error content: {markdown_report[:200] if markdown_report else 'empty'}")
+        
         jobs[job_id]["message"] = "Finalizing secure PDF..."
         jobs[job_id]["estimated_time"] = "Almost done..."
         
@@ -215,3 +219,43 @@ async def get_my_reports(current_user: User = Depends(get_current_active_user)):
             r["created_at"] = r["created_at"].isoformat()
     
     return {"reports": reports, "total": len(reports)}
+
+@router.delete("/{job_id}")
+async def delete_report(job_id: str, current_user: User = Depends(get_current_active_user)):
+    """
+    Delete a specific report (e.g. corrupted/broken ones).
+    This allows the user to regenerate a fresh report.
+    """
+    if mongo_db.db is None:
+        raise HTTPException(status_code=503, detail="Database not available")
+    
+    result = await mongo_db.db.user_reports.delete_one(
+        {"job_id": job_id, "user_email": current_user.email}
+    )
+    
+    # Also clear from in-memory store
+    if job_id in jobs:
+        del jobs[job_id]
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Report not found")
+    
+    return {"message": "Report deleted. You can now generate a fresh one.", "deleted": True}
+
+@router.delete("/by-type/{report_type}")
+async def delete_reports_by_type(report_type: str, current_user: User = Depends(get_current_active_user)):
+    """
+    Delete ALL reports of a specific type for the current user.
+    Useful when a corrupted report keeps being returned by the existing-report check.
+    """
+    if mongo_db.db is None:
+        raise HTTPException(status_code=503, detail="Database not available")
+    
+    result = await mongo_db.db.user_reports.delete_many(
+        {"user_email": current_user.email, "report_type": report_type}
+    )
+    
+    return {
+        "message": f"Deleted {result.deleted_count} report(s) of type '{report_type}'.",
+        "deleted_count": result.deleted_count
+    }
