@@ -74,12 +74,23 @@ def generate_pdf_report(user_name: str, report_type: str, content_data: dict) ->
     story.append(Paragraph("_" * 60, normal_style))
     story.append(Spacer(1, 24))
 
-    # Helper for bold replacement
+    # Helper for bold replacement with XML safety
     def parse_bold(text):
-        # Replace **text** with <b>text</b> using regex to match pairs
-        # Non-greedy match for content between **
         import re
-        return re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text)
+        # Step 1: Escape XML-unsafe characters FIRST (before adding our own tags)
+        # This prevents ReportLab's XML parser from choking on raw <, >, & from AI output
+        text = text.replace('&', '&amp;')
+        text = text.replace('<', '&lt;')
+        text = text.replace('>', '&gt;')
+        
+        # Step 2: Now safely convert markdown bold **text** to <b>text</b>
+        text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text)
+        
+        # Step 3: Strip any remaining unclosed/broken XML-like tags that slipped through
+        # This catches edge cases where AI generates partial tags
+        text = re.sub(r'<(?!/?b>|/?i>|/?u>|br\s*/?>)[^>]*>', '', text)
+        
+        return text
 
     # --- Markdown Parsing Logic ---
     lines = content_data.split('\n')
@@ -88,6 +99,7 @@ def generate_pdf_report(user_name: str, report_type: str, content_data: dict) ->
     table_data = []
     
     for line in lines:
+      try:
         line = line.strip()
         if not line:
             if in_table and table_data:
@@ -111,21 +123,21 @@ def generate_pdf_report(user_name: str, report_type: str, content_data: dict) ->
                 in_table = False
             continue
 
-        # Headlines
+        # Headlines (all text must go through parse_bold for XML safety)
         if line.startswith('# '): # H1
             h1 = styles['Heading1']
             h1.textColor = colors.darkblue
-            story.append(Paragraph(line[2:], h1))
+            story.append(Paragraph(parse_bold(line[2:]), h1))
             story.append(Spacer(1, 12))
-        elif line.startswith('## '): # H2 (Numbering usually handled by text)
+        elif line.startswith('## '): # H2
             h2 = styles['Heading2']
             h2.textColor = colors.purple
-            story.append(Paragraph(line[3:], h2))
+            story.append(Paragraph(parse_bold(line[3:]), h2))
             story.append(Spacer(1, 10))
         elif line.startswith('### '): # H3
             h3 = styles['Heading3']
             h3.textColor = colors.teal
-            story.append(Paragraph(line[4:], h3))
+            story.append(Paragraph(parse_bold(line[4:]), h3))
             story.append(Spacer(1, 8))
         
         # Blockquotes / Tips
@@ -177,6 +189,10 @@ def generate_pdf_report(user_name: str, report_type: str, content_data: dict) ->
             text = parse_bold(line)
             story.append(Paragraph(text, styles['Normal']))
             story.append(Spacer(1, 6))
+      except Exception as para_err:
+            # Skip lines that still break XML parser instead of crashing whole report
+            logger.warning(f"Skipping unparseable line: {para_err}")
+            continue
 
     # Flush any remaining table
     if in_table and table_data:
