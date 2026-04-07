@@ -134,16 +134,14 @@ async def generate_report_endpoint(
     background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_active_user)
 ):
-    # Check if user already has a recent completed report of this type (from today)
+    # Check if user already has a completed report of this type (ANY time — persistent)
     try:
         if mongo_db.db is not None:
-            today_start = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
             existing = await mongo_db.db.user_reports.find_one(
                 {
                     "user_email": current_user.email,
                     "report_type": request.report_type,
                     "status": "completed",
-                    "created_at": {"$gte": today_start}
                 },
                 {"_id": 0},
                 sort=[("created_at", -1)]
@@ -153,7 +151,7 @@ async def generate_report_endpoint(
                 return ReportStatus(
                     job_id=existing["job_id"],
                     status="completed",
-                    message="Report already generated today! Download below.",
+                    message="Aapki report ready hai! Download karo.",
                     download_url=existing["download_url"],
                     estimated_time="0 seconds"
                 )
