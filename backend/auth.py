@@ -168,6 +168,11 @@ async def get_current_user_optional(credentials: Optional[HTTPAuthorizationCrede
     except (JWTError, Exception):
         return None
 
+import asyncio
+
+# Create a cached request object for Google Auth so we don't fetch certs on every login
+_google_auth_request = requests.Request()
+
 async def verify_google_token(token: str) -> Dict[str, Any]:
     """
     Verify Google OAuth ID token (JWT) OR Access Token (ya29...) and return user info
@@ -185,9 +190,12 @@ async def verify_google_token(token: str) -> Dict[str, Any]:
                 return resp.json()
 
         # 2. Handle ID Token (JWT) - Typically from Web
-        idinfo = id_token.verify_oauth2_token(
+        # Use asyncio.to_thread to prevent blocking the async loop with synchronous certificate fetching
+        # Use global cached _google_auth_request to prevent fetching certs on every login
+        idinfo = await asyncio.to_thread(
+            id_token.verify_oauth2_token,
             token, 
-            requests.Request(), 
+            _google_auth_request, 
             GOOGLE_CLIENT_ID
         )
         
