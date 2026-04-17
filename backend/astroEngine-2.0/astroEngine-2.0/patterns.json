@@ -18,18 +18,5 @@
             "7": "Wife, husband, marriage, urinary organs, marital happiness, sexual diseases, trade and speculation, desire, diplomacy, honour, travels, business tact, latent energies. Most commonly referred to as the 'marriage and relationship' house, shows the success or failure of business relationships or partnerships, marital-type relationships, rules over short trips you may undertake, certain businesses especially those having connection with the general public."
         },
         "prompt_guidance": "Analyze the 5th house (romance) and 7th house (partnership) in D1 and D9 charts. Check Venus position, strength, and aspects. Examine Mars for passion and pursuit energy. Consider Moon for emotional compatibility. Look at current transits affecting these houses. Provide specific predictions about dating prospects, timing, and characteristics of potential partner."
-    },
-    "general": {
-        "description": "Analysis of general life prospects, personality, and overall well-being",
-        "focus_houses": [
-            1
-        ],
-        "required_charts": {
-            "D1": "Physical attraction & external reality"
-        },
-        "house_significance": {
-            "1": "Beginning of life, childhood, health, environment, personality, physical body, character, general strength of the horoscope, types of aspirations and direction, physical appearance, well-being of physical nature, strength of character, how individuals represent themselves to the world."
-        },
-        "prompt_guidance": "Analyze the 1st house (personality) in D1 charts. Check the positions of Sun, Jupiter, and Saturn in these houses. Examine the aspects and conjunctions affecting these houses. Provide specific predictions about personality traits, career prospects, and financial gains."
     }
 }

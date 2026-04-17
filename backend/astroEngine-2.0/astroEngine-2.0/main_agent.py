@@ -63,7 +63,7 @@ class MainAgent:
                 "description": pattern.get("description", "")
             })
         
-        prompt = f"""Analyze the following user query and determine the most relevant astrology analysis domain.
+        prompt = f"""Analyze the following user query and determine the most relevant astrology analysis domain. YOU ARE A STRICT LOVE, ROMANCE, DATING AND EMOTIONAL ASTROLOGY AGENT. 
 
 User Query: "{query}"
 
@@ -77,7 +77,7 @@ Output valid JSON only:
     "reasoning": "brief explanation"
 }}
 
-If no domain matches well, set "intent" to "general" for a general life analysis.
+CRITICAL INSTRUCTION: If the user asks about career, finance, jobs, education, generic life overview, or anything outside of romantic relationships, dating, or emotional trauma/bonding, you MUST set "intent" to "out_of_scope". Do not attempt to fit a career question into dating.
 """
         
         self.logger.info(f"Analyzing intent with LLM for query: '{query}'")
@@ -128,24 +128,21 @@ If no domain matches well, set "intent" to "general" for a general life analysis
         confidence = intent_data.get("confidence", 0.0)
         method = intent_data.get("method", "unknown")
         
+        if intent == "out_of_scope":
+            self.logger.warning(f"Out of scope intent detected.")
+            return "I am a specific AI designed only for Love, Dating, Romance, and Emotional patterns. I cannot answer queries related to career, finance, or general life prospects. Please use the 'General Vedic AI' for those questions.", total_metrics
+
         if intent not in self.patterns:
             self.logger.warning(f"Unknown intent detected: {intent}")
-            # Default to general analysis
-            intent = "general"
-            self.logger.info(f"Defaulting to 'general' analysis")
+            intent = list(self.patterns.keys())[0] if self.patterns else "unknown"
+            self.logger.info(f"Defaulting to '{intent}' analysis")
 
         # 2. Get Pattern
         if intent in self.patterns:
             pattern = self.patterns[intent]
         else:
-            # Fallback if even "general" is missing from patterns.json
-            self.logger.warning("'general' intent not found in patterns.json. Using hardcoded fallback.")
-            pattern = {
-                "description": "General Life Analysis",
-                "focus_houses": ["1", "5", "9"],
-                "key_planets": ["Sun", "Moon", "Jupiter"],
-                "required_tools": ["get_planet_details", "get_house_details", "get_panchanga_details"]
-            }
+            self.logger.error("No patterns available for analysis.")
+            return "Server configuration error: No analysis patterns loaded.", total_metrics
         self.logger.info(f"Domain: {pattern.get('description', 'Unknown')}")
         
         # 3. Delegate to Sub Agent
