@@ -77,7 +77,8 @@ Output valid JSON only:
     "reasoning": "brief explanation"
 }}
 
-CRITICAL INSTRUCTION: If the user asks about career, finance, jobs, education, generic life overview, or anything outside of romantic relationships, dating, or emotional trauma/bonding, you MUST set "intent" to "out_of_scope". Do not attempt to fit a career question into dating.
+CRITICAL INSTRUCTION: If the user EXPLICITLY asks about career, finance, jobs, education, or business, you MUST set "intent" to "out_of_scope". 
+However, if the query is vague, emotional, conversational, or general (e.g., 'give me a suggestion', 'I feel lost', 'help me'), you MUST ASSUME it is related to their emotional/dating profile and map it to an available domain (do NOT set it to out_of_scope).
 """
         
         self.logger.info(f"Analyzing intent with LLM for query: '{query}'")
