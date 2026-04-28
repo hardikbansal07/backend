@@ -1285,8 +1285,10 @@ def compute_horoscope(req: models.HoroscopeRequest) -> models.StoredHoroscope:
             try:
                 upsert_persisted_request(rhash, req.model_dump(mode='json'))
                 persist_requests_sync()
-            except Exception:
-                pass
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(f"Failed to persist horo request: {e}", exc_info=True)
+                print(f"PERSIST ERROR: {e}")
             return stored
 
         finally:

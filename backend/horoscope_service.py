@@ -122,6 +122,12 @@ async def compress_and_store_horoscope(
                 "updated_at": datetime.utcnow()
             }
             
+            # Embed high-level birth details directly into EVERY chunk for easier debugging in DB
+            if birth_details:
+                doc["name"] = birth_details.get("name")
+                doc["date_of_birth"] = birth_details.get("date_of_birth")
+                doc["time_of_birth"] = birth_details.get("time_of_birth")
+            
             result = await mongo_db.db.horoscope_chunks.insert_one(doc)
             stored_chunks.append(str(result.inserted_id))
         

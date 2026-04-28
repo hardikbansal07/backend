@@ -223,7 +223,9 @@ CRITICAL DATA STATUS:
 - Birth details (Date, Time, Place) are ALREADY in the database.
 - User Name: {self.user_context.get('name', 'User') if self.user_context else 'User'}
 - User Gender: {self.user_context.get('gender', 'Unknown') if self.user_context else 'Unknown'}
-- DO NOT ask the user for birth details, date, time, or place. 
+- Preferred Language: {self.user_context.get('preferred_language', 'English') if self.user_context else 'English'}
+- DO NOT ask the user for birth details, date, time, or place.
+- IMPORTANT: You MUST provide your final analysis and all responses ENTIRELY in {self.user_context.get('preferred_language', 'English') if self.user_context else 'English'}.
 
 DOMAIN ANALYSIS: {pattern.get('description', 'General')}
 
@@ -371,7 +373,7 @@ Step 2: SYNTHESIZE & PREDICT
 Once you have sufficient data, provide COMPREHENSIVE NATURAL LANGUAGE PREDICTION:
 
 CRITICAL WRITING STYLE:
-- **USE SIMPLE, EVERYDAY ENGLISH**: Write like you're telling a story to a friend
+- **USE SIMPLE, EVERYDAY {self.user_context.get('preferred_language', 'English') if self.user_context else 'English'}**: Write like you're telling a story to a friend
 - **MINIMIZE TECHNICAL JARGON**: Avoid terms like "lord", "placement", "aspect", "conjunction" where possible
 - **BE NARRATIVE**: Use storytelling style, not technical report style
 - **EXPLAIN IN CONTEXT**: Instead of "7th lord in 5th", say "your marriage prospects are connected to romance"
@@ -389,7 +391,7 @@ CRITICAL WRITING STYLE:
 [Explain WHY things matter in a way anyone can understand]
 
 ## Prediction
-**Answer:** [Clear Yes/No/Maybe with confidence level in plain English]
+**Answer:** [Clear Yes/No/Maybe with confidence level in plain {self.user_context.get('preferred_language', 'English') if self.user_context else 'English'}]
 **Timing:** [When this might happen - explain in simple terms]
 **Conditions:** [Factors that could change outcome]
 
@@ -499,6 +501,7 @@ ANALYSIS GUIDANCE:
 {pattern.get('prompt_guidance', 'Analyze the data provided.')}
 
 Provide a comprehensive natural language prediction based on this data.
+IMPORTANT: You MUST provide your prediction and all responses ENTIRELY in {self.user_context.get('preferred_language', 'English') if self.user_context else 'English'}.
 """
         
         # Simple LLM call without tools

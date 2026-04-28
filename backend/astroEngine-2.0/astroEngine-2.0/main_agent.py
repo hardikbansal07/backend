@@ -4,6 +4,7 @@ from llm_interface import GeminiLLM
 from sub_agent import SubAgent
 from horoscope_manager import HoroscopeManager
 from logger_config import setup_logger
+import re
 
 
 class MainAgent:
@@ -44,7 +45,42 @@ class MainAgent:
 
     def analyze_intent(self, query: str):
         """Analyze user query intent using LLM."""
+        if self._is_explicitly_out_of_scope(query):
+            self.logger.info("Rule-based out_of_scope detected before LLM intent detection.")
+            return {
+                "intent": "out_of_scope",
+                "confidence": 1.0,
+                "reasoning": "Explicit non-love domain detected by deterministic rules.",
+                "method": "rule_based"
+            }, {}
         return self._analyze_intent_with_llm(query)
+
+    def _is_explicitly_out_of_scope(self, query: str) -> bool:
+        """
+        Deterministic guardrail to keep Love AI focused on romance topics.
+        Returns True only when the query is clearly non-love and does not include love intent.
+        """
+        query_lower = query.lower()
+        normalized = re.sub(r"[^a-z0-9\s]", " ", query_lower)
+        normalized = re.sub(r"\s+", " ", normalized).strip()
+
+        love_keywords = [
+            "love", "romance", "romantic", "dating", "relationship",
+            "partner", "spouse", "marriage", "crush", "breakup",
+            "boyfriend", "girlfriend", "husband", "wife", "compatibility"
+        ]
+        out_of_scope_keywords = [
+            "family", "parents", "mother", "father", "siblings",
+            "career", "carrier", "job", "jobs", "work", "profession",
+            "business", "startup", "education", "study", "exam",
+            "finance", "financial", "money", "income", "salary",
+            "resource", "resources", "investment", "investments",
+            "property", "wealth", "growth"
+        ]
+
+        has_love_signal = any(k in normalized for k in love_keywords)
+        has_out_of_scope_signal = any(k in normalized for k in out_of_scope_keywords)
+        return has_out_of_scope_signal and not has_love_signal
 
     def _analyze_intent_with_llm(self, query: str):
         """
@@ -77,7 +113,7 @@ Output valid JSON only:
     "reasoning": "brief explanation"
 }}
 
-CRITICAL INSTRUCTION: If the user EXPLICITLY asks about career, finance, jobs, education, or business, you MUST set "intent" to "out_of_scope". 
+CRITICAL INSTRUCTION: If the user EXPLICITLY asks about family, career, growth, finance, jobs, education, business, or other general life prospects non-related to love/romance, you MUST set "intent" to "out_of_scope". 
 However, if the query is vague, emotional, conversational, or general (e.g., 'give me a suggestion', 'I feel lost', 'help me'), you MUST ASSUME it is related to their emotional/dating profile and map it to an available domain (do NOT set it to out_of_scope).
 """
         
@@ -131,7 +167,7 @@ However, if the query is vague, emotional, conversational, or general (e.g., 'gi
         
         if intent == "out_of_scope":
             self.logger.warning(f"Out of scope intent detected.")
-            return "I am a specific AI designed only for Love, Dating, Romance, and Emotional patterns. I cannot answer queries related to career, finance, or general life prospects. Please use the 'General Vedic AI' for those questions.", total_metrics
+            return "I am a specific AI designed only for Love, Dating, Romance, and Emotional patterns. I cannot answer queries related to family, career, growth, finance, or general life prospects. Please use the 'General Vedic AI' for those questions.", total_metrics
 
         if intent not in self.patterns:
             self.logger.warning(f"Unknown intent detected: {intent}")
