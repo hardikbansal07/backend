@@ -16,6 +16,7 @@ from pathlib import Path
 import logging
 import json
 import asyncio
+from bson import ObjectId
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 # Import Vertex AI components
@@ -44,6 +45,9 @@ class ChatResponse(BaseModel):
     has_horoscope_data: bool
     questions_remaining: int
     total_questions_asked: int
+
+class DeleteChatRequest(BaseModel):
+    conversation_ids: List[str]
 
 class BirthDetailsRequest(BaseModel):
     name: str  # User's name
@@ -772,3 +776,33 @@ async def get_question_status(
             status_code=500,
             detail=f"Failed to get question status: {str(e)}"
         )
+
+@router.delete("/chat/history")
+async def delete_deva_chat_history(
+    request: DeleteChatRequest,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Delete multiple deva chat history records"""
+    try:
+        object_ids = []
+        for cid in request.conversation_ids:
+            try:
+                object_ids.append(ObjectId(cid))
+            except:
+                pass
+                
+        if not object_ids:
+            return {"status": "success", "deleted_count": 0}
+            
+        result = await mongo_db.db.deva_conversations.delete_many({
+            "_id": {"$in": object_ids},
+            "user_email": current_user.email
+        })
+        
+        return {
+            "status": "success",
+            "deleted_count": result.deleted_count
+        }
+    except Exception as e:
+        logger.error(f"Error deleting deva history: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

@@ -15,6 +15,7 @@ import os
 from pathlib import Path
 import logging
 import json
+from bson import ObjectId
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +58,9 @@ class LoveChatRequest(BaseModel):
     question: str = Field(..., description="User's love/relationship question")
     request_id: Optional[str] = Field(None, description="Horoscope request ID (if exists)")
     birth_details: Optional[Dict[str, Any]] = Field(None, description="Birth details if no horoscope exists")
+
+class DeleteChatRequest(BaseModel):
+    conversation_ids: List[str]
 
 
 class LoveChatResponse(BaseModel):
@@ -345,4 +349,34 @@ async def get_chat_history(
         
     except Exception as e:
         logger.error(f"Error fetching history: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.delete("/api/v1/love-chat/history")
+async def delete_love_chat_history(
+    request: DeleteChatRequest,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Delete multiple chat history records"""
+    try:
+        object_ids = []
+        for cid in request.conversation_ids:
+            try:
+                object_ids.append(ObjectId(cid))
+            except:
+                pass
+                
+        if not object_ids:
+            return {"status": "success", "deleted_count": 0}
+            
+        result = await mongo_db.db.love_chat_conversations.delete_many({
+            "_id": {"$in": object_ids},
+            "user_email": current_user.email
+        })
+        
+        return {
+            "status": "success",
+            "deleted_count": result.deleted_count
+        }
+    except Exception as e:
+        logger.error(f"Error deleting history: {e}")
         raise HTTPException(status_code=500, detail=str(e))
