@@ -17,64 +17,103 @@ CANONICAL_NAKSHATRAS = [
 
 # Build variant map: (lowercased, alphanumeric stripped) -> canonical
 _VARIANTS = {
-    # 1
+    # 1 Ashwini
     'aswini':'Ashwini','ashvini':'Ashwini','ashwini':'Ashwini','aswathi':'Ashwini','aswati':'Ashwini',
-    # 2
+
+    # 2 Bharani
     'bharani':'Bharani','barani':'Bharani',
-    # 3
+
+    # 3 Krittika
     'karthigai':'Krittika','karthika':'Krittika','krittika':'Krittika','krithika':'Krittika','cartika':'Krittika',
-    # 4
+
+    # 4 Rohini
     'rohini':'Rohini',
-    # 5
-    'mrigashira':'Mrigashira','mrigshira':'Mrigashira','mrigasira':'Mrigashira','mrigasheersha':'Mrigashira','mrigasheesham':'Mrigashira','mrigasira':'Mrigashira','mrigashirsha':'Mrigashira',
-    # 6
-    'ardra':'Ardra','arudra':'Ardra','thiruvaathirai':'Ardra','thiruvathirai':'Ardra','tiruvadirai':'Ardra','thiruvadirai':'Ardra','thuruvathira':'Ardra',
-    # 7
-    'punarvasu':'Punarvasu','punarpoosam':'Punarvasu','punarphalguni':'Punarvasu',
-    # 8
+
+    # 5 Mrigashira
+    'mrigashira':'Mrigashira','mrigshira':'Mrigashira','mrigasira':'Mrigashira',
+    'mrigasheersha':'Mrigashira','mrigasheesham':'Mrigashira','mrigashirsha':'Mrigashira',
+
+    # 6 Ardra
+    'ardra':'Ardra','arudra':'Ardra','thiruvaathirai':'Ardra','thiruvathirai':'Ardra',
+    'tiruvadirai':'Ardra','thiruvadirai':'Ardra','thuruvathira':'Ardra',
+
+    # 7 Punarvasu
+    'punarvasu':'Punarvasu','punarpoosam':'Punarvasu',
+
+    # 8 Pushya
     'pushya':'Pushya','poosam':'Pushya','pooyam':'Pushya','pusya':'Pushya',
-    # 9
+
+    # 9 Ashlesha
     'ashlesha':'Ashlesha','aslesha':'Ashlesha','ayilyam':'Ashlesha','aayilyam':'Ashlesha','ayilya':'Ashlesha',
-    # 10
+
+    # 10 Magha
     'magha':'Magha','makam':'Magha','makha':'Magha',
-    # 11
-    'purvaphalguni':'Purva Phalguni','poorvaphalguni':'Purva Phalguni','poorvam':'Purva Phalguni','pooram':'Purva Phalguni','puram':'Purva Phalguni',
-    # 12
-    'uttaraphalguni':'Uttara Phalguni','uthiram':'Uttara Phalguni','uttiram':'Uttara Phalguni','uttaram':'Uttara Phalguni',
-    # 13
+
+    # 11 Purva Phalguni
+    'purvaphalguni':'Purva Phalguni','poorvaphalguni':'Purva Phalguni',
+    'poorvam':'Purva Phalguni','pooram':'Purva Phalguni','puram':'Purva Phalguni',
+
+    # 12 Uttara Phalguni
+    'uttaraphalguni':'Uttara Phalguni','uthiram':'Uttara Phalguni',
+    'uttiram':'Uttara Phalguni','uttaram':'Uttara Phalguni',
+
+    # 13 Hasta
     'hasta':'Hasta','hastham':'Hasta',
-    # 14
-    'chitra':'Chitra','chithra':'Chitra','chithirai':'Chitra','chithirai':'Chitra','chitraa':'Chitra',
-    # 15
+
+    # 14 Chitra
+    'chitra':'Chitra','chithra':'Chitra','chithirai':'Chitra','chitraa':'Chitra',
+
+    # 15 Swati
     'swati':'Swati','swathi':'Swati','swaati':'Swati','swaathi':'Swati',
-    # 16
+
+    # 16 Vishakha
     'vishakha':'Vishakha','visakha':'Vishakha','visaakam':'Vishakha','visakam':'Vishakha',
-    # 17
-    'anuradha':'Anuradha','anusham':'Anuradha','anuradha':'Anuradha',
-    # 18
-    'jyeshtha':'Jyeshtha','jyestha':'Jyeshtha','jyesta':'Jyeshtha','kaettai':'Jyeshtha','kettai':'Jyeshtha','ketta':'Jyeshtha','kettai':'Jyeshtha','jettha':'Jyeshtha','kaettai':'Jyeshtha',
-    # 19
+
+    # 17 Anuradha
+    'anuradha':'Anuradha','anusham':'Anuradha',
+
+    # 18 Jyeshtha
+    'jyeshtha':'Jyeshtha','jyestha':'Jyeshtha','jyesta':'Jyeshtha',
+    'kaettai':'Jyeshtha','kettai':'Jyeshtha','ketta':'Jyeshtha','jettha':'Jyeshtha',
+
+    # 19 Mula
     'mula':'Mula','moolam':'Mula','mool':'Mula',
-    # 20
-    'purvaashadha':'Purva Ashadha','purvashadha':'Purva Ashadha','pooraadam':'Purva Ashadha','pooraadham':'Purva Ashadha','pooraadam':'Purva Ashadha','purvaashada':'Purva Ashadha',
-    # 21
-    'uttaraashadha':'Uttara Ashadha','uttarashadha':'Uttara Ashadha','uthiraadam':'Uttara Ashadha','uthiradam':'Uttara Ashadha','uthraadam':'Uttara Ashadha','uttiraadam':'Uttara Ashadha',
-    # 22
-    'shravana':'Shravana','sravana':'Shravana','thiruvonam':'Shravana','tiruvonam':'Shravana','thiruvon':'Shravana','thiruvonam':'Shravana',
-    # 23
-    'dhanishtha':'Dhanishtha','dhanishta':'Dhanishtha','avittam':'Dhanishtha','avittam':'Dhanishtha','avitt':'Dhanishtha',
-    # 24
-    'shatabhisha':'Shatabhisha','shatabhishta':'Shatabhisha','satabhisha':'Shatabhisha','satabhishak':'Shatabhisha','satabhisha':'Shatabhisha','sadhayam':'Shatabhisha',
-    # 25
-    'purvabhadrapada':'Purva Bhadrapada','poorattathi':'Purva Bhadrapada','poorvabhadra':'Purva Bhadrapada','purvabhadra':'Purva Bhadrapada','poorvabhadrapada':'Purva Bhadrapada',
-    # 26
-    'uttarabhadrapada':'Uttara Bhadrapada','uthirattathi':'Uttara Bhadrapada','uttarabhadra':'Uttara Bhadrapada','uttirattati':'Uttara Bhadrapada','uttirattathi':'Uttara Bhadrapada',
-    # 27
-    'revati':'Revati','revathi':'Revati','revathi':'Revati',
-    # 28 (optional)
+
+    # 20 Purva Ashadha
+    'purvaashadha':'Purva Ashadha','purvashadha':'Purva Ashadha',
+    'pooraadam':'Purva Ashadha','pooraadham':'Purva Ashadha','purvaashada':'Purva Ashadha',
+
+    # 21 Uttara Ashadha
+    'uttaraashadha':'Uttara Ashadha','uttarashadha':'Uttara Ashadha',
+    'uthiraadam':'Uttara Ashadha','uthiradam':'Uttara Ashadha',
+    'uthraadam':'Uttara Ashadha','uttiraadam':'Uttara Ashadha',
+
+    # 22 Shravana
+    'shravana':'Shravana','sravana':'Shravana',
+    'thiruvonam':'Shravana','tiruvonam':'Shravana','thiruvon':'Shravana',
+
+    # 23 Dhanishtha
+    'dhanishtha':'Dhanishtha','dhanishta':'Dhanishtha',
+    'avittam':'Dhanishtha','avitt':'Dhanishtha',
+
+    # 24 Shatabhisha
+    'shatabhisha':'Shatabhisha','shatabhishta':'Shatabhisha',
+    'satabhisha':'Shatabhisha','satabhishak':'Shatabhisha','sadhayam':'Shatabhisha',
+
+    # 25 Purva Bhadrapada
+    'purvabhadrapada':'Purva Bhadrapada','poorattathi':'Purva Bhadrapada',
+    'poorvabhadra':'Purva Bhadrapada','purvabhadra':'Purva Bhadrapada','poorvabhadrapada':'Purva Bhadrapada',
+
+    # 26 Uttara Bhadrapada
+    'uttarabhadrapada':'Uttara Bhadrapada','uthirattathi':'Uttara Bhadrapada',
+    'uttarabhadra':'Uttara Bhadrapada','uttirattati':'Uttara Bhadrapada','uttirattathi':'Uttara Bhadrapada',
+
+    # 27 Revati
+    'revati':'Revati','revathi':'Revati',
+
+    # 28 Abhijit (optional)
     'abhijit':'Abhijit','abhijith':'Abhijit'
 }
-
 _DEFALT_MAP = {re.sub(r'[^a-z]','', k.lower()): v for k,v in _VARIANTS.items()}
 
 def normalize_nakshatra(name: str | None) -> str | None:

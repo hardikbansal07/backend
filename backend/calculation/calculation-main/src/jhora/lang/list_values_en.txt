@@ -3,9 +3,9 @@ PLANET_NAMES=Sun☉,Moon☾,Mars♂,Mercury☿,Jupiter♃,Venus♀,Saturn♄,Raa
 ### List of raasi names
 RAASI_LIST=♈Aries,♉︎Taurus,♊︎Gemini,♋︎Cancer,♌︎Leo,♍︎Virgo,♎︎Libra,♏︎Scorpio,♐︎Sagittarius,♑︎Capricorn,♒︎Aquarius,♓︎Pisces
 ### List of nakshatra names
-NAKSHATRA_LIST=Aswini,Bharani,Karthigai,Rohini,Mrigasheesham,Thiruvaathirai,Punarpoosam,Poosam,Aayilyam,Makam,Pooram,Uthiram,Hastham,Chithirai,Swaathi,Visaakam,Anusham,Kaettai,Moolam,Pooraadam,Uthiraadam,Thiruvonam,Avittam,Sadhayam,Poorattathi,Uthirattathi,Revathi, Abhijith
+NAKSHATRA_LIST=Ashwini,Bharani,Krittika,Rohini,Mrigashira,Ardra,Punarvasu,Pushya,Ashlesha,Magha,Purva Phalguni,Uttara Phalguni,Hasta,Chitra,Swati,Vishakha,Anuradha,Jyeshtha,Mula,Purva Ashadha,Uttara Ashadha,Shravana,Dhanishta,Shatabhisha,Purva Bhadrapada,Uttara Bhadrapada,Revati,Abhijit
 ### List of short nakshathra names
-NAKSHATRA_SHORT_LIST=Asw,Bha,Kri,Roh,Mrig,Ardr,Puna,Push,Asre,Magh,PPha,UPha,Hast,Chit,Swat,Visa,Anu,Jye,Mool,PSha,USha,Srav,Dhan,Sat,PBha,UBha,Rev,Abhi
+NAKSHATRA_SHORT_LIST=Ash,Bha,Kri,Roh,Mri,Ard,Pun,Pus,Ashl,Mag,PPh,UPh,Has,Chi,Swa,Vis,Anu,Jye,Mul,PAs,UAs,Shr,Dha,Sha,PBh,UBh,Rev,Abh
 ### List of tithi names
 TITHI_LIST=Prathamai,Thuthiyai,Thiruthiyai,Sathurthi,Panjami,Shasti,Sapthami,Astami,Navami,Dhasami,Egadhasi,Dhuvadhasi,Thirayodasi,Sathuradasi,Pournami,Pirathamai,Thuthiyai,Thiruthiyai,Sathurthi,Panjami,Shasti,Sapthami,Ashtami,Navami,Dhasami,Egadhasi,Dhuvadhasi,Thirayodasi,Sathuradasi,Amavasai
 ### List of karana names
