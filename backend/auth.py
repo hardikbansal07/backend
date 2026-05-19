@@ -1,4 +1,5 @@
 import os
+import time
 from datetime import datetime, timedelta, UTC
 from typing import Optional, Dict, Any
 from fastapi import Depends, HTTPException, status, Request
@@ -170,38 +171,89 @@ async def get_current_user_optional(credentials: Optional[HTTPAuthorizationCrede
 
 import asyncio
 
-# Create a cached request object for Google Auth so we don't fetch certs on every login
-_google_auth_request = requests.Request()
+# ---------------------------------------------------------------------------
+# Shared persistent httpx client — avoids creating a new TCP connection per login
+# ---------------------------------------------------------------------------
+_http_client: Optional[httpx.AsyncClient] = None
+
+def _get_http_client() -> httpx.AsyncClient:
+    """Return a module-level shared httpx client (created once, reused across requests)."""
+    global _http_client
+    if _http_client is None or _http_client.is_closed:
+        _http_client = httpx.AsyncClient(timeout=httpx.Timeout(10.0))  # 10s timeout
+    return _http_client
+
+# ---------------------------------------------------------------------------
+# Google cert cache — certs are valid for ~1 hour, no need to fetch every login
+# ---------------------------------------------------------------------------
+_google_cert_cache: Dict[str, Any] = {}
+_google_cert_cache_ts: float = 0.0
+_GOOGLE_CERT_TTL_SECONDS = 3600  # 1 hour
+
+class _CachedGoogleRequest:
+    """
+    Drop-in replacement for google.auth.transport.requests.Request() that
+    serves Google's public certificates from an in-memory cache instead of
+    hitting the network on every single login.
+    """
+    def __call__(self, url, method="GET", body=None, headers=None, timeout=None, **kwargs):
+        global _google_cert_cache, _google_cert_cache_ts
+
+        now = time.monotonic()
+        if _google_cert_cache and (now - _google_cert_cache_ts) < _GOOGLE_CERT_TTL_SECONDS:
+            # Return cached certs as a fake Response object
+            logger.debug("Google certs served from cache")
+            return _FakeResponse(200, _google_cert_cache)
+
+        # Cache miss — fetch fresh certs
+        real_request = requests.Request()
+        response = real_request(url, method=method, body=body, headers=headers, timeout=timeout, **kwargs)
+        try:
+            _google_cert_cache = response.data  # type: ignore[attr-defined]
+            _google_cert_cache_ts = now
+            logger.info("Google public certs refreshed and cached")
+        except Exception:
+            pass
+        return response
+
+class _FakeResponse:
+    """Minimal fake response to satisfy google-auth library's expectations."""
+    def __init__(self, status, data):
+        self.status = status
+        self.data = data
+
+_cached_google_request = _CachedGoogleRequest()
 
 async def verify_google_token(token: str) -> Dict[str, Any]:
     """
-    Verify Google OAuth ID token (JWT) OR Access Token (ya29...) and return user info
+    Verify Google OAuth ID token (JWT) OR Access Token (ya29...) and return user info.
+    Uses cert caching and a persistent httpx client to minimise latency.
     """
     try:
-        # 1. Handle Access Token (ya29...) - Typically from Native/Expo Proxy
+        # 1. Handle Access Token (ya29...) — Typically from Native/Expo Proxy
         if token.startswith("ya29."):
-            async with httpx.AsyncClient() as client:
-                resp = await client.get(
-                    "https://www.googleapis.com/oauth2/v3/userinfo",
-                    headers={"Authorization": f"Bearer {token}"}
-                )
-                if resp.status_code != 200:
-                    raise ValueError(f"Invalid Access Token: {resp.text}")
-                return resp.json()
+            client = _get_http_client()
+            resp = await client.get(
+                "https://www.googleapis.com/oauth2/v3/userinfo",
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            if resp.status_code != 200:
+                raise ValueError(f"Invalid Access Token: {resp.text}")
+            return resp.json()
 
-        # 2. Handle ID Token (JWT) - Typically from Web
-        # Use asyncio.to_thread to prevent blocking the async loop with synchronous certificate fetching
-        # Use global cached _google_auth_request to prevent fetching certs on every login
+        # 2. Handle ID Token (JWT) — Typically from Web / React Native Google Sign-In
+        # asyncio.to_thread prevents this blocking call from freezing the async event loop.
+        # _cached_google_request serves certs from memory after the first login.
         idinfo = await asyncio.to_thread(
             id_token.verify_oauth2_token,
-            token, 
-            _google_auth_request, 
+            token,
+            _cached_google_request,
             GOOGLE_CLIENT_ID
         )
-        
+
         if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
             raise ValueError('Invalid issuer')
-        
+
         return idinfo
 
     except ValueError as e:
@@ -219,39 +271,81 @@ async def verify_google_token(token: str) -> Dict[str, Any]:
 
 async def get_or_create_google_user(google_user_info: Dict[str, Any]) -> UserInDB:
     """
-    Get existing user or create new user from Google OAuth data
+    Get existing user or create new user from Google OAuth data.
+    Lookup priority:
+    1. By google_id (fast index lookup, prevents duplicates)
+    2. By email (link existing account to Google)
+    3. Create new user
     """
     if mongo_db.db is None:
         raise HTTPException(status_code=500, detail="Database not initialized")
-    
+
+    google_id = google_user_info.get("sub")  # Google's unique user ID
     email = google_user_info.get("email")
     if not email:
         raise HTTPException(status_code=400, detail="Email not provided by Google")
-    
-    # Check if user exists
-    existing_user = await mongo_db.db.users.find_one({"email": email})
-    
-    if existing_user:
-        # Update last_active for existing user
+
+    name = google_user_info.get("name", email.split("@")[0])
+    profile_photo = google_user_info.get("picture")
+    now = datetime.utcnow()
+
+    # --- Lookup 1: By google_id (fastest, prevents duplicate accounts) ---
+    if google_id:
+        existing_by_gid = await mongo_db.db.users.find_one({"google_id": google_id})
+        if existing_by_gid:
+            update_data = {
+                "last_active": now,
+                "updated_at": now,
+                "full_name": name or existing_by_gid.get("full_name"),
+                "username": name or existing_by_gid.get("username"),
+            }
+            if profile_photo:
+                update_data["profile_photo"] = profile_photo
+            await mongo_db.db.users.update_one(
+                {"google_id": google_id},
+                {"$set": update_data}
+            )
+            updated = await mongo_db.db.users.find_one({"google_id": google_id})
+            logger.info(f"Google re-login: existing user {google_id}")
+            return UserInDB(**updated)
+
+    # --- Lookup 2: By email (link Google to existing email account) ---
+    existing_by_email = await mongo_db.db.users.find_one({"email": email})
+    if existing_by_email:
+        update_data = {
+            "last_active": now,
+            "updated_at": now,
+            "auth_provider": "google",
+        }
+        if google_id:
+            update_data["google_id"] = google_id
+        if profile_photo and not existing_by_email.get("profile_photo"):
+            update_data["profile_photo"] = profile_photo
         await mongo_db.db.users.update_one(
             {"email": email},
-            {"$set": {"last_active": datetime.utcnow()}}
+            {"$set": update_data}
         )
-        return UserInDB(**existing_user)
-    
-    # Create new user
+        updated = await mongo_db.db.users.find_one({"email": email})
+        logger.info(f"Linked Google ID to existing email account: {email}")
+        return UserInDB(**updated)
+
+    # --- Lookup 3: Create new user ---
     new_user = UserInDB(
         email=email,
-        username=google_user_info.get("name", email.split("@")[0]),
-        full_name=google_user_info.get("name"),
+        username=name,
+        full_name=name,
         hashed_password="",  # No password for Google OAuth users
         disabled=False,
-        last_active=datetime.utcnow()
+        last_active=now,
+        created_at=now,
+        updated_at=now,
+        auth_provider="google",
+        google_id=google_id,
+        profile_photo=profile_photo,
     )
-    
+
     await mongo_db.db.users.insert_one(new_user.dict())
-    logger.info(f"Created new Google OAuth user: {email}")
-    
+    logger.info(f"Created new Google OAuth user: {email} (google_id: {google_id})")
     return new_user
 
 async def verify_facebook_token(token: str) -> Dict[str, Any]:

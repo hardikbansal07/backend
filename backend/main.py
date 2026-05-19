@@ -46,21 +46,41 @@ async def lifespan(app: FastAPI):
         logging.info("Connecting to MongoDB...")
         from mongo import connect_to_mongo, close_mongo_connection
         await connect_to_mongo()
-        
-        # World city index preloading removed - now using Photon API for place search
-        
+
+        # Pre-warm Google OAuth certs so 1st user login is instant
+        # (Google certs are hosted in the US — fetching at startup avoids
+        #  the first user paying the ~500ms India→US round-trip penalty)
+        try:
+            import asyncio
+            from auth import _cached_google_request, _get_http_client
+            # Touch the httpx client so it's ready (TCP connection pre-established)
+            _get_http_client()
+            # Pre-fetch Google public certs into the in-memory cache
+            await asyncio.to_thread(
+                _cached_google_request,
+                "https://www.googleapis.com/oauth2/v3/certs"
+            )
+            logging.info("Google OAuth certs pre-loaded into cache ✅")
+        except Exception as cert_err:
+            # Non-fatal — login will still work, just slightly slower on 1st call
+            logging.warning(f"Could not pre-warm Google certs (non-fatal): {cert_err}")
+
     except Exception as e:
         logging.error(f"Startup failed: {e}", exc_info=True)
-    
+
     yield
-    
+
     # Shutdown
     try:
         from mongo import close_mongo_connection
+        from auth import _http_client
         await close_mongo_connection()
+        if _http_client and not _http_client.is_closed:
+            await _http_client.aclose()
         logging.info("Database connection closed.")
     except Exception as e:
         logging.error(f"Shutdown error: {e}")
+
 
 app = FastAPI(
     title="Astrology Backend API",

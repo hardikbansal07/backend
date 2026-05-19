@@ -77,7 +77,11 @@ class MongoDB:
             
             # Guest session persistence index
             await self.db.users.create_index([("is_guest", 1), ("device_id", 1)])
-            
+
+            # OAuth provider ID indexes (sparse=True: only indexes docs that have these fields)
+            await self.db.users.create_index("google_id", sparse=True)
+            await self.db.users.create_index("facebook_id", sparse=True)
+
             # Horoscope indexes
             await self.db.horoscopes.create_index([("user_email", 1), ("request_id", 1)], unique=True)
             await self.db.horoscopes.create_index("user_email")
