@@ -38,16 +38,27 @@ if str(deva_agent_path) not in sys.path:
 # ─────────────────────────────────────────────────────────────────────────────
 DOMAIN_CONFIG = {
     "general": {
-        "title": "General Intelligence",
-        "focus_houses": [1, 4, 9, 10, 11],
-        "key_planets": ["Sun", "Moon", "Jupiter", "Saturn"],
+        "title": "Personality",
+        "focus_houses": [1, 3, 4, 5],
+        "key_planets": ["Sun", "Moon", "Mercury", "Lagna Lord"],
         "specialist_focus": (
-            "Perform a holistic life reading. Analyze the 1st house (self/body), "
-            "9th house (fortune/dharma), 10th house (purpose/direction), "
-            "11th house (gains/fulfilment), and 4th house (inner happiness). "
-            "Give a broad life overview covering all major areas."
+            "DOMAIN: PERSONALITY ANALYSIS. "
+            "This is a deep character and self-discovery reading. "
+            "Analyze ONLY personality and self-related indicators: "
+            "1st house (Lagna/Ascendant) — PRIMARY: body, self-image, personal identity, "
+            "approach to life, and how others perceive the person. "
+            "Moon sign and nakshatra — emotional temperament, instinctive reactions, mind patterns. "
+            "Sun sign and house — ego, confidence, core identity, willpower. "
+            "Mercury — intelligence style, communication, how the person thinks and learns. "
+            "5th house — intellect, creativity, and innate talents. "
+            "3rd house — courage, initiative, and communication style. "
+            "Atma Karaka (planet with highest degree) — soul's deepest desire and life lesson. "
+            "Identify: What type of personality is this? (Martian/Venusian/Saturnine/Mercurial/Jovial/Solar/Lunar) "
+            "What are their hidden strengths? What are their karmic weaknesses? "
+            "What is their life purpose (Dharma)? "
+            "Give a rich, psychologically deep personality portrait."
         ),
-        "varga_focus": "D1 overall chart + D9 soul strength."
+        "varga_focus": "D1 Lagna + Moon nakshatra for personality. D9 for soul-level character."
     },
     "career": {
         "title": "Career & Business",
