@@ -33,10 +33,160 @@ deva_agent_path = Path(__file__).parent / "deva-agent-deva_wow" / "deva-agent"
 if str(deva_agent_path) not in sys.path:
     sys.path.insert(0, str(deva_agent_path))
 
+# ─────────────────────────────────────────────────────────────────────────────
+# DOMAIN CONFIG — Har engine ka focused house + planet + instructions
+# ─────────────────────────────────────────────────────────────────────────────
+DOMAIN_CONFIG = {
+    "general": {
+        "title": "General Intelligence",
+        "focus_houses": [1, 4, 9, 10, 11],
+        "key_planets": ["Sun", "Moon", "Jupiter", "Saturn"],
+        "specialist_focus": (
+            "Perform a holistic life reading. Analyze the 1st house (self/body), "
+            "9th house (fortune/dharma), 10th house (purpose/direction), "
+            "11th house (gains/fulfilment), and 4th house (inner happiness). "
+            "Give a broad life overview covering all major areas."
+        ),
+        "varga_focus": "D1 overall chart + D9 soul strength."
+    },
+    "career": {
+        "title": "Career & Business",
+        "focus_houses": [2, 6, 10, 11],
+        "key_planets": ["Saturn", "Sun", "Mercury", "Jupiter"],
+        "specialist_focus": (
+            "DOMAIN: CAREER & BUSINESS. "
+            "Analyze ONLY career-related houses: "
+            "10th house (profession/authority/boss), "
+            "6th house (daily work/competition/enemies at work), "
+            "2nd house (income/savings from work), "
+            "11th house (career gains/promotions/network). "
+            "Check Amatya Karaka (AmK) planet — it is the career significator. "
+            "Check D10 Dasamsa chart for professional destiny. "
+            "Give concrete career predictions with timing."
+        ),
+        "varga_focus": "D10 (Dasamsa) is PRIMARY for career. D1 10th house is SECONDARY."
+    },
+    "finance": {
+        "title": "Finance & Wealth",
+        "focus_houses": [2, 5, 9, 11],
+        "key_planets": ["Jupiter", "Venus", "Mercury", "Moon"],
+        "specialist_focus": (
+            "DOMAIN: FINANCE & WEALTH. "
+            "Analyze ONLY wealth-related houses: "
+            "2nd house (savings/bank balance/family wealth), "
+            "11th house (income gains/profits), "
+            "5th house (investments/speculation/stock market), "
+            "9th house (luck/fortune/inherited wealth). "
+            "Jupiter is the karaka for wealth — check its strength. "
+            "Check D2 Hora chart using varga tool (varga_num=2) for wealth potential. "
+            "Give specific financial predictions and wealth-building timeline."
+        ),
+        "varga_focus": "D2 (Hora) wealth strength + D11 gains chart."
+    },
+    "health": {
+        "title": "Health & Vitality",
+        "focus_houses": [1, 6, 8, 12],
+        "key_planets": ["Sun", "Moon", "Mars", "Saturn"],
+        "specialist_focus": (
+            "DOMAIN: HEALTH & VITALITY. "
+            "Analyze ONLY health-related houses: "
+            "1st house (body constitution/overall vitality), "
+            "6th house (disease/immunity/digestive health), "
+            "8th house (chronic illness/surgery/longevity), "
+            "12th house (hospitalization/hidden illness/sleep). "
+            "Check which planets are in these houses and their dignity. "
+            "Check D30 Trimsamsa using varga tool (varga_num=30) for hidden health risks. "
+            "Identify body parts at risk based on afflicted houses. "
+            "Give health predictions with preventive advice."
+        ),
+        "varga_focus": "D30 (Trimsamsa) hidden ailments + D1 6th house afflictions."
+    },
+    "children": {
+        "title": "Children & Family",
+        "focus_houses": [4, 5, 9, 11],
+        "key_planets": ["Jupiter", "Moon", "Sun", "Venus"],
+        "specialist_focus": (
+            "DOMAIN: CHILDREN & FAMILY. "
+            "Analyze ONLY children and family related houses: "
+            "5th house (children/conception/progeny) — PRIMARY, "
+            "4th house (home/mother/domestic happiness), "
+            "9th house (father/blessings/higher dharma), "
+            "11th house (elder siblings/fulfilment of desires). "
+            "Jupiter is the karaka for children — check its strength and placement. "
+            "Check D7 Saptamsa using varga tool (varga_num=7) for children potential. "
+            "Give predictions about timing of children, family harmony, and parenting."
+        ),
+        "varga_focus": "D7 (Saptamsa) children potential + D4 (Chaturthamsa) home/property."
+    },
+    "public": {
+        "title": "Public & Masses",
+        "focus_houses": [1, 3, 10, 11],
+        "key_planets": ["Sun", "Moon", "Rahu", "Jupiter"],
+        "specialist_focus": (
+            "DOMAIN: PUBLIC IMAGE & FAME. "
+            "Analyze ONLY fame and mass-appeal related houses: "
+            "10th house (public reputation/social status/recognition), "
+            "1st house (personal brand/self-projection/charisma), "
+            "11th house (mass following/fan base/large networks), "
+            "3rd house (media/communication/content/social media). "
+            "Rahu amplifies public exposure — check its placement. "
+            "Moon's nakshatra determines mass appeal and emotional connect. "
+            "Check D10 for public status using divisional strength tool. "
+            "Give predictions about fame, recognition, and public influence timeline."
+        ),
+        "varga_focus": "D10 public status + Moon nakshatra for mass appeal."
+    },
+    "crush_dating": {
+        "title": "Crush & Dating",
+        "focus_houses": [1, 3, 5, 11],
+        "key_planets": ["Venus", "Mars", "Moon", "Mercury"],
+        "specialist_focus": (
+            "DOMAIN: CRUSH & DATING. "
+            "Analyze ONLY romance and attraction-related houses: "
+            "5th house (crush/romantic feelings/love affairs) — PRIMARY, "
+            "1st house (personal magnetism/attractiveness/confidence), "
+            "3rd house (flirting/messaging/communication with crush), "
+            "11th house (fulfillment of romantic desires/getting noticed). "
+            "Venus is the karaka for love and attraction — check its strength, sign, and aspects. "
+            "Mars drives pursuit and desire energy — check its placement. "
+            "Moon governs emotional feelings for the crush — check its nakshatra. "
+            "Mercury in 3rd or 5th gives communication charm. "
+            "Check D5 Panchamsa using varga tool (varga_num=5) for romantic charm. "
+            "Answer: Will the crush reciprocate? When? What attracts them? How to approach?"
+        ),
+        "varga_focus": "D5 (Panchamsa) romantic charm + D1 5th house love potential."
+    },
+    "love_marriage": {
+        "title": "Love & Marriage 2.0",
+        "focus_houses": [1, 2, 5, 7, 8, 11],
+        "key_planets": ["Venus", "Jupiter", "Mars", "Saturn", "Moon"],
+        "specialist_focus": (
+            "DOMAIN: LOVE & MARRIAGE 2.0. "
+            "This is a deep marriage and long-term relationship analysis. "
+            "Analyze ALL marriage-related houses: "
+            "7th house (spouse/marriage/partnership) — PRIMARY, "
+            "5th house (love before marriage/romance/attraction), "
+            "8th house (longevity of marriage/in-laws/physical intimacy), "
+            "2nd house (family life after marriage/domestic stability), "
+            "11th house (gains from marriage/fulfilment of marital desires), "
+            "1st house (self in marriage/how you behave as a partner). "
+            "Venus is the karaka for marriage (for males) — check strength and dignity. "
+            "Jupiter is the karaka for husband (for females) — check placement. "
+            "Saturn can delay marriage — check if it aspects or occupies 7th house. "
+            "Check D9 Navamsa using varga tool (varga_num=9) — it is THE most important chart for marriage destiny. "
+            "Check D7 Saptamsa for children from marriage. "
+            "Give: Marriage timing (when?), Spouse profile (how will they be?), "
+            "Compatibility indicators, Challenges to expect, and Remedies."
+        ),
+        "varga_focus": "D9 (Navamsa) is PRIMARY for marriage destiny. D1 7th house is SECONDARY. D8 for marriage longevity."
+    }
+}
+
 class ChatRequest(BaseModel):
     question: str
     request_id: Optional[str] = None  # Horoscope request ID
     preferred_language: Optional[str] = None
+    domain: Optional[str] = "general"  # Engine domain: general, career, finance, health, children, public
 
 class ChatResponse(BaseModel):
     status: str
@@ -211,14 +361,16 @@ async def deva_chat(
         language = request.preferred_language or getattr(current_user, "preferred_language", "English")
 
         # Step 4: Run Deva Agent analysis (Vertex AI)
-        logger.info(f"[DEVA] Running Deva Agent analysis (Vertex AI) in {language}")
+        domain = request.domain or "general"
+        logger.info(f"[DEVA] Running Deva Agent analysis (Vertex AI) in {language}, domain={domain}")
         response_text = await run_deva_agent(
             question=request.question,
             chart_data=chart_data,
             user_email=current_user.email,
             request_id=request.request_id,
             preferred_language=language,
-            chat_history=chat_history
+            chat_history=chat_history,
+            domain=domain
         )
         
         # Step 5: Store conversation
@@ -337,7 +489,8 @@ async def run_deva_agent(
     user_email: str,
     request_id: str,
     preferred_language: str = "English",
-    chat_history: List[str] = None
+    chat_history: List[str] = None,
+    domain: str = "general"
 ) -> str:
     """
     Run Deva Agent analysis programmatically using VertexGenAIClient
@@ -361,10 +514,27 @@ async def run_deva_agent(
         today = datetime.now()
         date_str = today.strftime("%Y-%m-%d")
         
+        # Fetch domain config
+        domain_cfg = DOMAIN_CONFIG.get(domain, DOMAIN_CONFIG["general"])
+        domain_title = domain_cfg["title"]
+        focus_houses = domain_cfg["focus_houses"]
+        key_planets = domain_cfg["key_planets"]
+        specialist_focus = domain_cfg["specialist_focus"]
+        varga_focus = domain_cfg["varga_focus"]
+
         context_message = f"""
 SYSTEM CONTEXT: TIME ANCHOR
 CURRENT DATE: {date_str}
-EXISTING CHART DATA
+
+═══════════════════════════════════════════
+ACTIVE ENGINE: {domain_title.upper()}
+═══════════════════════════════════════════
+FOCUS HOUSES : {focus_houses}
+KEY PLANETS  : {key_planets}
+VARGA FOCUS  : {varga_focus}
+═══════════════════════════════════════════
+
+CHART DATA
 -----------------------------------
 {json.dumps(chart_data, indent=2, default=str)}
 -----------------------------------
@@ -375,15 +545,17 @@ PREVIOUS CONVERSATION:
 USER QUESTION: {question}
 
 INSTRUCTIONS FOR COUNCIL:
-1. LagnaPati: Analyze D1 strength.
-2. KalaPurusha: Check current Dasha relative to TODAY ({date_str}).
-3. VargaVizier: Check D10 Career strength.
-4. MahaRishi (Astro Care AI): Synthesize final answer.
+1. LagnaPati: {specialist_focus}
+2. KalaPurusha: Check current Dasha relative to TODAY ({date_str}). Identify which dasha lord is active and how it affects the {domain_title} domain specifically.
+3. VargaVizier: {varga_focus} — Use divisional chart tools for this domain. Focus on houses {focus_houses}.
+4. MahaRishi (Astro Care AI): Synthesize the {domain_title} reading. Give a clear verdict focused ONLY on {domain_title}. Do NOT stray into unrelated topics.
+
 IMPORTANT FORMATTING:
 - Use standard headers: **To The Point**, **Advice**, **Closing Question**.
 - Keep headers in ENGLISH for parsing.
 - Write ALL section CONTENT in {preferred_language}.
 - Ensure the ENTIRE response content is in {preferred_language}, not just the first part.
+- Stay strictly focused on the {domain_title} domain.
 """
         
         # Create council
