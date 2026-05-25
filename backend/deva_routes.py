@@ -22,7 +22,6 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 # Import Vertex AI components
 from services.vertex_service import init_vertex_ai, get_model_name
 from vertexai.generative_models import GenerativeModel, Content, Part
-from utils.vertex_autogen_client import VertexGenAIClient
 
 logger = logging.getLogger(__name__)
 
@@ -371,14 +370,12 @@ async def deva_chat(
         # Determine language: Request > User Profile > Default
         language = request.preferred_language or getattr(current_user, "preferred_language", "English")
 
-        # Step 4: Run Deva Agent analysis (Vertex AI)
+        # Step 4: Run domain engine analysis (Direct Vertex AI)
         domain = request.domain or "general"
-        logger.info(f"[DEVA] Running Deva Agent analysis (Vertex AI) in {language}, domain={domain}")
-        response_text = await run_deva_agent(
+        logger.info(f"[DOMAIN ENGINE] Running analysis in {language}, domain={domain}")
+        response_text = await run_domain_engine(
             question=request.question,
             chart_data=chart_data,
-            user_email=current_user.email,
-            request_id=request.request_id,
             preferred_language=language,
             chat_history=chat_history,
             domain=domain
@@ -494,112 +491,109 @@ INSTRUCTIONS:
         logger.error(f"[VERTEX-DIRECT] Vertex AI call failed: {e}", exc_info=True)
         return "I am Astro Care AI. I'm currently experiencing a connection alignment issue. Please try again later."
 
-async def run_deva_agent(
+async def run_domain_engine(
     question: str,
     chart_data: Dict[str, Any],
-    user_email: str,
-    request_id: str,
     preferred_language: str = "English",
     chat_history: List[str] = None,
     domain: str = "general"
 ) -> str:
     """
-    Run Deva Agent analysis programmatically using VertexGenAIClient
+    Direct Vertex AI call — domain-specific system prompt.
+    Replaces the old 4-agent council (LagnaPati/KalaPurusha/VargaVizier/MahaRishi).
     """
     try:
-        # Import Deva Agent components
-        from agents.specialists import get_specialists
-        from agents.principals import get_principal
-        from autogen_agentchat.teams import RoundRobinGroupChat
-        
-        # Initialize Vertex Client
-        client = VertexGenAIClient()
-        
-        logger.info(f"[DEVA] Initializing Deva Agent with preferred_language: {preferred_language}")
+        init_vertex_ai()
 
-        # Initialize agents with Vertex Client
-        lagna_pati, kala_purusha, varga_vizier = get_specialists(model_client=client)
-        maha_rishi = get_principal(model_client=client)
-        
-        # Construct context message
         today = datetime.now()
         date_str = today.strftime("%Y-%m-%d")
-        
-        # Fetch domain config
+
+        # Domain config
         domain_cfg = DOMAIN_CONFIG.get(domain, DOMAIN_CONFIG["general"])
-        domain_title = domain_cfg["title"]
-        focus_houses = domain_cfg["focus_houses"]
-        key_planets = domain_cfg["key_planets"]
+        domain_title  = domain_cfg["title"]
+        focus_houses  = domain_cfg["focus_houses"]
+        key_planets   = domain_cfg["key_planets"]
         specialist_focus = domain_cfg["specialist_focus"]
-        varga_focus = domain_cfg["varga_focus"]
+        varga_focus   = domain_cfg["varga_focus"]
 
-        context_message = f"""
-SYSTEM CONTEXT: TIME ANCHOR
-CURRENT DATE: {date_str}
+        # ── System Prompt ────────────────────────────────────────────────────
+        system_prompt = f"""You are Astro Care AI — an advanced Vedic astrology intelligence system.
 
-═══════════════════════════════════════════
-ACTIVE ENGINE: {domain_title.upper()}
-═══════════════════════════════════════════
-FOCUS HOUSES : {focus_houses}
-KEY PLANETS  : {key_planets}
-VARGA FOCUS  : {varga_focus}
-═══════════════════════════════════════════
+IDENTITY: Always respond as "Astro Care AI". Never reveal your underlying model or provider.
 
-CHART DATA
------------------------------------
+═══════════════════════════════════════════════
+ACTIVE ENGINE : {domain_title.upper()}
+FOCUS HOUSES  : {focus_houses}
+KEY PLANETS   : {key_planets}
+VARGA FOCUS   : {varga_focus}
+═══════════════════════════════════════════════
+
+YOUR CORE TASK:
+{specialist_focus}
+
+DASHA TIMING (MANDATORY):
+- Parse dasha.periods[] from chart data.
+- Identify the CURRENT Mahadasha: find the period whose start date is before {date_str} and whose next period hasn't started yet.
+- Identify the CURRENT Antardasha the same way.
+- Label past periods as HISTORY, active period as NOW, future periods as PREDICTION.
+- Give exact dates (e.g. "Venus MD until 2032-03-24").
+
+AGE-AWARE JUDGMENT (MANDATORY):
+- Calculate user's current age from meta.birth_date vs TODAY ({date_str}).
+- Below 18 → education, family, growth.
+- 18–25  → career foundation, love, direction.
+- 26–35  → income, marriage, stability.
+- 36–50  → leadership, wealth, health balance.
+- 50+    → legacy, spirituality, mentoring.
+- DO NOT give age-irrelevant predictions.
+
+DATA EXTRACTION RULES:
+- lagna.asc_sign        → Ascendant / Lagna
+- lagna.planets[]       → All planets: name, house, sign, deg, nak, status flags
+- dasha.periods[]       → Mahadasha + Antardasha timeline
+- d_series              → Divisional charts (D9, D10, etc.)
+- NEVER say data is missing — it is always provided in chart JSON.
+
+RESPONSE FORMAT (use exactly these headers in English):
+**To The Point**   → Direct answer to the user's question. Use actual chart data.
+**Key Indicators** → 3 most relevant planetary positions for this domain (cite house + sign + degree).
+**Timeline**       → When will key events happen — cite exact dasha dates.
+**Advice**         → Practical steps + Vedic remedies relevant to this domain.
+**Closing Question** → ONE specific follow-up question to deepen the reading.
+
+LANGUAGE: Headers stay in English. ALL content MUST be written in {preferred_language}.
+TONE: Wise, warm, direct. Simple words. No unnecessary jargon."""
+
+        # ── User Message ─────────────────────────────────────────────────────
+        history_text = "\n".join(chat_history) if chat_history else "No previous conversation."
+        user_message = f"""CURRENT DATE: {date_str}
+
+CHART DATA:
 {json.dumps(chart_data, indent=2, default=str)}
------------------------------------
 
 PREVIOUS CONVERSATION:
-{chr(10).join(chat_history) if chat_history else "No previous context."}
+{history_text}
 
-USER QUESTION: {question}
+USER QUESTION: {question}"""
 
-INSTRUCTIONS FOR COUNCIL:
-1. LagnaPati: {specialist_focus}
-2. KalaPurusha: Check current Dasha relative to TODAY ({date_str}). Identify which dasha lord is active and how it affects the {domain_title} domain specifically.
-3. VargaVizier: {varga_focus} — Use divisional chart tools for this domain. Focus on houses {focus_houses}.
-4. MahaRishi (Astro Care AI): Synthesize the {domain_title} reading. Give a clear verdict focused ONLY on {domain_title}. Do NOT stray into unrelated topics.
-
-IMPORTANT FORMATTING:
-- Use standard headers: **To The Point**, **Advice**, **Closing Question**.
-- Keep headers in ENGLISH for parsing.
-- Write ALL section CONTENT in {preferred_language}.
-- Ensure the ENTIRE response content is in {preferred_language}, not just the first part.
-- Stay strictly focused on the {domain_title} domain.
-"""
-        
-        # Create council
-        council = RoundRobinGroupChat(
-            participants=[lagna_pati, kala_purusha, varga_vizier, maha_rishi],
-            max_turns=4
+        # ── Vertex AI Call ────────────────────────────────────────────────────
+        model = GenerativeModel(
+            get_model_name(),
+            system_instruction=[system_prompt]
         )
-        
-        # Collect messages
-        messages = []
-        async for msg in council.run_stream(task=context_message):
-            source = getattr(msg, "source", "Unknown")
-            content = getattr(msg, "content", str(msg))
-            messages.append({"source": source, "content": content})
-            logger.debug(f"[DEVA] {source}: {content[:50]}...")
-        
-        # Extract final response
-        final_response = ""
-        for msg in reversed(messages):
-            if msg["source"] == "MahaRishi":
-                final_response = msg["content"]
-                break
-        
-        if not final_response and messages:
-            final_response = messages[-1]["content"]
-        
-        return final_response or "Unable to generate response."
-    
+        response = await model.generate_content_async(
+            user_message,
+            generation_config={"temperature": 0.7, "max_output_tokens": 8192}
+        )
+
+        logger.info(f"[DOMAIN ENGINE] Response generated for domain={domain}")
+        return response.text
+
     except Exception as e:
-        logger.error(f"[DEVA] Deva Agent execution failed: {e}", exc_info=True)
+        logger.error(f"[DOMAIN ENGINE] Failed for domain={domain}: {e}", exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail=f"Deva Agent analysis failed: {str(e)}"
+            detail=f"Domain engine failed: {str(e)}"
         )
 
 async def store_conversation(
