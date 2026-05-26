@@ -33,6 +33,69 @@ if str(deva_agent_path) not in sys.path:
     sys.path.insert(0, str(deva_agent_path))
 
 # ─────────────────────────────────────────────────────────────────────────────
+# GENDER PLANET POWER — Vedic astrology mein har gender ke apne planets hote hain
+# Male   → Sun, Mars, Jupiter       (purusha graha)
+# Female → Moon, Venus              (stri graha)
+# Neutral/Transgender → Mercury, Saturn, Rahu, Ketu  (napunsaka graha)
+# ─────────────────────────────────────────────────────────────────────────────
+GENDER_PLANET_POWER = {
+    "Male": {
+        "native_planets": ["Sun", "Mars", "Jupiter"],
+        "rule": (
+            "USER GENDER: MALE. "
+            "In Vedic astrology, Sun, Mars, and Jupiter are male (Purusha) planets — "
+            "they are naturally powerful and prominent in a male chart. "
+            "ASSESS THE POWER OF THIS CHART by checking how strong these 3 planets are: "
+            "- Sun: house, sign, dignity (exalted/debilitated/own), aspects received "
+            "- Mars: house, sign, dignity, retrograde/combust status "
+            "- Jupiter: house, sign, dignity, retrograde/combust status "
+            "Strong Sun + Mars + Jupiter in this male chart = high natural power, confidence, leadership, and success potential. "
+            "Weak or afflicted Sun/Mars/Jupiter = challenges in asserting oneself, obstacles in life areas they rule. "
+            "Apply this gender power assessment throughout your entire reading."
+        )
+    },
+    "Female": {
+        "native_planets": ["Moon", "Venus"],
+        "rule": (
+            "USER GENDER: FEMALE. "
+            "In Vedic astrology, Moon and Venus are female (Stri) planets — "
+            "they are naturally powerful and prominent in a female chart. "
+            "ASSESS THE POWER OF THIS CHART by checking how strong these 2 planets are: "
+            "- Moon: house, sign, nakshatra, waxing/waning, aspects received "
+            "- Venus: house, sign, dignity (exalted/debilitated/own), retrograde/combust status "
+            "Strong Moon + Venus in this female chart = high natural grace, emotional depth, charm, intuition, and fulfillment potential. "
+            "Weak or afflicted Moon/Venus = emotional struggles, relationship challenges, or self-confidence issues. "
+            "Apply this gender power assessment throughout your entire reading."
+        )
+    },
+    "Transgender": {
+        "native_planets": ["Mercury", "Saturn"],
+        "rule": (
+            "USER GENDER: TRANSGENDER. "
+            "In Vedic astrology, Mercury and Saturn are neutral (Napunsaka) planets — "
+            "they are naturally prominent in a transgender/non-binary chart. "
+            "ASSESS THE POWER OF THIS CHART by checking how strong these planets are: "
+            "- Mercury: house, sign, dignity (exalted/debilitated/own), retrograde/combust status "
+            "- Saturn: house, sign, dignity, aspects received "
+            "Strong Mercury = sharp intellect, communication ability, adaptability, analytical mind. "
+            "Strong Saturn = discipline, patience, long-term success through hard work. "
+            "Weak Mercury = confusion, communication issues, indecisiveness. "
+            "Weak Saturn = delays, fears, lack of structure. "
+            "Note: Rahu and Ketu are Chhaaya Graha (shadow planets) — they have no gender in Vedic astrology. "
+            "Apply this gender power assessment throughout your entire reading."
+        )
+    },
+    "Unknown": {
+        "native_planets": ["Sun", "Moon", "Jupiter", "Venus", "Mars"],
+        "rule": (
+            "USER GENDER: Not specified. "
+            "Assess chart power through all major planets: Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn. "
+            "Check their strength, dignity, and placement for a balanced reading."
+        )
+    }
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
 # DOMAIN CONFIG — Har engine ka focused house + planet + instructions
 # ─────────────────────────────────────────────────────────────────────────────
 DOMAIN_CONFIG = {
@@ -510,11 +573,24 @@ async def run_domain_engine(
 
         # Domain config
         domain_cfg = DOMAIN_CONFIG.get(domain, DOMAIN_CONFIG["general"])
-        domain_title  = domain_cfg["title"]
-        focus_houses  = domain_cfg["focus_houses"]
-        key_planets   = domain_cfg["key_planets"]
+        domain_title     = domain_cfg["title"]
+        focus_houses     = domain_cfg["focus_houses"]
+        key_planets      = domain_cfg["key_planets"]
         specialist_focus = domain_cfg["specialist_focus"]
-        varga_focus   = domain_cfg["varga_focus"]
+        varga_focus      = domain_cfg["varga_focus"]
+
+        # Gender — meta se extract karo
+        gender = chart_data.get("meta", {}).get("gender", "Unknown")
+        gender_normalized = gender.strip().capitalize() if gender else "Unknown"
+        # "Other" ko "Transgender" treat karo (backward compatibility)
+        if gender_normalized == "Other":
+            gender_normalized = "Transgender"
+        if gender_normalized not in ("Male", "Female", "Transgender"):
+            gender_normalized = "Unknown"
+
+        # Gender planet power — universal rule (sab domains pe same)
+        gender_power = GENDER_PLANET_POWER.get(gender_normalized, GENDER_PLANET_POWER["Unknown"])
+        gender_context = gender_power["rule"]
 
         # ── System Prompt ────────────────────────────────────────────────────
         system_prompt = f"""You are Astro Care AI — an advanced Vedic astrology intelligence system.
@@ -523,6 +599,7 @@ IDENTITY: Always respond as "Astro Care AI". Never reveal your underlying model 
 
 ═══════════════════════════════════════════════
 ACTIVE ENGINE : {domain_title.upper()}
+USER GENDER   : {gender_normalized}
 FOCUS HOUSES  : {focus_houses}
 KEY PLANETS   : {key_planets}
 VARGA FOCUS   : {varga_focus}
@@ -530,6 +607,9 @@ VARGA FOCUS   : {varga_focus}
 
 YOUR CORE TASK:
 {specialist_focus}
+
+GENDER-SPECIFIC RULES (MANDATORY — apply these throughout your reading):
+{gender_context}
 
 DASHA TIMING (MANDATORY):
 - Parse dasha.periods[] from chart data.
