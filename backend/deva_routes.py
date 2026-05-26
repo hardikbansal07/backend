@@ -951,6 +951,8 @@ async def get_birth_details(
         return {
             "has_details": True,
             "details": {
+                "name": details.get("name"),
+                "gender": details.get("gender"),
                 "date_of_birth": details.get("date_of_birth"),
                 "time_of_birth": details.get("time_of_birth"),
                 "place_of_birth": details.get("place_of_birth"),
