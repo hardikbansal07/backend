@@ -137,8 +137,8 @@ def compress_chart(chart_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
 
     return compressed_chart
 
-def process_dasha_2layer(dasha_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """Process Dasha data with 2-layer depth (Mahadasha + Antardasha only)"""
+def process_dasha_3layer(dasha_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Process Dasha data with 3-layer depth (Mahadasha + Antardasha + Pratyantardasha)"""
     if not dasha_data or "vimsottari" not in dasha_data:
         return None
 
@@ -156,12 +156,20 @@ def process_dasha_2layer(dasha_data: Dict[str, Any]) -> Optional[Dict[str, Any]]
             "antardasha": []
         }
         
-        # Loop over Antardashas (2-layer limit)
+        # Loop over Antardashas
         for ad in md.get("antardasha", []):
             comp_ad = {
                 "lord": ad.get("lord"),
-                "start": ad.get("start")
+                "start": ad.get("start"),
+                "pratyantara": []
             }
+            # Loop over Pratyantardashas (3rd layer)
+            for pd in ad.get("pratyantara", []):
+                comp_pd = {
+                    "lord": pd.get("lord"),
+                    "start": pd.get("start")
+                }
+                comp_ad["pratyantara"].append(comp_pd)
             comp_md["antardasha"].append(comp_ad)
             
         compressed_dasha["periods"].append(comp_md)
@@ -178,12 +186,13 @@ def compress_horoscope(data: Dict[str, Any], birth_details: Optional[Dict[str, A
         birth_details: Optional dict with birth info (date_of_birth, time_of_birth, place_of_birth, latitude, longitude)
     
     Returns:
-        Compressed horoscope data with meta, lagna, dasha, and d_series
+        Compressed horoscope data with meta, lagna, dasha, strength, and d_series
     """
     compressed = {
         "meta": {},
         "lagna": None,
         "dasha": None,
+        "strength": None,
         "d_series": {}
     }
 
@@ -208,11 +217,15 @@ def compress_horoscope(data: Dict[str, Any], birth_details: Optional[Dict[str, A
     if "rasiChart" in data:
         compressed["lagna"] = compress_chart(data["rasiChart"])
 
-    # 3. Dasha (2-layer)
+    # 3. Dasha (3-layer)
     if "dasha" in data:
-        compressed["dasha"] = process_dasha_2layer(data["dasha"])
+        compressed["dasha"] = process_dasha_3layer(data["dasha"])
 
-    # 4. D-Series (Divisional Charts)
+    # 4. Strength (Shadbala & Bhavabala)
+    if "strength" in data:
+        compressed["strength"] = data["strength"]
+
+    # 5. D-Series (Divisional Charts)
     for chart in data.get("divisionalCharts", []):
         label = chart.get("label", "Unknown")
         if label == "Raasi":
@@ -254,6 +267,13 @@ def split_into_chunks(compressed_data: Dict[str, Any]) -> List[Dict[str, Any]]:
         chunks.append({
             "chunk_type": "dasha",
             "data": compressed_data["dasha"]
+        })
+        
+    # Chunk 3.5: Strength
+    if compressed_data.get("strength"):
+        chunks.append({
+            "chunk_type": "strength",
+            "data": compressed_data["strength"]
         })
     
     # Chunks 4+: D-Series (one chunk per divisional chart)

@@ -882,7 +882,7 @@
     "divisionalFactors": null,
     "sendToAgent": false,
     "sendToAgentMode": "summary",
-    "name": null,
+    "name": "Target User",
     "date": null,
     "time": null,
     "tzOffsetMinutes": null,

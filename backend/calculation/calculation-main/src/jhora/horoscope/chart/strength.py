@@ -806,17 +806,17 @@ def shad_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
     sb_req = [5,6,5,7,6.5,5.5,5]
     sb_strength = [round(sb_rupa[p]/sb_req[p],2) for p in range(7)]
     return [stb, kb, dgb, cb, nb, dkb, sb_sum, sb_rupa,sb_strength]
-def _bhava_adhipathi_bala(jd,place):
-    bhava_pp = charts.bhava_chart_houses(jd, place)
+def _bhava_adhipathi_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
+    bhava_pp = charts.bhava_chart_houses(jd, place, ayanamsa_mode=ayanamsa_mode)
     asc_rasi = bhava_pp[const._ascendant_symbol][0]
     bb = []
-    sb_sum = shad_bala(jd, place)[6]
+    sb_sum = shad_bala(jd, place, ayanamsa_mode=ayanamsa_mode)[6]
     for h in range(12):
         r = (h+asc_rasi)%12
         owner = const.house_owners[r]
         bb.append(sb_sum[owner])
     return bb
-def _bhava_dig_bala(jd,place):
+def _bhava_dig_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
     bdb = [0 for _ in range(12)]
     bm = drik.bhaava_madhya(jd, place)
     brl = {0:const.nara_rasi_longitudes,3:const.jalachara_rasi_longitudes,9:const.chatushpada_rasis,6:const.keeta_rasis}
@@ -858,12 +858,12 @@ def __bhava_drik_bala_calc_1(dk_p1_p2,p1):
     if p1 not in [3,4]:
         dk_p1_p2_new = round(dk_p1_p2_new*0.25,2)
     return dk_p1_p2_new
-def bhava_drishti_bala(jd,place):
+def bhava_drishti_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
     """ TODO: Check if Bhava Drishi bala is same as Aspect Relationship Table??? """
-    return _bhava_drik_bala(jd, place)
-def _bhava_drik_bala(jd,place):
+    return _bhava_drik_bala(jd, place, ayanamsa_mode=ayanamsa_mode)
+def _bhava_drik_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
     dk = [[ 0 for _ in range(7)] for _ in range(12)]
-    pp = charts.rasi_chart(jd, place)
+    pp = charts.rasi_chart(jd, place, ayanamsa_mode=ayanamsa_mode)
     house_planet_dict = utils.get_house_planet_list_from_planet_positions(pp)
     pp = pp[1:-2]
     subha_grahas = [1,3,4,5] ; asubha_grahas = [0,2,6]
@@ -905,14 +905,14 @@ def _bhava_drik_bala(jd,place):
                 dkm[row] += dk[row][col]
             dk_final[row] = round((dkp[row] - dkm[row])/4,2) 
     return dk_final
-def bhava_bala(jd,place):
+def bhava_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
     """
         Computes bhava bala
         Returns bhava bala as list of bhava bala followed by list of bhava bala in rupas
     """
-    bab = _bhava_adhipathi_bala(jd, place)
-    bdb = _bhava_dig_bala(jd, place)
-    bdrb = _bhava_drik_bala(jd, place)
+    bab = _bhava_adhipathi_bala(jd, place, ayanamsa_mode=ayanamsa_mode)
+    bdb = _bhava_dig_bala(jd, place, ayanamsa_mode=ayanamsa_mode)
+    bdrb = _bhava_drik_bala(jd, place, ayanamsa_mode=ayanamsa_mode)
     bb = list(map(sum,zip(*[bab,bdb,bdrb])))
     bb = [round(b,2) for b in bb]
     bb_rupas = [round(b/60,2) for b in bb]

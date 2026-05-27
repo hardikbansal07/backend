@@ -468,6 +468,149 @@ INSTRUCTIONS:
         logger.error(f"[VERTEX-DIRECT] Vertex AI call failed: {e}", exc_info=True)
         return "I am Astro Care AI. I'm currently experiencing a connection alignment issue. Please try again later."
 
+def format_chart_data_to_text(chart_data: Dict[str, Any]) -> str:
+    """
+    Formats the JSON chart data into an exceptionally structured, highly readable
+    Markdown table format to ensure 100% LLM accuracy and zero parsing ambiguities.
+    """
+    import re
+    lines = []
+    
+    meta = chart_data.get("meta", {})
+    if meta:
+        lines.append("### 1. USER PROFILE & PANCHANGA")
+        lines.append("| Parameter | Value |")
+        lines.append("| :--- | :--- |")
+        lines.append(f"| Name | {meta.get('name', 'User')} |")
+        lines.append(f"| Gender | {meta.get('gender', 'Unknown')} |")
+        lines.append(f"| Birth Date | {meta.get('birth_date', 'Unknown')} |")
+        lines.append(f"| Birth Time | {meta.get('birth_time', 'Unknown')} |")
+        lines.append(f"| Birth Place | {meta.get('birth_place', 'Unknown')} |")
+        
+        cal = meta.get("calendar", {})
+        if not cal and "calendar" in chart_data:
+            cal = chart_data["calendar"] or {}
+            
+        if cal:
+            lines.append(f"| Tithi (Lunar Day) | {cal.get('Tithi', 'Unknown')} |")
+            lines.append(f"| Nakshatram | {cal.get('Nakshatram', 'Unknown')} |")
+            lines.append(f"| Yoga | {cal.get('Yoga', 'Unknown')} |")
+            lines.append(f"| Karana | {cal.get('Karana', 'Unknown')} |")
+        lines.append("")
+
+    # Lagna D1 Table
+    lagna = chart_data.get("lagna", {})
+    if lagna:
+        lines.append("### 2. D1 RASI CHART (MAIN LAGNA)")
+        lines.append(f"- **Ascendant (Lagna) Sign:** {lagna.get('asc_sign')} | **Ascendant Degree:** {lagna.get('asc_deg')}°")
+        lines.append("")
+        lines.append("| Planet | House | Sign | Degree | Nakshatra | Chara Karaka | Strengths/Dignity |")
+        lines.append("| :--- | :---: | :---: | :---: | :--- | :---: | :--- |")
+        
+        for p in lagna.get("planets", []):
+            pname = p.get("name")
+            clean_pname = re.sub(r"[^a-zA-Z]", "", pname)
+            if clean_pname.lower() in ("asc", "ascendant"):
+                continue
+            house = p.get("house")
+            sign = p.get("sign")
+            deg = p.get("deg")
+            nak = p.get("nak")
+            
+            # Dignity / Flags
+            flags = []
+            if p.get("own_sign"): flags.append("Own Sign (Swakshetra)")
+            if p.get("exalted"): flags.append("Exalted")
+            if p.get("debilitated"): flags.append("Debilitated")
+            if p.get("vargottama"): flags.append("Vargottama (Double Strength)")
+            if p.get("retrograde"): flags.append("Retrograde (Vakri)")
+            if p.get("combust"): flags.append("Combust (Ast)")
+            
+            flags_str = ", ".join(flags) if flags else "Neutral"
+            chara = p.get("charaKaraka") or "None"
+            
+            lines.append(f"| **{clean_pname}** | {house} | {sign} | {deg}° | {nak} | {chara} | {flags_str} |")
+        lines.append("")
+
+    # Divisional Charts Tables
+    d_series = chart_data.get("d_series", {})
+    if d_series:
+        lines.append("### 3. DIVISIONAL CHARTS (VARGAS)")
+        for d_key, d_chart in d_series.items():
+            if not d_chart: continue
+            lines.append(f"#### **Divisional {d_key}**")
+            lines.append(f"- **Ascendant Sign:** {d_chart.get('asc_sign')} | **Ascendant Degree:** {d_chart.get('asc_deg')}°")
+            lines.append("")
+            lines.append("| Planet | House | Sign | Degree | Nakshatra | Dignity/Flags |")
+            lines.append("| :--- | :---: | :---: | :---: | :--- | :--- |")
+            
+            for p in d_chart.get("planets", []):
+                pname = p.get("name")
+                clean_pname = re.sub(r"[^a-zA-Z]", "", pname)
+                if clean_pname.lower() in ("asc", "ascendant"):
+                    continue
+                house = p.get("house")
+                sign = p.get("sign")
+                deg = p.get("deg")
+                nak = p.get("nak") or "None"
+                
+                # Dignity / Flags
+                flags = []
+                if p.get("own_sign"): flags.append("Own Sign")
+                if p.get("exalted"): flags.append("Exalted")
+                if p.get("debilitated"): flags.append("Debilitated")
+                if p.get("vargottama"): flags.append("Vargottama")
+                if p.get("retrograde"): flags.append("Retrograde")
+                if p.get("combust"): flags.append("Combust")
+                
+                flags_str = ", ".join(flags) if flags else "Neutral"
+                lines.append(f"| {clean_pname} | {house} | {sign} | {deg}° | {nak} | {flags_str} |")
+            lines.append("")
+
+    # Dashas Timeline
+    dasha = chart_data.get("dasha", {})
+    if dasha:
+        lines.append("### 4. VIMSOTTARI DASHA TIMELINE")
+        lines.append("| Dasha Lord | Period Type | Start Date |")
+        lines.append("| :--- | :---: | :--- |")
+        
+        for md in dasha.get("periods", []):
+            lines.append(f"| **{md.get('lord')}** | Mahadasha (MD) | {md.get('start')} |")
+            for ad in md.get("antardasha", []):
+                lines.append(f"| {ad.get('lord')} | Antardasha (AD) | {ad.get('start')} |")
+                for pd in ad.get("pratyantara", []):
+                    lines.append(f"| {pd.get('lord')} | Pratyantardasha (PD) | {pd.get('start')} |")
+        lines.append("")
+
+    # Strength Data Tables
+    strength = chart_data.get("strength")
+    if strength:
+        lines.append("### 5. PLANETARY STRENGTHS (SHADBALA)")
+        lines.append("| Planet | Sthana Bala | Kaala Bala | Dig Bala | Cheshta Bala | Naisargika | Drik Bala | Total Score | Rupas | Strength Ratio |")
+        lines.append("| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |")
+        
+        shadbala = strength.get("shadbala", {})
+        for planet, values in shadbala.items():
+            lines.append(
+                f"| **{planet}** | {values.get('sthana_bala')} | {values.get('kaala_bala')} | {values.get('dig_bala')} | "
+                f"{values.get('cheshta_bala')} | {values.get('naisargika_bala')} | {values.get('drik_bala')} | "
+                f"{values.get('total_score')} | {values.get('rupas')} | {values.get('strength_ratio')} |"
+            )
+        lines.append("")
+        
+        lines.append("### 6. HOUSE STRENGTHS (BHAVABALA)")
+        lines.append("| House | Total Score | Rupas | Strength Ratio |")
+        lines.append("| :---: | :---: | :---: | :---: |")
+        
+        bhavabala = strength.get("bhavabala", {})
+        sorted_houses = sorted(bhavabala.keys(), key=lambda x: int(x))
+        for house in sorted_houses:
+            values = bhavabala[house]
+            lines.append(f"| **House {house}** | {values.get('total_score')} | {values.get('rupas')} | {values.get('strength_ratio')} |")
+        lines.append("")
+
+    return "\n".join(lines)
+
 async def run_domain_engine(
     question: str,
     chart_data: Dict[str, Any],
@@ -526,7 +669,7 @@ GENDER-SPECIFIC RULES (MANDATORY — apply these throughout your reading):
 {gender_context}
 
 DASHA TIMING (MANDATORY):
-- Parse dasha.periods[] from chart data.
+- Read the "=== VIMSOTTARI DASHA TIMELINE ===" section from chart data.
 - Identify the CURRENT Mahadasha: find the period whose start date is before {date_str} and whose next period hasn't started yet.
 - Identify the CURRENT Antardasha the same way.
 - Label past periods as HISTORY, active period as NOW, future periods as PREDICTION.
@@ -542,11 +685,11 @@ AGE-AWARE JUDGMENT (MANDATORY):
 - DO NOT give age-irrelevant predictions.
 
 DATA EXTRACTION RULES:
-- lagna.asc_sign        → Ascendant / Lagna
-- lagna.planets[]       → All planets: name, house, sign, deg, nak, status flags
-- dasha.periods[]       → Mahadasha + Antardasha timeline
-- d_series              → Divisional charts (D9, D10, etc.)
-- NEVER say data is missing — it is always provided in chart JSON.
+- Read "=== USER PROFILE & BIRTH INFO ===" for profile and Panchanga elements (Tithi, Yoga, Karana, Nakshatram).
+- Read "=== D1 RASI CHART (MAIN LAGNA CHART) ===" for Ascendant sign, planetary houses, degrees, strengths, and Jaimini Chara Karakas (Atma Karaka, Amatya Karaka, etc.).
+- Read "=== DIVISIONAL CHARTS (VARGAS) ===" for divisional charts (D9, D10, etc.).
+- Read "=== VIMSOTTARI DASHA TIMELINE ===" for time period sequences.
+- NEVER say data is missing — it is always provided in clean formatted text.
 
 RESPONSE FORMAT (use exactly these headers in English):
 **To The Point**   → Direct answer to the user's question. Use actual chart data.
@@ -560,10 +703,12 @@ TONE: Wise, warm, direct. Simple words. No unnecessary jargon."""
 
         # ── User Message ─────────────────────────────────────────────────────
         history_text = "\n".join(chat_history) if chat_history else "No previous conversation."
+        formatted_chart_text = format_chart_data_to_text(chart_data)
+        
         user_message = f"""CURRENT DATE: {date_str}
 
 CHART DATA:
-{json.dumps(chart_data, indent=2, default=str)}
+{formatted_chart_text}
 
 PREVIOUS CONVERSATION:
 {history_text}

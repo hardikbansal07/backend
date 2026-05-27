@@ -1505,11 +1505,12 @@ def chart_strength(request_id: str):
     jd = getattr(h,'julian_day',None)
     place = getattr(h,'Place',None)
     
+    ayanamsa = getattr(h, 'ayanamsa_mode', 'LAHIRI')
     # Shadbala
-    sb = _strength.shad_bala(jd, place)
+    sb = _strength.shad_bala(jd, place, ayanamsa_mode=ayanamsa)
     
     # Bhava Bala
-    bb = _strength.bhava_bala(jd, place)
+    bb = _strength.bhava_bala(jd, place, ayanamsa_mode=ayanamsa)
     
     return {
         'requestId': request_id,
@@ -1606,9 +1607,10 @@ def _ensure_horoscope_context(stored: models.StoredHoroscope):
 @app.get('/api/analyze/shadbala')
 def analyze_shadbala(request_id: str):
     stored = _get_stored_or_404(request_id)
-    _, jd, place = _ensure_horoscope_context(stored)
+    h, jd, place = _ensure_horoscope_context(stored)
+    ayanamsa = getattr(h, 'ayanamsa_mode', 'LAHIRI')
     try:
-        sb = _strength.shad_bala(jd, place)
+        sb = _strength.shad_bala(jd, place, ayanamsa_mode=ayanamsa)
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(500, f'Failed to compute shadbala: {exc}') from exc
     labels = ['sthana','kaala','dig','cheshta','naisargika','drik']
@@ -1636,9 +1638,10 @@ def analyze_shadbala(request_id: str):
 @app.get('/api/analyze/bhavabala')
 def analyze_bhavabala(request_id: str):
     stored = _get_stored_or_404(request_id)
-    _, jd, place = _ensure_horoscope_context(stored)
+    h, jd, place = _ensure_horoscope_context(stored)
+    ayanamsa = getattr(h, 'ayanamsa_mode', 'LAHIRI')
     try:
-        bb = _strength.bhava_bala(jd, place)
+        bb = _strength.bhava_bala(jd, place, ayanamsa_mode=ayanamsa)
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(500, f'Failed to compute bhavabala: {exc}') from exc
     return {
