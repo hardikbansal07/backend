@@ -2,13 +2,15 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install system dependencies and apply security upgrades to patch base OS CVEs
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     gcc g++ libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Upgrade core tools to latest secure versions to resolve Python vulnerabilities
+RUN pip install --no-cache-dir --upgrade pip wheel jaraco-context && \
+    pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
