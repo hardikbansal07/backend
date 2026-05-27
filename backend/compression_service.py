@@ -108,6 +108,11 @@ def compress_planet(p_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     if p_data.get("isVargottama"):
         comp_p["vargottama"] = True
     
+    # Chara Karaka
+    chara = p_data.get("charaKaraka")
+    if chara:
+        comp_p["charaKaraka"] = chara
+        
     return comp_p
 
 def compress_chart(chart_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:

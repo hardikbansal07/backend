@@ -32,226 +32,62 @@ deva_agent_path = Path(__file__).parent / "deva-agent-deva_wow" / "deva-agent"
 if str(deva_agent_path) not in sys.path:
     sys.path.insert(0, str(deva_agent_path))
 
+# Add calculation source to Python path
+calculation_src_path = Path(__file__).parent / "calculation" / "calculation-main" / "src"
+if str(calculation_src_path) not in sys.path:
+    sys.path.insert(0, str(calculation_src_path))
+
 # ─────────────────────────────────────────────────────────────────────────────
-# GENDER PLANET POWER — Vedic astrology mein har gender ke apne planets hote hain
-# Male   → Sun, Mars, Jupiter       (purusha graha)
-# Female → Moon, Venus              (stri graha)
-# Neutral/Transgender → Mercury, Saturn, Rahu, Ketu  (napunsaka graha)
+# GENDER PLANET POWER — User gender matches corresponding planet power
 # ─────────────────────────────────────────────────────────────────────────────
 GENDER_PLANET_POWER = {
     "Male": {
-        "native_planets": ["Sun", "Mars", "Jupiter"],
-        "rule": (
-            "USER GENDER: MALE. "
-            "In Vedic astrology, Sun, Mars, and Jupiter are male (Purusha) planets — "
-            "they are naturally powerful and prominent in a male chart. "
-            "ASSESS THE POWER OF THIS CHART by checking how strong these 3 planets are: "
-            "- Sun: house, sign, dignity (exalted/debilitated/own), aspects received "
-            "- Mars: house, sign, dignity, retrograde/combust status "
-            "- Jupiter: house, sign, dignity, retrograde/combust status "
-            "Strong Sun + Mars + Jupiter in this male chart = high natural power, confidence, leadership, and success potential. "
-            "Weak or afflicted Sun/Mars/Jupiter = challenges in asserting oneself, obstacles in life areas they rule. "
-            "Apply this gender power assessment throughout your entire reading."
-        )
+        "rule": "USER IS MALE. Male planets (Sun, Mars, Jupiter) will have higher power in this chart."
     },
     "Female": {
-        "native_planets": ["Moon", "Venus"],
-        "rule": (
-            "USER GENDER: FEMALE. "
-            "In Vedic astrology, Moon and Venus are female (Stri) planets — "
-            "they are naturally powerful and prominent in a female chart. "
-            "ASSESS THE POWER OF THIS CHART by checking how strong these 2 planets are: "
-            "- Moon: house, sign, nakshatra, waxing/waning, aspects received "
-            "- Venus: house, sign, dignity (exalted/debilitated/own), retrograde/combust status "
-            "Strong Moon + Venus in this female chart = high natural grace, emotional depth, charm, intuition, and fulfillment potential. "
-            "Weak or afflicted Moon/Venus = emotional struggles, relationship challenges, or self-confidence issues. "
-            "Apply this gender power assessment throughout your entire reading."
-        )
+        "rule": "USER IS FEMALE. Female planets (Moon, Venus) will have higher power in this chart."
     },
     "Transgender": {
-        "native_planets": ["Mercury", "Saturn"],
-        "rule": (
-            "USER GENDER: TRANSGENDER. "
-            "In Vedic astrology, Mercury and Saturn are neutral (Napunsaka) planets — "
-            "they are naturally prominent in a transgender/non-binary chart. "
-            "ASSESS THE POWER OF THIS CHART by checking how strong these planets are: "
-            "- Mercury: house, sign, dignity (exalted/debilitated/own), retrograde/combust status "
-            "- Saturn: house, sign, dignity, aspects received "
-            "Strong Mercury = sharp intellect, communication ability, adaptability, analytical mind. "
-            "Strong Saturn = discipline, patience, long-term success through hard work. "
-            "Weak Mercury = confusion, communication issues, indecisiveness. "
-            "Weak Saturn = delays, fears, lack of structure. "
-            "Note: Rahu and Ketu are Chhaaya Graha (shadow planets) — they have no gender in Vedic astrology. "
-            "Apply this gender power assessment throughout your entire reading."
-        )
-    },
-    "Unknown": {
-        "native_planets": ["Sun", "Moon", "Jupiter", "Venus", "Mars"],
-        "rule": (
-            "USER GENDER: Not specified. "
-            "Assess chart power through all major planets: Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn. "
-            "Check their strength, dignity, and placement for a balanced reading."
-        )
+        "rule": "USER IS TRANSGENDER. Neutral planets (Mercury, Saturn) will have higher power in this chart."
     }
 }
-
 # ─────────────────────────────────────────────────────────────────────────────
 # DOMAIN CONFIG — Har engine ka focused house + planet + instructions
+# ─────────────────────────────────────────────────────────────────────────────
+# DOMAIN CONFIG — Har engine ka main house aur title config
 # ─────────────────────────────────────────────────────────────────────────────
 DOMAIN_CONFIG = {
     "general": {
         "title": "Personality",
-        "focus_houses": [1, 3, 4, 5],
-        "key_planets": ["Sun", "Moon", "Mercury", "Lagna Lord"],
-        "specialist_focus": (
-            "DOMAIN: PERSONALITY ANALYSIS. "
-            "This is a deep character and self-discovery reading. "
-            "Analyze ONLY personality and self-related indicators: "
-            "1st house (Lagna/Ascendant) — PRIMARY: body, self-image, personal identity, "
-            "approach to life, and how others perceive the person. "
-            "Moon sign and nakshatra — emotional temperament, instinctive reactions, mind patterns. "
-            "Sun sign and house — ego, confidence, core identity, willpower. "
-            "Mercury — intelligence style, communication, how the person thinks and learns. "
-            "5th house — intellect, creativity, and innate talents. "
-            "3rd house — courage, initiative, and communication style. "
-            "Atma Karaka (planet with highest degree) — soul's deepest desire and life lesson. "
-            "Identify: What type of personality is this? (Martian/Venusian/Saturnine/Mercurial/Jovial/Solar/Lunar) "
-            "What are their hidden strengths? What are their karmic weaknesses? "
-            "What is their life purpose (Dharma)? "
-            "Give a rich, psychologically deep personality portrait."
-        ),
-        "varga_focus": "D1 Lagna + Moon nakshatra for personality. D9 for soul-level character."
+        "main_house": 1
     },
     "career": {
         "title": "Career & Business",
-        "focus_houses": [2, 6, 10, 11],
-        "key_planets": ["Saturn", "Sun", "Mercury", "Jupiter"],
-        "specialist_focus": (
-            "DOMAIN: CAREER & BUSINESS. "
-            "Analyze ONLY career-related houses: "
-            "10th house (profession/authority/boss), "
-            "6th house (daily work/competition/enemies at work), "
-            "2nd house (income/savings from work), "
-            "11th house (career gains/promotions/network). "
-            "Check Amatya Karaka (AmK) planet — it is the career significator. "
-            "Check D10 Dasamsa chart for professional destiny. "
-            "Give concrete career predictions with timing."
-        ),
-        "varga_focus": "D10 (Dasamsa) is PRIMARY for career. D1 10th house is SECONDARY."
+        "main_house": 10
     },
     "finance": {
         "title": "Finance & Wealth",
-        "focus_houses": [2, 5, 9, 11],
-        "key_planets": ["Jupiter", "Venus", "Mercury", "Moon"],
-        "specialist_focus": (
-            "DOMAIN: FINANCE & WEALTH. "
-            "Analyze ONLY wealth-related houses: "
-            "2nd house (savings/bank balance/family wealth), "
-            "11th house (income gains/profits), "
-            "5th house (investments/speculation/stock market), "
-            "9th house (luck/fortune/inherited wealth). "
-            "Jupiter is the karaka for wealth — check its strength. "
-            "Check D2 Hora chart using varga tool (varga_num=2) for wealth potential. "
-            "Give specific financial predictions and wealth-building timeline."
-        ),
-        "varga_focus": "D2 (Hora) wealth strength + D11 gains chart."
+        "main_house": 2
     },
-    "health": {
-        "title": "Health & Vitality",
-        "focus_houses": [1, 6, 8, 12],
-        "key_planets": ["Sun", "Moon", "Mars", "Saturn"],
-        "specialist_focus": (
-            "DOMAIN: HEALTH & VITALITY. "
-            "Analyze ONLY health-related houses: "
-            "1st house (body constitution/overall vitality), "
-            "6th house (disease/immunity/digestive health), "
-            "8th house (chronic illness/surgery/longevity), "
-            "12th house (hospitalization/hidden illness/sleep). "
-            "Check which planets are in these houses and their dignity. "
-            "Check D30 Trimsamsa using varga tool (varga_num=30) for hidden health risks. "
-            "Identify body parts at risk based on afflicted houses. "
-            "Give health predictions with preventive advice."
-        ),
-        "varga_focus": "D30 (Trimsamsa) hidden ailments + D1 6th house afflictions."
+    "family": {
+        "title": "Family & Comforts",
+        "main_house": 4
     },
     "children": {
         "title": "Children & Family",
-        "focus_houses": [4, 5, 9, 11],
-        "key_planets": ["Jupiter", "Moon", "Sun", "Venus"],
-        "specialist_focus": (
-            "DOMAIN: CHILDREN & FAMILY. "
-            "Analyze ONLY children and family related houses: "
-            "5th house (children/conception/progeny) — PRIMARY, "
-            "4th house (home/mother/domestic happiness), "
-            "9th house (father/blessings/higher dharma), "
-            "11th house (elder siblings/fulfilment of desires). "
-            "Jupiter is the karaka for children — check its strength and placement. "
-            "Check D7 Saptamsa using varga tool (varga_num=7) for children potential. "
-            "Give predictions about timing of children, family harmony, and parenting."
-        ),
-        "varga_focus": "D7 (Saptamsa) children potential + D4 (Chaturthamsa) home/property."
+        "main_house": 5
     },
     "public": {
         "title": "Public & Masses",
-        "focus_houses": [1, 3, 10, 11],
-        "key_planets": ["Sun", "Moon", "Rahu", "Jupiter"],
-        "specialist_focus": (
-            "DOMAIN: PUBLIC IMAGE & FAME. "
-            "Analyze ONLY fame and mass-appeal related houses: "
-            "10th house (public reputation/social status/recognition), "
-            "1st house (personal brand/self-projection/charisma), "
-            "11th house (mass following/fan base/large networks), "
-            "3rd house (media/communication/content/social media). "
-            "Rahu amplifies public exposure — check its placement. "
-            "Moon's nakshatra determines mass appeal and emotional connect. "
-            "Check D10 for public status using divisional strength tool. "
-            "Give predictions about fame, recognition, and public influence timeline."
-        ),
-        "varga_focus": "D10 public status + Moon nakshatra for mass appeal."
+        "main_house": 10
     },
     "crush_dating": {
         "title": "Crush & Dating",
-        "focus_houses": [1, 3, 5, 11],
-        "key_planets": ["Venus", "Mars", "Moon", "Mercury"],
-        "specialist_focus": (
-            "DOMAIN: CRUSH & DATING. "
-            "Analyze ONLY romance and attraction-related houses: "
-            "5th house (crush/romantic feelings/love affairs) — PRIMARY, "
-            "1st house (personal magnetism/attractiveness/confidence), "
-            "3rd house (flirting/messaging/communication with crush), "
-            "11th house (fulfillment of romantic desires/getting noticed). "
-            "Venus is the karaka for love and attraction — check its strength, sign, and aspects. "
-            "Mars drives pursuit and desire energy — check its placement. "
-            "Moon governs emotional feelings for the crush — check its nakshatra. "
-            "Mercury in 3rd or 5th gives communication charm. "
-            "Check D5 Panchamsa using varga tool (varga_num=5) for romantic charm. "
-            "Answer: Will the crush reciprocate? When? What attracts them? How to approach?"
-        ),
-        "varga_focus": "D5 (Panchamsa) romantic charm + D1 5th house love potential."
+        "main_house": 5
     },
     "love_marriage": {
         "title": "Love & Marriage 2.0",
-        "focus_houses": [1, 2, 5, 7, 8, 11],
-        "key_planets": ["Venus", "Jupiter", "Mars", "Saturn", "Moon"],
-        "specialist_focus": (
-            "DOMAIN: LOVE & MARRIAGE 2.0. "
-            "This is a deep marriage and long-term relationship analysis. "
-            "Analyze ALL marriage-related houses: "
-            "7th house (spouse/marriage/partnership) — PRIMARY, "
-            "5th house (love before marriage/romance/attraction), "
-            "8th house (longevity of marriage/in-laws/physical intimacy), "
-            "2nd house (family life after marriage/domestic stability), "
-            "11th house (gains from marriage/fulfilment of marital desires), "
-            "1st house (self in marriage/how you behave as a partner). "
-            "Venus is the karaka for marriage (for males) — check strength and dignity. "
-            "Jupiter is the karaka for husband (for females) — check placement. "
-            "Saturn can delay marriage — check if it aspects or occupies 7th house. "
-            "Check D9 Navamsa using varga tool (varga_num=9) — it is THE most important chart for marriage destiny. "
-            "Check D7 Saptamsa for children from marriage. "
-            "Give: Marriage timing (when?), Spouse profile (how will they be?), "
-            "Compatibility indicators, Challenges to expect, and Remedies."
-        ),
-        "varga_focus": "D9 (Navamsa) is PRIMARY for marriage destiny. D1 7th house is SECONDARY. D8 for marriage longevity."
+        "main_house": 7
     }
 }
 
@@ -260,6 +96,7 @@ class ChatRequest(BaseModel):
     request_id: Optional[str] = None  # Horoscope request ID
     preferred_language: Optional[str] = None
     domain: Optional[str] = "general"  # Engine domain: general, career, finance, health, children, public
+    chat_id: Optional[str] = None  # Specific chat session/thread ID
 
 class ChatResponse(BaseModel):
     status: str
@@ -333,20 +170,27 @@ async def deva_chat(
         current_user.credits -= 1
         logger.info(f"Deducted 1 credit for user {current_user.email}. New balance: {current_user.credits}")
         
-        # Step 0.5: Fetch Chat History (MOVED UP)
+        # Step 0.5: Fetch Chat History (Domain-Aware & Session-Aware)
         chat_history = []
-        try:
-            history_cursor = mongo_db.db.deva_conversations.find({
-                "user_email": current_user.email
-            }).sort("created_at", -1).limit(5)
-            
-            recent_convs = await history_cursor.to_list(length=5)
-            for conv in reversed(recent_convs):
-                chat_history.append(f"User: {conv.get('question')}")
-                chat_history.append(f"Astro Care AI: {conv.get('response')}")
-            logger.info(f"[DEVA] Fetched {len(recent_convs)} previous conversations")
-        except Exception as e:
-            logger.warning(f"[DEVA] Failed to fetch chat history: {e}")
+        domain = request.domain or "general"
+        if request.chat_id:
+            try:
+                # Query only if the user is in the same chat_id AND same engine/domain
+                history_cursor = mongo_db.db.deva_conversations.find({
+                    "user_email": current_user.email,
+                    "domain": domain,
+                    "chat_id": request.chat_id
+                }).sort("created_at", -1).limit(5)
+                
+                recent_convs = await history_cursor.to_list(length=5)
+                for conv in reversed(recent_convs):
+                    chat_history.append(f"User: {conv.get('question')}")
+                    chat_history.append(f"Astro Care AI: {conv.get('response')}")
+                logger.info(f"[DEVA] Fetched {len(recent_convs)} previous conversations for chat_id={request.chat_id} and domain={domain}")
+            except Exception as e:
+                logger.warning(f"[DEVA] Failed to fetch chat history: {e}")
+        else:
+            logger.info(f"[DEVA] No chat_id provided. Starting fresh new chat thread for domain={domain}.")
 
         # Step 1: Find user's most recent horoscope if request_id not provided
         if not request.request_id:
@@ -364,41 +208,109 @@ async def deva_chat(
                 })
                 
                 if birth_details:
-                    logger.info(f"[DEVA] User has birth details but no horoscope, providing basic analysis")
-                else:
+                    logger.info(f"[DEVA] User has birth details but no horoscope, generating horoscope dynamically")
+                    try:
+                        from api.service import compute_horoscope
+                        from api.models import HoroscopeRequest, LocationIn
+                        from horoscope_service import compress_and_store_horoscope
+
+                        # Resolve coordinates and timezone
+                        lat = birth_details.get("latitude")
+                        lon = birth_details.get("longitude")
+                        if lat is None or lon is None:
+                            lat, lon = 28.6139, 77.2090  # Delhi, India default
+
+                        # Read timezone or default to 5.5
+                        tz_offset = birth_details.get("timezone", 5.5)
+                        if "timezone" not in birth_details and "timezoneOffset" in birth_details:
+                            tz_offset = birth_details.get("timezoneOffset")
+
+                        loc = LocationIn(
+                            place=birth_details.get("place_of_birth", "Delhi, India"),
+                            latitude=float(lat),
+                            longitude=float(lon),
+                            tzOffset=float(tz_offset)
+                        )
+
+                        time_str = birth_details.get("time_of_birth", "12:00")
+                        if len(time_str.split(':')) == 2:
+                            time_str += ":00"
+
+                        dt_str = f"{birth_details.get('date_of_birth')}T{time_str}"
+                        birth_dt = datetime.fromisoformat(dt_str)
+
+                        req_obj = HoroscopeRequest(
+                            birthDateTime=birth_dt,
+                            location=loc,
+                            language="en",
+                            name=birth_details.get("name", "User")
+                        )
+
+                        # Dynamically compute horoscope
+                        stored = compute_horoscope(req_obj)
+
+                        if hasattr(stored.response, 'model_dump'):
+                            horoscope_data = stored.response.model_dump()
+                        else:
+                            horoscope_data = stored.response.dict()
+
+                        request_id = stored.response.requestId
+                        
+                        # Store in MongoDB Atlas
+                        await compress_and_store_horoscope(
+                            user_email=current_user.email,
+                            horoscope_data=horoscope_data,
+                            request_id=request_id
+                        )
+                        logger.info(f"[DYN-HORO] Dynamically generated and stored horoscope {request_id} for user {current_user.email}")
+                        
+                        # Set the request_id to use the dynamically created horoscope
+                        request.request_id = request_id
+                        
+                        # Set horoscopes so that the block after knows we found it
+                        horoscopes = [{"request_id": request_id}]
+                        
+                    except Exception as gen_err:
+                        logger.error(f"[DYN-HORO] Failed to dynamically generate horoscope: {gen_err}", exc_info=True)
+                        # If dynamic generation failed, fallback to basic analysis
+                        birth_details = {}
+
+                if not horoscopes:
                     logger.info(f"[DEVA] No stored birth details. Using chat context only.")
                     birth_details = {}
 
-                # Determine language: Request > User Profile > Default
-                language = request.preferred_language or getattr(current_user, "preferred_language", "English")
+                    # Determine language: Request > User Profile > Default
+                    language = request.preferred_language or getattr(current_user, "preferred_language", "English")
 
-                # Provide analysis based on birth details (or lack thereof)
-                response_text = await run_basic_astrology_analysis(
-                    question=request.question,
-                    birth_details=birth_details,
-                    user_email=current_user.email,
-                    preferred_language=language,
-                    chat_history=chat_history
-                )
-                
-                logger.info(f"[DEVA] Basic analysis response generated, length: {len(response_text)}")
-                
-                # Store conversation
-                conversation_id = await store_conversation(
-                    user_email=current_user.email,
-                    request_id="birth_details_only",
-                    question=request.question,
-                    response=response_text
-                )
-                
-                return ChatResponse(
-                    status="success",
-                    response=response_text,
-                    conversation_id=conversation_id,
-                    has_horoscope_data=False,
-                    questions_remaining=int(current_user.credits),
-                    total_questions_asked=0
-                )
+                    # Provide analysis based on birth details (or lack thereof)
+                    response_text = await run_basic_astrology_analysis(
+                        question=request.question,
+                        birth_details=birth_details,
+                        user_email=current_user.email,
+                        preferred_language=language,
+                        chat_history=chat_history
+                    )
+                    
+                    logger.info(f"[DEVA] Basic analysis response generated, length: {len(response_text)}")
+                    
+                    # Store conversation
+                    conversation_id = await store_conversation(
+                        user_email=current_user.email,
+                        request_id="birth_details_only",
+                        question=request.question,
+                        response=response_text,
+                        domain=request.domain or "general",
+                        chat_id=request.chat_id
+                    )
+                    
+                    return ChatResponse(
+                        status="success",
+                        response=response_text,
+                        conversation_id=conversation_id,
+                        has_horoscope_data=False,
+                        questions_remaining=int(current_user.credits),
+                        total_questions_asked=0
+                    )
 
                 
 
@@ -449,7 +361,9 @@ async def deva_chat(
             user_email=current_user.email,
             request_id=request.request_id,
             question=request.question,
-            response=response_text
+            response=response_text,
+            domain=domain,
+            chat_id=request.chat_id
         )
         
         return ChatResponse(
@@ -680,7 +594,9 @@ async def store_conversation(
     user_email: str,
     request_id: str,
     question: str,
-    response: str
+    response: str,
+    domain: str = "general",
+    chat_id: Optional[str] = None
 ) -> str:
     """Store Deva Agent conversation in MongoDB"""
     if mongo_db.db is None: return ""
@@ -690,6 +606,8 @@ async def store_conversation(
             "request_id": request_id,
             "question": question,
             "response": response,
+            "domain": domain,
+            "chat_id": chat_id,
             "created_at": datetime.utcnow(),
             "agent": "deva_vertex",
             "status": "completed"
@@ -812,7 +730,7 @@ async def save_birth_details(
     current_user: User = Depends(get_current_active_user)
 ):
     """
-    Save user's birth details for AI astrology
+    Save user's birth details for AI astrology and automatically generate/store their horoscope.
     """
     if mongo_db.db is None:
         raise HTTPException(status_code=500, detail="Database not initialized")
@@ -839,9 +757,65 @@ async def save_birth_details(
         )
         
         logger.info(f"Birth details saved for user: {current_user.email}")
+
+        # Automatically trigger horoscope generation and storage in MongoDB
+        try:
+            from api.service import compute_horoscope
+            from api.models import HoroscopeRequest, LocationIn
+            from horoscope_service import compress_and_store_horoscope
+
+            # Resolve coordinates and timezone
+            lat = details.latitude
+            lon = details.longitude
+            if lat is None or lon is None:
+                lat, lon = 28.6139, 77.2090  # Delhi, India default
+
+            loc = LocationIn(
+                place=details.place_of_birth,
+                latitude=float(lat),
+                longitude=float(lon),
+                tzOffset=5.5  # Standard India timezone offset (can be derived from place or offset)
+            )
+
+            time_str = details.time_of_birth
+            if len(time_str.split(':')) == 2:
+                time_str += ":00"
+
+            dt_str = f"{details.date_of_birth}T{time_str}"
+            birth_dt = datetime.fromisoformat(dt_str)
+
+            req_obj = HoroscopeRequest(
+                birthDateTime=birth_dt,
+                location=loc,
+                language="en",
+                name=details.name
+            )
+
+            # Compute horoscope using the software engine
+            stored = compute_horoscope(req_obj)
+
+            if hasattr(stored.response, 'model_dump'):
+                horoscope_data = stored.response.model_dump()
+            else:
+                horoscope_data = stored.response.dict()
+
+            request_id = stored.response.requestId
+            
+            # Store compressed chunks directly in MongoDB Atlas
+            store_result = await compress_and_store_horoscope(
+                user_email=current_user.email,
+                horoscope_data=horoscope_data,
+                request_id=request_id
+            )
+            logger.info(f"[AUTO-HORO] Auto-generated and stored horoscope {request_id} for user {current_user.email}. Chunks stored: {store_result.get('chunks_count')}")
+
+        except Exception as e_horo:
+            logger.error(f"[AUTO-HORO] Failed to auto-generate horoscope: {e_horo}", exc_info=True)
+            # We don't fail the entire save_birth_details request if calculation has a warning
+            
         return {
             "status": "success",
-            "message": "Birth details saved successfully"
+            "message": "Birth details saved and horoscope generated successfully"
         }
     
     except Exception as e:
