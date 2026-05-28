@@ -1772,5 +1772,59 @@
     "latitude": null,
     "longitude": null,
     "compact": false
+  },
+  "1c973c08d85c1611d92d475eb5ee5f50b82babbd4da7323d8266c5bcda9649b9": {
+    "birthDateTime": "1965-09-18T17:30:00",
+    "location": {
+      "place": "Agra, Uttar Pradesh, India",
+      "latitude": 27.1752554,
+      "longitude": 78.0098161,
+      "tzOffset": 5.5
+    },
+    "ayanamsaMode": "TRUE_CITRA",
+    "calcType": "drik",
+    "houseSystem": null,
+    "language": "en",
+    "years": 1,
+    "months": 1,
+    "sixtyHours": 1,
+    "praveshaType": 0,
+    "divisionalFactors": null,
+    "sendToAgent": false,
+    "sendToAgentMode": "summary",
+    "name": "kamal",
+    "date": null,
+    "time": null,
+    "tzOffsetMinutes": null,
+    "latitude": null,
+    "longitude": null,
+    "compact": false
+  },
+  "70c7405ce9bcf21e63e03b8ee42a0051ea32ea8c3af4184f1b7a8a2c0dafe2e6": {
+    "birthDateTime": "1976-06-09T21:50:00",
+    "location": {
+      "place": "Kasganj, Uttar Pradesh, India",
+      "latitude": 27.7888527,
+      "longitude": 78.8229701,
+      "tzOffset": 5.5
+    },
+    "ayanamsaMode": "TRUE_CITRA",
+    "calcType": "drik",
+    "houseSystem": null,
+    "language": "en",
+    "years": 1,
+    "months": 1,
+    "sixtyHours": 1,
+    "praveshaType": 0,
+    "divisionalFactors": null,
+    "sendToAgent": false,
+    "sendToAgentMode": "summary",
+    "name": "rekha",
+    "date": null,
+    "time": null,
+    "tzOffsetMinutes": null,
+    "latitude": null,
+    "longitude": null,
+    "compact": false
   }
 }

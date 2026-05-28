@@ -402,6 +402,7 @@ def convert_to_deva_format(horoscope_data: Dict[str, Any]) -> Dict[str, Any]:
         "meta": horoscope_data.get("meta", {}),
         "lagna": horoscope_data.get("lagna"),
         "dasha": horoscope_data.get("dasha"),
+        "strength": horoscope_data.get("strength"),
         "d_series": horoscope_data.get("d_series", {})
     }
     return chart_data
@@ -894,6 +895,10 @@ async def save_birth_details(
             "created_at": datetime.utcnow(),
             "updated_at": datetime.utcnow()
         }
+        
+        # Delete any previous horoscopes and chunks for this user before storing the new one
+        await mongo_db.db.horoscope_chunks.delete_many({"user_email": current_user.email})
+        await mongo_db.db.horoscopes.delete_many({"user_email": current_user.email})
         
         await mongo_db.db.user_birth_details.update_one(
             {"user_email": current_user.email},

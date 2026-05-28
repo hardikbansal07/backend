@@ -443,7 +443,10 @@ def _paksha_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
     planet_positions = drik.dhasavarga(jd, place,divisional_chart_factor=1)
     sun_long = planet_positions[0][1][0]*30+planet_positions[0][1][1]
     moon_long = planet_positions[1][1][0]*30+planet_positions[1][1][1]
-    pb = round(abs(sun_long - moon_long) / 3.0,2)
+    diff = abs(sun_long - moon_long) % 360
+    if diff > 180.0:
+        diff = 360.0 - diff
+    pb = round(diff / 3.0,2)
     pbp = [pb for _ in range(7)]
     cht_benefics,cht_malefics = charts.benefics_and_malefics(jd, place,ayanamsa_mode=ayanamsa_mode,exclude_rahu_ketu=True)
     #print(cht_benefics,cht_malefics)
@@ -802,6 +805,11 @@ def shad_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
     import numpy as np
     sbn = np.array(sb).tolist()
     sb_sum = np.around(np.sum(sbn,0),2).tolist()
+    
+    # Sun and Moon do not have Cheshta Bala added to their total Shadbala score
+    sb_sum[0] = round(sb_sum[0] - cb[0], 2)
+    sb_sum[1] = round(sb_sum[1] - cb[1], 2)
+    
     sb_rupa = [round(ss/60.0,2) for ss in sb_sum]
     sb_req = [5,6,5,7,6.5,5.5,5]
     sb_strength = [round(sb_rupa[p]/sb_req[p],2) for p in range(7)]
@@ -980,6 +988,25 @@ def get_planet_mean_longitude(jd,place,planet_index=0):
 def _cheshta_bala_new(jd,place,use_epoch_table=False):
     pp = drik.dhasavarga(jd, place, divisional_chart_factor=1)
     cb = [0 for _ in range(7)]
+    
+    # Calculate Ayanamsa Value
+    ayanamsa_val = drik.get_ayanamsa_value(jd)
+    
+    # Sun Cheshta Bala
+    sun_long = pp[0][1][0]*30 + pp[0][1][1]
+    sayana_sun = (sun_long + ayanamsa_val) % 360
+    sun_kendra = (sayana_sun + 90) % 360
+    if sun_kendra > 180.0:
+        sun_kendra = 360.0 - sun_kendra
+    cb[0] = round(sun_kendra / 3.0, 2)
+    
+    # Moon Cheshta Bala
+    moon_long = pp[1][1][0]*30 + pp[1][1][1]
+    moon_kendra = abs(moon_long - sun_long) % 360
+    if moon_kendra > 180.0:
+        moon_kendra = 360.0 - moon_kendra
+    cb[1] = round(moon_kendra / 3.0, 2)
+    
     sun_mean_long = get_planet_mean_longitude(jd, place, const._SUN)
     for p in [const._MARS, const._MERCURY, const._JUPITER, const._VENUS, const._SATURN]: #range(2,7):
         p_id = drik.planet_list.index(p)
@@ -991,7 +1018,11 @@ def _cheshta_bala_new(jd,place,use_epoch_table=False):
             mean_long = sun_mean_long
         true_long = pp[p_id][1][0]*30+pp[p_id][1][1]
         ave_long = 0.5*(true_long+mean_long)
-        reduced_chesta_kendra = abs(seegrocha - ave_long)
+        
+        reduced_chesta_kendra = abs(seegrocha - ave_long) % 360
+        if reduced_chesta_kendra > 180.0:
+            reduced_chesta_kendra = 360.0 - reduced_chesta_kendra
+            
         cb[p_id] = round(reduced_chesta_kendra/3,2)
         #print('planet',p_id,'mean longitude',mean_long, surya_sidhantha._planet_true_longitude(jd, place, p, mean_long))
     return cb

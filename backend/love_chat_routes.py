@@ -269,6 +269,10 @@ async def generate_horoscope(
             "updated_at": datetime.utcnow()
         }
         
+        # Delete any previous horoscopes and chunks for this user before storing the new one
+        await mongo_db.db.horoscope_chunks.delete_many({"user_email": current_user.email})
+        await mongo_db.db.horoscopes.delete_many({"user_email": current_user.email})
+        
         await mongo_db.db.user_birth_details.update_one(
             {"user_email": current_user.email},
             {"$set": birth_details_doc},

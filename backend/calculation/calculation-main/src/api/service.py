@@ -255,7 +255,15 @@ async def persist_requests() -> None:
 
 
 def persist_requests_sync() -> None:
-    asyncio.run(persist_requests())
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = None
+    if loop and loop.is_running():
+        snapshot = _serialize_persisted_requests()
+        _write_persisted_snapshot(snapshot)
+    else:
+        asyncio.run(persist_requests())
 
 
 def upsert_persisted_request(key: str, value: Dict[str, Any]) -> None:
@@ -1084,7 +1092,14 @@ def compute_horoscope(req: models.HoroscopeRequest) -> models.StoredHoroscope:
                     "houseSystemRequested": req.houseSystem or 'DEFAULT',
                     # Human-readable label (preferred for display) and the canonical applied key
                     "houseSystemApplied": house_system_applied or 'DEFAULT',
-                    "houseSystemAppliedKey": house_system_applied_key if 'house_system_applied_key' in locals() else str(_c.bhaava_madhya_method)
+                    "houseSystemAppliedKey": house_system_applied_key if 'house_system_applied_key' in locals() else str(_c.bhaava_madhya_method),
+                    "name": req.name or "User",
+                    "gender": "Unknown",
+                    "birth_date": dt.date().isoformat() if dt else (req.date or ""),
+                    "birth_time": dt.strftime('%H:%M') if dt else (req.time or ""),
+                    "birth_place": place_with_country or "CustomLocation",
+                    "latitude": latitude,
+                    "longitude": longitude,
                 },
                 calendar=calendar,
                 rasiChart=rasi_chart_out,

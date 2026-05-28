@@ -203,15 +203,22 @@ def compress_horoscope(data: Dict[str, Any], birth_details: Optional[Dict[str, A
         clean_cal = {k: clean_calendar_value(v) for k, v in data["calendar"].items()}
         compressed["meta"]["calendar"] = clean_cal
     
-    # 1.5. Add birth details to meta if provided
+    # 1.5. Add birth details to meta if provided and missing
     if birth_details:
-        compressed["meta"]["name"] = birth_details.get("name")
-        compressed["meta"]["gender"] = birth_details.get("gender")
-        compressed["meta"]["birth_date"] = birth_details.get("date_of_birth")
-        compressed["meta"]["birth_time"] = birth_details.get("time_of_birth")
-        compressed["meta"]["birth_place"] = birth_details.get("place_of_birth")
-        compressed["meta"]["latitude"] = birth_details.get("latitude")
-        compressed["meta"]["longitude"] = birth_details.get("longitude")
+        if "name" not in compressed["meta"] or not compressed["meta"]["name"]:
+            compressed["meta"]["name"] = birth_details.get("name")
+        if "gender" not in compressed["meta"] or not compressed["meta"]["gender"]:
+            compressed["meta"]["gender"] = birth_details.get("gender")
+        if "birth_date" not in compressed["meta"] or not compressed["meta"]["birth_date"]:
+            compressed["meta"]["birth_date"] = birth_details.get("date_of_birth")
+        if "birth_time" not in compressed["meta"] or not compressed["meta"]["birth_time"]:
+            compressed["meta"]["birth_time"] = birth_details.get("time_of_birth")
+        if "birth_place" not in compressed["meta"] or not compressed["meta"]["birth_place"]:
+            compressed["meta"]["birth_place"] = birth_details.get("place_of_birth")
+        if "latitude" not in compressed["meta"] or compressed["meta"]["latitude"] is None:
+            compressed["meta"]["latitude"] = birth_details.get("latitude")
+        if "longitude" not in compressed["meta"] or compressed["meta"]["longitude"] is None:
+            compressed["meta"]["longitude"] = birth_details.get("longitude")
 
     # 2. Lagna (Rasi Chart / D1)
     if "rasiChart" in data:
