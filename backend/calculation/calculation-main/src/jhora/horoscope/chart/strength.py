@@ -418,13 +418,16 @@ def dwadhasa_vargeeya_bala(jd,place):
     return dvpd
 def _dig_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
     planet_positions = charts.rasi_chart(jd, place,ayanamsa_mode=ayanamsa_mode)
-    powerless_houses_of_planets = [3,9,3,6,6,9,0]#[4,10,4,7,7,10,1]
-    bm = drik.bhaava_madhya(jd, place)
-    dbf = [bm[p] for p in powerless_houses_of_planets]
+    asc_long = planet_positions[0][1][0]*30 + planet_positions[0][1][1]
+    powerless_offsets = [90.0, 270.0, 90.0, 180.0, 180.0, 270.0, 0.0]
     dbp = [0 for _ in range(7)]
     for p,(h,long) in planet_positions[1:const._pp_count_upto_saturn]:
         p_long = h*30+long
-        dbp[p] = round(abs(dbf[p]-p_long)/3,2)
+        powerless_long = (asc_long + powerless_offsets[p]) % 360
+        diff = abs(powerless_long - p_long) % 360
+        if diff > 180.0:
+            diff = 360.0 - diff
+        dbp[p] = round(diff/3, 2)
     return dbp
 def _divaratri_bala(jd,place):
     return _nathonnath_bala(jd,place)
@@ -826,13 +829,15 @@ def _bhava_adhipathi_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
     return bb
 def _bhava_dig_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
     bdb = [0 for _ in range(12)]
-    bm = drik.bhaava_madhya(jd, place)
+    pp = charts.rasi_chart(jd, place, ayanamsa_mode=ayanamsa_mode)
+    asc_long = pp[0][1][0]*30 + pp[0][1][1]
+    bm = [(asc_long + h*30)%360 for h in range(12)]
     brl = {0:const.nara_rasi_longitudes,3:const.jalachara_rasi_longitudes,9:const.chatushpada_rasis,6:const.keeta_rasis}
     chk = []
     for k,v in brl.items():
         chk += list(set([((k+h)%12,abs(60-abs(h)*10)) for h in range(-7,7) for l1,l2 in v if bm[(k+h)%12] >= l1 and bm[(k+h)%12] <= l2]))
     chk = {k:v for k,v in chk}
-    return list(dict(sorted(chk.items())).values())
+    return [dict(sorted(chk.items())).get(h, 0.0) for h in range(12)]
 def __bhava_drik_bala_calc_1(dk_p1_p2,p1):
     dk_p1_p2_new = dk_p1_p2
     if dk_p1_p2 > 0 and dk_p1_p2 <= 30.0:
@@ -872,46 +877,28 @@ def bhava_drishti_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
 def _bhava_drik_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
     dk = [[ 0 for _ in range(7)] for _ in range(12)]
     pp = charts.rasi_chart(jd, place, ayanamsa_mode=ayanamsa_mode)
-    house_planet_dict = utils.get_house_planet_list_from_planet_positions(pp)
+    asc_long = pp[0][1][0]*30 + pp[0][1][1]
     pp = pp[1:-2]
     subha_grahas = [1,3,4,5] ; asubha_grahas = [0,2,6]
-    """ 
-        TODO: Find out the aspect dictionary as below from the chart
-        For example Sun aspects Moon and Venus, Moon aspects All but itelf...
-        How to find this? Graha/Rasi Drishti?
-        (1) Jupiter and Venus are natural benefics (saumya grahas or subha grahas).
-        Mercury becomes a natural benefic when he is alone or with more natural
-        benefics. Waxing Moon of Sukla paksha is a natural benefic.
-        (2) Sun, Mars, Rahu and Ketu are natural malefics (kroora grahas or paapa grahas).
-        Mercury becomes a natural malefic when he is joined by more natural malefics.
-        Waning Moon of Krishna paksha is a natural malefic.        
-    """ 
-    grp,ghp,gpp = house.graha_drishti_from_chart(house_planet_dict)
-    rrp,rhp,rpp = house.raasi_drishti_from_chart(house_planet_dict)
-    planet_house_aspects = {}
-    for planet in range(7):
-        planet_house_aspects[planet] = sorted(list(set(ghp[planet]+rhp[planet])))
-        planet_house_aspects[planet] = [int(p) for p in planet_house_aspects[planet] if p not in [const._ascendant_symbol,'7','8']]
-    bm = drik.bhaava_madhya(jd, place)
-    for h in range(12): # Aspected Planet
+    
+    bm = [(asc_long + h*30)%360 for h in range(12)]
+    
+    for h in range(12): # Aspected House
         h_mid = bm[h]
         for p in range(7): # Aspecting Planet
-            if (h+1) in planet_house_aspects[p]:
-                p_long = pp[p][1][0]*30+pp[p][1][1]
-                dk_h_p = round((360.0+h_mid-p_long)%360,2)
-                dk_h_p = __bhava_drik_bala_calc_1(dk_h_p,p)
-            else:
-                dk_h_p = 0.0
+            p_long = pp[p][1][0]*30+pp[p][1][1]
+            dk_h_p = round((360.0+h_mid-p_long)%360,2)
+            dk_h_p = __bhava_drik_bala_calc_1(dk_h_p,p)
             dk[h][p] = round(dk_h_p,2)
-    import numpy as np
+            
     dkp = [0 for _ in range(12)] ; dkm = [0 for _ in range(12)]; dk_final = [0 for _ in range(12)]
     for row in range(12):
         for col in range(7):
             if col in subha_grahas:
                 dkp[row] += dk[row][col] 
-            if row in asubha_grahas:
+            if col in asubha_grahas:
                 dkm[row] += dk[row][col]
-            dk_final[row] = round((dkp[row] - dkm[row])/4,2) 
+        dk_final[row] = round(dkp[row] - dkm[row],2) 
     return dk_final
 def bhava_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
     """
