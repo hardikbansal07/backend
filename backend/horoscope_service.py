@@ -86,53 +86,116 @@ async def compress_and_store_horoscope(
                 # Log warning but continue without dasha data
                 logger.warning(f"Could not fetch Dasha data for {request_id}: {dasha_error}")
         
-        # Step 0.2: Dynamically calculate and refresh correct Shadbala & Bhavabala Strength data
+        # Step 0.2: Dynamically calculate and refresh correct Shadbala, Bhavabala, and Vimsopaka Strength data
         try:
             from api import service as calc_service
+            from jhora.horoscope.chart import strength as _strength
+            from jhora.horoscope.chart import charts as _charts
+            
+            jd = None
+            place = None
+            ayanamsa = 'LAHIRI'
+            birth_details = None
+            
             stored_horo = calc_service._store.get(request_id)
             if stored_horo and stored_horo.internalHoroscope:
-                from jhora.horoscope.chart import strength as _strength
                 h = stored_horo.internalHoroscope
                 jd = getattr(h, 'julian_day', None)
                 place = getattr(h, 'Place', None)
                 ayanamsa = getattr(h, 'ayanamsa_mode', 'LAHIRI')
+            else:
+                # Robust offline fallback to reconstruct birth details
+                from jhora.panchanga import drik as _drik
+                from jhora import utils as _utils
                 
-                if jd and place:
-                    sb = _strength.shad_bala(jd, place, ayanamsa_mode=ayanamsa)
-                    bb = _strength.bhava_bala(jd, place, ayanamsa_mode=ayanamsa)
+                meta_info = horoscope_data.get("meta", {})
+                b_date = meta_info.get("birth_date") or (birth_details and birth_details.get("date_of_birth"))
+                b_time = meta_info.get("birth_time") or (birth_details and birth_details.get("time_of_birth"))
+                lat = meta_info.get("latitude") or (birth_details and birth_details.get("latitude"))
+                lon = meta_info.get("longitude") or (birth_details and birth_details.get("longitude"))
+                tz = meta_info.get("timezone") or (birth_details and (birth_details.get("timezone") or birth_details.get("timezoneOffset"))) or 5.5
+                
+                if b_date and b_time and lat is not None and lon is not None:
+                    # Parse date: YYYY-MM-DD
+                    y, m, d = map(int, b_date.split('-'))
+                    dob = _drik.Date(y, m, d)
                     
-                    planet_names_7 = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn']
-                    stb, kb, dgb, cb, nb, dkb, sb_sum, sb_rupa, sb_strength = sb
-                    
-                    shadbala_data = {}
-                    for idx, planet in enumerate(planet_names_7):
-                        shadbala_data[planet] = {
-                            'sthana_bala': float(stb[idx]),
-                            'kaala_bala': float(kb[idx]),
-                            'dig_bala': float(dgb[idx]),
-                            'cheshta_bala': float(cb[idx]),
-                            'naisargika_bala': float(nb[idx]),
-                            'drik_bala': float(dkb[idx]),
-                            'total_score': float(sb_sum[idx]),
-                            'rupas': float(sb_rupa[idx]),
-                            'strength_ratio': float(sb_strength[idx])
-                        }
-                    
-                    bb_list, bb_rupas, bb_strength = bb
-                    bhavabala_data = {}
-                    for house_idx in range(12):
-                        house_num = house_idx + 1
-                        bhavabala_data[str(house_num)] = {
-                            'total_score': float(bb_list[house_idx]),
-                            'rupas': float(bb_rupas[house_idx]),
-                            'strength_ratio': float(bb_strength[house_idx])
-                        }
-                    
-                    horoscope_data['strength'] = {
-                        'shadbala': shadbala_data,
-                        'bhavabala': bhavabala_data
+                    # Parse time: HH:MM or HH:MM:SS
+                    time_parts = list(map(int, b_time.split(':')))
+                    if len(time_parts) == 2:
+                        tob = (time_parts[0], time_parts[1], 0)
+                    else:
+                        tob = (time_parts[0], time_parts[1], time_parts[2])
+                        
+                    place = _drik.Place("Delhi", float(lat), float(lon), float(tz))
+                    jd = _utils.julian_day_number(dob, tob)
+            
+            if jd and place:
+                # 1. Calculate Shadbala
+                sb = _strength.shad_bala(jd, place, ayanamsa_mode=ayanamsa)
+                planet_names_7 = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn']
+                stb, kb, dgb, cb, nb, dkb, sb_sum, sb_rupa, sb_strength = sb
+                
+                shadbala_data = {}
+                for idx, planet in enumerate(planet_names_7):
+                    shadbala_data[planet] = {
+                        'sthana_bala': float(stb[idx]),
+                        'kaala_bala': float(kb[idx]),
+                        'dig_bala': float(dgb[idx]),
+                        'cheshta_bala': float(cb[idx]),
+                        'naisargika_bala': float(nb[idx]),
+                        'drik_bala': float(dkb[idx]),
+                        'total_score': float(sb_sum[idx]),
+                        'rupas': float(sb_rupa[idx]),
+                        'strength_ratio': float(sb_strength[idx])
                     }
-                    logger.info(f"Loaded dynamically calculated correct Shadbala & Bhavabala Strength data for request {request_id}")
+                
+                # 2. Calculate Bhavabala
+                bb = _strength.bhava_bala(jd, place, ayanamsa_mode=ayanamsa)
+                bb_list, bb_rupas, bb_strength = bb
+                bhavabala_data = {}
+                for house_idx in range(12):
+                    house_num = house_idx + 1
+                    bhavabala_data[str(house_num)] = {
+                        'total_score': float(bb_list[house_idx]),
+                        'rupas': float(bb_rupas[house_idx]),
+                        'strength_ratio': float(bb_strength[house_idx])
+                    }
+                
+                # 3. Calculate Vimsopaka (Shad, Sapta, Dasa, Shodasa Vargas)
+                shadvarga = _charts.vimsopaka_shadvarga_of_planets(jd, place, ayanamsa_mode=ayanamsa)
+                sapthavarga = _charts.vimsopaka_sapthavarga_of_planets(jd, place, ayanamsa_mode=ayanamsa)
+                dhasavarga = _charts.vimsopaka_dhasavarga_of_planets(jd, place, ayanamsa_mode=ayanamsa)
+                shodhasavarga = _charts.vimsopaka_shodhasavarga_of_planets(jd, place, ayanamsa_mode=ayanamsa)
+                
+                planet_names_9 = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu']
+                vimsopaka_data = {}
+                for idx, planet in enumerate(planet_names_9):
+                    vimsopaka_data[planet] = {
+                        'shadvarga': {
+                            'score': float(shadvarga[idx][2]),
+                            'percentage': float(shadvarga[idx][2]/20.0 * 100)
+                        },
+                        'sapthavarga': {
+                            'score': float(sapthavarga[idx][2]),
+                            'percentage': float(sapthavarga[idx][2]/20.0 * 100)
+                        },
+                        'dhasavarga': {
+                            'score': float(dhasavarga[idx][2]),
+                            'percentage': float(dhasavarga[idx][2]/20.0 * 100)
+                        },
+                        'shodhasavarga': {
+                            'score': float(shodhasavarga[idx][2]),
+                            'percentage': float(shodhasavarga[idx][2]/20.0 * 100)
+                        }
+                    }
+                
+                horoscope_data['strength'] = {
+                    'shadbala': shadbala_data,
+                    'bhavabala': bhavabala_data,
+                    'vimsopaka': vimsopaka_data
+                }
+                logger.info(f"Loaded dynamically calculated correct Shadbala, Bhavabala, and Vimsopaka Strength data for request {request_id}")
         except Exception as strength_error:
             logger.warning(f"Could not calculate Strength data for {request_id}: {strength_error}")
         

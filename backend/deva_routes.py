@@ -610,6 +610,27 @@ def format_chart_data_to_text(chart_data: Dict[str, Any]) -> str:
             lines.append(f"| **House {house}** | {values.get('total_score')} | {values.get('rupas')} | {values.get('strength_ratio')} |")
         lines.append("")
 
+        vimsopaka = strength.get("vimsopaka", {})
+        if vimsopaka:
+            lines.append("### 7. PLANETARY VIMSOPAKA STRENGTHS (VARGA BALAS)")
+            lines.append("| Planet | Shad Varga (6) | Sapta Varga (7) | Dasa Varga (10) | Shodasa Varga (16) |")
+            lines.append("| :--- | :---: | :---: | :---: | :---: |")
+            p_order = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu']
+            sorted_planets = sorted(vimsopaka.keys(), key=lambda x: p_order.index(x) if x in p_order else 99)
+            for planet in sorted_planets:
+                values = vimsopaka[planet]
+                shadv = values.get('shadvarga', {})
+                saptv = values.get('sapthavarga', {})
+                dasav = values.get('dhasavarga', {})
+                shodv = values.get('shodhasavarga', {})
+                lines.append(
+                    f"| **{planet}** | {shadv.get('score', 0):.2f} ({shadv.get('percentage', 0):.1f}%) | "
+                    f"{saptv.get('score', 0):.2f} ({saptv.get('percentage', 0):.1f}%) | "
+                    f"{dasav.get('score', 0):.2f} ({dasav.get('percentage', 0):.1f}%) | "
+                    f"{shodv.get('score', 0):.2f} ({shodv.get('percentage', 0):.1f}%) |"
+                )
+            lines.append("")
+
     return "\n".join(lines)
 
 async def run_domain_engine(
