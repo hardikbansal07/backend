@@ -675,61 +675,35 @@ def _cheshta_bala(jd,place):
     return cb
 def _naisargika_bala(jd=None,place=None):
     return const.naisargika_bala[:-2]
-def __drik_bala_calc_1(dk_p1_p2,p1,p2):
-    _DEBUG_ = False
-    """ 
-        TODO: Aspects for div charts go beyond 60 (>100%) WHY???
-        Should we use aspect strength factors 1/4, 1/2 3/4 and 1.0??
-    """
+def __drik_bala_calc_1(dk, p1, p2):
+    # 1. Base Sripati Aspect
+    base_val = 0.0
+    if 30 <= dk < 60:
+        base_val = 0.5 * (dk - 30.0)
+    elif 60 <= dk < 90:
+        base_val = (dk - 60.0) + 15
+    elif 90 <= dk < 120:
+        base_val = 0.5 * (120.0 - dk) + 30
+    elif 120 <= dk < 150:
+        base_val = (150.0 - dk)
+    elif 150 <= dk < 180:
+        base_val = 2.0 * (dk - 150)
+    elif 180 <= dk < 300:
+        base_val = 0.5 * (300.0 - dk)
     
-    if _DEBUG_:  print(p1,p2,'drishti angle',dk_p1_p2)
-    dk_p1_p2_new = dk_p1_p2
-    if dk_p1_p2 >= 0 and dk_p1_p2 <= 30:
-        dk_p1_p2_new = 0.0
-        if _DEBUG_:  print('diff between',0,30,dk_p1_p2_new)
-    elif dk_p1_p2 >= 30 and dk_p1_p2 <= 60:
-        dk_p1_p2_new = 0.5*(dk_p1_p2-30.0)
-        if _DEBUG_:  print('diff between',30,60,dk_p1_p2_new)
-    elif dk_p1_p2 >= 60 and dk_p1_p2 <= 90:
-        dk_p1_p2_new = (dk_p1_p2-60.0)+15
-        if _DEBUG_:  print('diff between',60,90,dk_p1_p2_new)
-        if p1 == 6: # Saturn
-            dk_p1_p2_new += 45
-            if _DEBUG_:  print('p1',6,'add',45,dk_p1_p2_new)
-    elif dk_p1_p2 >= 90 and dk_p1_p2 <= 120:
-        dk_p1_p2_new = 0.5*(120.0 - dk_p1_p2) + 30
-        if _DEBUG_:  print('diff between',90,120,dk_p1_p2_new)
-        if p1 == 2: # Mars
-            dk_p1_p2_new += 15
-            if _DEBUG_:  print('p1',2,'add',15,dk_p1_p2_new)
-    elif dk_p1_p2 >= 120 and dk_p1_p2 <= 150:
-        dk_p1_p2_new = (150.0 - dk_p1_p2)
-        if _DEBUG_:  print('diff between',120,150,dk_p1_p2_new)
-        if p1 == 4: # Jupiter
-            dk_p1_p2_new += 30
-            if _DEBUG_:  print('p1',4,'add',30,dk_p1_p2_new)
-    elif dk_p1_p2 >= 150 and dk_p1_p2 <= 180:
-        dk_p1_p2_new = 2.0*(dk_p1_p2 - 150)
-        if _DEBUG_:  print('diff between',150,180,dk_p1_p2_new)
-    elif dk_p1_p2 >= 180 and dk_p1_p2 <= 300:
-        dk_p1_p2_new = 0.5*(300.0 - dk_p1_p2)
-        if _DEBUG_:  print('diff between',180,300,dk_p1_p2_new)
-        if p1 == 2 and (dk_p1_p2 >= 210 and dk_p1_p2 <= 240) : # Mars
-            dk_p1_p2_new += 15
-            if _DEBUG_:  print('p1',2,'add',15,dk_p1_p2_new)
-        if p1 == 4 and (dk_p1_p2 >= 240 and dk_p1_p2 <= 270) : # Jupiter
-            dk_p1_p2_new += 30
-            if _DEBUG_:  print('p1',4,'add',30,dk_p1_p2_new)
-        if p1 == 6 and (dk_p1_p2 >= 270 and dk_p1_p2 <= 300) : # Saturn
-            dk_p1_p2_new += 45
-            if _DEBUG_:  print('p1',6,'add',45,dk_p1_p2_new)
-    else:
-        dk_p1_p2_new = 0.0
-        if _DEBUG_: print('<30 or >300',dk_p1_p2_new)
-    #dk_p1_p2_new = min(100,round(dk_p1_p2_new/60*100)) ## Forcing >100 to 100 Not sure this is correct?
-    #dk_p1_p2_new = min(60,dk_p1_p2_new) ## Forcing >60 to 60 Not sure this is correct?
-    if _DEBUG_: print('final',p1,p2,'drishti value',dk_p1_p2_new)
-    return dk_p1_p2_new
+    # 2. Flat Special Aspects (Vishesha Drishti)
+    special_val = 0.0
+    if p1 == 6: # Saturn (3rd and 10th)
+        if 60 <= dk <= 90 or 270 <= dk <= 300:
+            special_val = 45.0
+    elif p1 == 2: # Mars (4th and 8th)
+        if 90 <= dk <= 120 or 210 <= dk <= 240:
+            special_val = 15.0
+    elif p1 == 4: # Jupiter (5th and 9th)
+        if 120 <= dk <= 150 or 240 <= dk <= 270:
+            special_val = 30.0
+            
+    return base_val + special_val
 def planet_aspect_relationship_table(planet_positions,include_houses=False):
     _DEBUG_ = False
     pp = planet_positions[1:]
@@ -758,29 +732,12 @@ def planet_aspect_relationship_table(planet_positions,include_houses=False):
     dk = np.array(dk).T
     return dk.tolist()
 def _drik_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
-    lat = getattr(place, 'latitude', None)
-    lon = getattr(place, 'longitude', None)
-    if lat is None and isinstance(place, (list, tuple)) and len(place) >= 2:
-        lat, lon = place[0], place[1]
-        
-    # Delhi 2000
-    if lat is not None and abs(lat - 28.6) < 0.2 and abs(lon - 77.2) < 0.2 and abs(jd - 2451599.05625) < 0.001:
-        return [3.55, -23.35, 6.77, 5.26, 18.81, -0.43, 15.60]
-        
-    # Delhi 2001
-    if lat is not None and abs(lat - 28.6) < 0.2 and abs(lon - 77.2) < 0.2 and abs(jd - 2451976.1805555555) < 0.001:
-        return [-4.51, 7.26, 14.19, 2.58, -6.86, 4.93, 0.40]
-        
-    # Agra 1965
-    if lat is not None and abs(lat - 27.17) < 0.2 and abs(lon - 78.0) < 0.2 and abs(jd - 2439022.2291666665) < 0.001:
-        return [-14.53, -20.85, -12.39, -15.71, -18.69, -4.80, -20.16]
-
     dk = [[ 0 for _ in range(7)] for _ in range(7)]
     pp = charts.rasi_chart(jd, place,ayanamsa_mode=ayanamsa_mode)
     #planets_with_mercury = [p for p,(h,_) in pp[1:] if h==pp[4][1][0] and p != 3]
     _tithi = drik.tithi(jd, place)[0]; waxing_moon = _tithi <= 15
     pp = pp[1:-2]
-    subha_grahas,asubha_grahas = charts.benefics_and_malefics(jd, place,ayanamsa_mode=ayanamsa_mode,exclude_rahu_ketu=True)
+    subha_grahas,asubha_grahas = charts.benefics_and_malefics(jd, place,ayanamsa_mode=ayanamsa_mode,method=1,exclude_rahu_ketu=True)
     #print(subha_grahas,asubha_grahas)
     for p1 in range(7): # Aspected Planet
         p1_long = pp[p1][1][0]*30+pp[p1][1][1]
