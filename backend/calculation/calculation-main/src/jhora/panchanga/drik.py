@@ -1556,7 +1556,7 @@ def declination_of_planets(jd,place):
     bhujas = [0 for _ in range(7)]
     north_south_sign = [1 for _ in range(7)]
     for p,(h,long) in pp:
-        p_long = h*30 + long+_ayanamsa #V4.5.0
+        p_long = (h*30 + long+_ayanamsa) % 360 #V4.5.0 (normalized to 0-360)
         if p_long >= 0.0 and p_long < 180.0: # North
             north_south_sign[p] = -1
             if p in [0,2,4,5]:

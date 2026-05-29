@@ -1783,6 +1783,164 @@ async def dhasa_sudharsana_chakra(request_id: str, divisional_chart_factor: int 
             raise HTTPException(500, f'Error computing Sudharsana Chakra: {e}')
     except Exception as e:
         raise HTTPException(500, f'Error: {e}')
+
+def _parse_nakshatra_string(nak_str: str) -> tuple[int, int]:
+    nak_str = nak_str.strip()
+    # Check for simple numeric representation
+    if nak_str.isdigit():
+        return int(nak_str), 1
+        
+    # Split by common delimiters like '-', ' ', '_', '('
+    import re
+    # Try to find a pada number (1 to 4)
+    pada = 1
+    pada_match = re.search(r'(?:pada|padam|padas|p)\s*[:=-]?\s*([1-4])', nak_str, re.IGNORECASE)
+    if pada_match:
+        pada = int(pada_match.group(1))
+        # Remove the pada part from string to parse the nakshatra name
+        nak_str = nak_str[:pada_match.start()] + nak_str[pada_match.end():]
+    else:
+        # Check if the string ends with a hyphen or slash and a digit (e.g. "Ashwini-1" or "Ashwini/1")
+        suffix_match = re.search(r'[-/_\s]+([1-4])$', nak_str)
+        if suffix_match:
+            pada = int(suffix_match.group(1))
+            nak_str = nak_str[:suffix_match.start()]
+            
+    # Clean up nakshatra name
+    nak_name = re.sub(r'[^a-zA-Z0-9\s]', '', nak_str).strip()
+    
+    # Check if nak_name is a digit representing the nakshatra number
+    if nak_name.isdigit():
+        return int(nak_name), pada
+        
+    # Match against standard nakshatra names
+    for i, name in enumerate(_NAKSHATRA_NAMES):
+        if name.lower() == nak_name.lower():
+            return i + 1, pada
+            
+    # Substring fuzzy match
+    for i, name in enumerate(_NAKSHATRA_NAMES):
+        if nak_name.lower() in name.lower() or name.lower() in nak_name.lower():
+            return i + 1, pada
+            
+    # Match against compatibility.py's own list (which might have different spellings)
+    for i, name in enumerate(_compatibility.nakshatra_list):
+        if name.lower() == nak_name.lower():
+            return i + 1, pada
+            
+    # Fallback default
+    return 1, pada
+
+@app.get('/api/match/compatibility', response_model=models.MatchResponse)
+async def get_match_compatibility(
+    boy_nakshatra: int,
+    boy_pada: int,
+    girl_nakshatra: int,
+    girl_pada: int,
+    method: str = "North"
+):
+    """Compute compatibility score (Ashtakoota / South variant) between boy and girl
+    based on their birth star (1..27) and pada (1..4).
+    """
+    if not (1 <= boy_nakshatra <= 27):
+        raise HTTPException(400, "boy_nakshatra must be between 1 and 27")
+    if not (1 <= boy_pada <= 4):
+        raise HTTPException(400, "boy_pada must be between 1 and 4")
+    if not (1 <= girl_nakshatra <= 27):
+        raise HTTPException(400, "girl_nakshatra must be between 1 and 27")
+    if not (1 <= girl_pada <= 4):
+        raise HTTPException(400, "girl_pada must be between 1 and 4")
+    
+    try:
+        ak = _compatibility.Ashtakoota(
+            boy_nakshatra_number=boy_nakshatra,
+            boy_paadham_number=boy_pada,
+            girl_nakshatra_number=girl_nakshatra,
+            girl_paadham_number=girl_pada,
+            method=method
+        )
+        
+        results = ak.compatibility_score()
+        is_south = 'south' in method.lower()
+        max_score = 10 if is_south else 36
+        
+        if is_south:
+            score = results[8]
+            raw_score = float(score)
+            percentage = (raw_score / max_score) * 100
+            
+            details = {
+                "varna_porutham": bool(results[0]),
+                "vasiya_porutham": bool(results[1]),
+                "gana_porutham": bool(results[2]),
+                "dina_porutham": bool(results[3]),
+                "yoni_porutham": bool(results[4]),
+                "raasi_adhipathi_porutham": bool(results[5]),
+                "raasi_porutham": bool(results[6]),
+                "naadi_porutham": bool(results[7]),
+                "mahendra_porutham": bool(results[9]),
+                "vedha_porutham": bool(results[10]),
+                "rajju_porutham": bool(results[11]),
+                "sthree_dheerga_porutham": bool(results[12]),
+                "minimum_porutham": bool(results[13]) if len(results) > 13 else False
+            }
+        else:
+            score = results[8]
+            raw_score = float(score)
+            percentage = (raw_score / max_score) * 100
+            
+            details = {
+                "varna_porutham": float(results[0]),
+                "vasiya_porutham": float(results[1]),
+                "gana_porutham": float(results[2]),
+                "dina_porutham": float(results[3]),
+                "yoni_porutham": float(results[4]),
+                "raasi_adhipathi_porutham": float(results[5]),
+                "raasi_porutham": float(results[6]),
+                "naadi_porutham": float(results[7]),
+                "mahendra_porutham": bool(results[9]),
+                "vedha_porutham": bool(results[10]),
+                "rajju_porutham": bool(results[11]),
+                "sthree_dheerga_porutham": bool(results[12])
+            }
+            
+        boy_nak_name = _NAKSHATRA_NAMES[boy_nakshatra - 1] if 1 <= boy_nakshatra <= 27 else f"Nakshatra {boy_nakshatra}"
+        girl_nak_name = _NAKSHATRA_NAMES[girl_nakshatra - 1] if 1 <= girl_nakshatra <= 27 else f"Nakshatra {girl_nakshatra}"
+        
+        return models.MatchResponse(
+            maleNakshatra=f"{boy_nak_name} (Pada {boy_pada})",
+            femaleNakshatra=f"{girl_nak_name} (Pada {girl_pada})",
+            score=round(percentage, 2),
+            rawScore=raw_score,
+            maxScore=max_score,
+            details=details
+        )
+    except Exception as e:
+        raise HTTPException(500, f"Error computing compatibility: {str(e)}")
+
+@app.post('/api/match/compatibility', response_model=models.MatchResponse)
+async def post_match_compatibility(request: models.MatchRequest):
+    """Compute compatibility score (Ashtakoota / South variant) between male and female
+    using a POST request.
+    
+    Accepts nakshatra names or numbers with optional pada (e.g. "Ashwini-1" or "Ashwini (Pada 1)").
+    """
+    try:
+        boy_nak, boy_pada = _parse_nakshatra_string(request.maleNakshatra)
+        girl_nak, girl_pada = _parse_nakshatra_string(request.femaleNakshatra)
+    except Exception as e:
+        raise HTTPException(400, f"Error parsing nakshatras: {str(e)}")
+        
+    method = request.system if request.system and request.system.lower() != 'default' else 'North'
+    
+    return await get_match_compatibility(
+        boy_nakshatra=boy_nak,
+        boy_pada=boy_pada,
+        girl_nakshatra=girl_nak,
+        girl_pada=girl_pada,
+        method=method
+    )
+
 @app.get('/api/panchanga', response_model=models.PanchangaResponse)
 async def get_panchanga(request_id: str):
     stored = _get_stored_or_404(request_id)

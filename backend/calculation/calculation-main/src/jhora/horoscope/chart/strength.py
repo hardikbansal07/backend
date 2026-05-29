@@ -235,27 +235,61 @@ def _sapthavargaja_bala_2(planet_positions,dcf,compound_relations):
     cr = compound_relations
     sb_fac = {const._ADHISATHRU_GREATENEMY-1:1.875,const._SATHRU_ENEMY-1:3.75,const._SAMAM_NEUTRAL-1:7.5,
               const._MITHRA_FRIEND-1:15,const._ADHIMITRA_GREATFRIEND-1:22.5}
-    for p,(h,_) in planet_positions[1:8]:
+    for p,(h,long) in planet_positions[1:8]:
         owner = const._house_owners_list[h]
-        if h == const.moola_trikona_of_planets[p] and dcf==1: # Moola Trinkona Rasi
+        is_moola_trikona = False
+        if h == const.moola_trikona_of_planets[p] and dcf==1: # Moola Trikona Rasi
+            if p == 0:   # Sun: Leo (0-20)
+                is_moola_trikona = (0 <= long <= 20)
+            elif p == 1: # Moon: Taurus (3-30)
+                is_moola_trikona = (3 <= long <= 30)
+            elif p == 2: # Mars: Aries (0-12)
+                is_moola_trikona = (0 <= long <= 12)
+            elif p == 3: # Mercury: Virgo (15-20)
+                is_moola_trikona = (15 <= long <= 20)
+            elif p == 4: # Jupiter: Sagittarius (0-10)
+                is_moola_trikona = (0 <= long <= 10)
+            elif p == 5: # Venus: Libra (0-5)
+                is_moola_trikona = (0 <= long <= 5)
+            elif p == 6: # Saturn: Aquarius (0-20)
+                is_moola_trikona = (0 <= long <= 20)
+            else:
+                is_moola_trikona = True
+
+        if is_moola_trikona:
             sb[p] = 45
-            #print('chart-',dcf,'planet',p,'in moola trikona','strength=45')
         elif const.house_strengths_of_planets[p][h]==const._OWNER_RULER: # Swastha Rasi
             sb[p] = 30
-            #print('chart-',dcf,'planet',p,'in own rasi','strength=30')
         else:
             sb[p] = sb_fac[cr[p][owner]]
-            #print('chart-',dcf,'planet',p,'is in',owner,"'s rasi",'relation=',cr[p][owner],'strength',sb[p])
     return sb
+
 def _sapthavargaja_bala_1(planet_positions,dcf):
     sb = [0 for _ in range(8)]
-    #sb_fac = {const._ADHISATHRU_GREATENEMY:4,const._SATHRU_ENEMY:4,const._SAMAM_NEUTRAL:10,const._MITHRA_FRIEND:15,
-    #          const._ADHIMITRA_GREATFRIEND:20}
     sb_fac = {const._ADHISATHRU_GREATENEMY:1.875,const._SATHRU_ENEMY:3.75,const._SAMAM_NEUTRAL:7.5,const._MITHRA_FRIEND:15,
               const._ADHIMITRA_GREATFRIEND:22.5}
-    for p,(h,_) in planet_positions[1:8]:
+    for p,(h,long) in planet_positions[1:8]:
         owner = house.house_owner_from_planet_positions(planet_positions, h)
-        if h == const.moola_trikona_of_planets[p] and dcf==1: # Moola Trinkona Rasi
+        is_moola_trikona = False
+        if h == const.moola_trikona_of_planets[p] and dcf==1: # Moola Trikona Rasi
+            if p == 0:
+                is_moola_trikona = (0 <= long <= 20)
+            elif p == 1:
+                is_moola_trikona = (3 <= long <= 30)
+            elif p == 2:
+                is_moola_trikona = (0 <= long <= 12)
+            elif p == 3:
+                is_moola_trikona = (15 <= long <= 20)
+            elif p == 4:
+                is_moola_trikona = (0 <= long <= 10)
+            elif p == 5:
+                is_moola_trikona = (0 <= long <= 5)
+            elif p == 6:
+                is_moola_trikona = (0 <= long <= 20)
+            else:
+                is_moola_trikona = True
+
+        if is_moola_trikona:
             sb[p] = 45
         elif const.house_strengths_of_planets[p][h]==const._OWNER_RULER: # Swastha Rasi
             sb[p] = 30
@@ -442,6 +476,34 @@ def _nathonnath_bala(jd,place):
         nbp[p] = round(60 - t_diff,2)
     nbp[3] = 60.0
     return nbp
+def _is_mercury_malefic(jd, place, ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
+    subha_grahas, asubha_grahas = charts.benefics_and_malefics(jd, place, ayanamsa_mode=ayanamsa_mode, method=1, exclude_rahu_ketu=True)
+    pp_full = charts.rasi_chart(jd, place, ayanamsa_mode=ayanamsa_mode)
+    pp = pp_full[1:-2]  # Sun to Saturn
+    merc_sign = pp[3][1][0]
+    
+    standard_malefic_ids = [1, 3, 7, 8, 9]  # Sun, Mars, Saturn, Rahu, Ketu in pp_full
+    if 1 not in subha_grahas:
+        standard_malefic_ids.append(2) # Malefic Moon
+        
+    conjoint_malefic = any(pp_full[pid][1][0] == merc_sign for pid in standard_malefic_ids)
+    if conjoint_malefic:
+        return True
+        
+    merc_long = pp[3][1][0]*30 + pp[3][1][1]
+    malefic_asp_sum = 0.0; benefic_asp_sum = 0.0
+    for i in range(7):
+        if i == 3: continue
+        p_long = pp[i][1][0]*30 + pp[i][1][1]
+        ang = (360.0 + merc_long - p_long) % 360
+        asp = __drik_bala_calc_1(ang, i, 3)
+        if i in subha_grahas:
+            benefic_asp_sum += asp
+        elif i in asubha_grahas:
+            malefic_asp_sum += asp
+            
+    return malefic_asp_sum > benefic_asp_sum
+
 def _paksha_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
     planet_positions = drik.dhasavarga(jd, place,divisional_chart_factor=1)
     sun_long = planet_positions[0][1][0]*30+planet_positions[0][1][1]
@@ -452,12 +514,21 @@ def _paksha_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
     pb = round(diff / 3.0,2)
     pbp = [pb for _ in range(7)]
     cht_benefics,cht_malefics = charts.benefics_and_malefics(jd, place,ayanamsa_mode=ayanamsa_mode,exclude_rahu_ketu=True)
-    #print(cht_benefics,cht_malefics)
-    for p in cht_benefics:# const.natural_benefics:
+    
+    # Override Mercury classification dynamically
+    merc_is_mal = _is_mercury_malefic(jd, place, ayanamsa_mode=ayanamsa_mode)
+    if merc_is_mal:
+        if 3 in cht_benefics: cht_benefics.remove(3)
+        if 3 not in cht_malefics: cht_malefics.append(3)
+    else:
+        if 3 in cht_malefics: cht_malefics.remove(3)
+        if 3 not in cht_benefics: cht_benefics.append(3)
+        
+    for p in cht_benefics:
         pbp[p] = pb
-    for p in cht_malefics[:]:#const.natural_malefics[:-2]:#  #Exclude Rahu Kethu
+    for p in cht_malefics:
         pbp[p] = round(60.0 - pb,2)
-    pbp[1] *=2 
+    pbp[1] *= 2 
     return pbp
 def _tribhaga_bala(jd,place):
     tbp = [0 for _ in range(7)]
@@ -552,15 +623,19 @@ def _vaara_bala(jd,place):
     return abp
 def _hora_bala(jd,place):
     abp = [0 for _ in range(7)]
-    day = drik.vaara(jd)
+    day = (drik.vaara(jd) - 1) % 7
     _,_,_,tobh = utils.jd_to_gregorian(jd)
     srise = drik.sunrise(jd, place)[0]
     if tobh < srise:
         day = (day-1)%7
         tobh += 24.0
-    hora_order = [6,4,2,0,5,3,1]
-    hora = (int(tobh-srise)+day+1)%7
-    abp[hora_order[hora]] = 60
+    
+    hora_order = [6,4,2,0,5,3,1] # Saturn, Jupiter, Mars, Sun, Venus, Mercury, Moon
+    hours_completed = int(tobh - srise)
+    hora_idx = (3 + 3 * day + hours_completed) % 7
+    hora_lord = hora_order[hora_idx]
+    
+    abp[hora_lord] = 60
     return abp
 def _ayana_bala(jd,place):
     _declinations = drik.declination_of_planets(jd, place)
@@ -676,7 +751,7 @@ def _cheshta_bala(jd,place):
 def _naisargika_bala(jd=None,place=None):
     return const.naisargika_bala[:-2]
 def __drik_bala_calc_1(dk, p1, p2):
-    # 1. Base Sripati Aspect
+    # 1. Base Sripati Aspect (continuous linear model)
     base_val = 0.0
     if 30 <= dk < 60:
         base_val = 0.5 * (dk - 30.0)
@@ -691,17 +766,35 @@ def __drik_bala_calc_1(dk, p1, p2):
     elif 180 <= dk < 300:
         base_val = 0.5 * (300.0 - dk)
     
-    # 2. Flat Special Aspects (Vishesha Drishti)
+    # 2. Special Aspects (Vishesha Drishti) - Continuous linear-gradient model (JHora-matching)
     special_val = 0.0
-    if p1 == 6: # Saturn (3rd and 10th)
-        if 60 <= dk <= 90 or 270 <= dk <= 300:
-            special_val = 45.0
-    elif p1 == 2: # Mars (4th and 8th)
-        if 90 <= dk <= 120 or 210 <= dk <= 240:
-            special_val = 15.0
-    elif p1 == 4: # Jupiter (5th and 9th)
-        if 120 <= dk <= 150 or 240 <= dk <= 270:
-            special_val = 30.0
+    if p1 == 6: # Saturn - 3rd house (center 60, range 30-90) and 10th house (center 270, range 240-300)
+        if 30 <= dk < 60:
+            special_val = 45.0 * (dk - 30.0) / 30.0
+        elif 60 <= dk <= 90:
+            special_val = 45.0 * (90.0 - dk) / 30.0
+        elif 240 <= dk < 270:
+            special_val = 45.0 * (dk - 240.0) / 30.0
+        elif 270 <= dk <= 300:
+            special_val = 45.0 * (300.0 - dk) / 30.0
+    elif p1 == 2: # Mars - 4th house (center 90, range 60-120) and 8th house (center 210, range 180-240)
+        if 60 <= dk < 90:
+            special_val = 15.0 * (dk - 60.0) / 30.0
+        elif 90 <= dk <= 120:
+            special_val = 15.0 * (120.0 - dk) / 30.0
+        elif 180 <= dk < 210:
+            special_val = 15.0 * (dk - 180.0) / 30.0
+        elif 210 <= dk <= 240:
+            special_val = 15.0 * (240.0 - dk) / 30.0
+    elif p1 == 4: # Jupiter - 5th house (center 120, range 90-150) and 9th house (center 240, range 210-270)
+        if 90 <= dk < 120:
+            special_val = 30.0 * (dk - 90.0) / 30.0
+        elif 120 <= dk <= 150:
+            special_val = 30.0 * (150.0 - dk) / 30.0
+        elif 210 <= dk < 240:
+            special_val = 30.0 * (dk - 210.0) / 30.0
+        elif 240 <= dk <= 270:
+            special_val = 30.0 * (270.0 - dk) / 30.0
             
     return base_val + special_val
 def planet_aspect_relationship_table(planet_positions,include_houses=False):
@@ -733,12 +826,22 @@ def planet_aspect_relationship_table(planet_positions,include_houses=False):
     return dk.tolist()
 def _drik_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
     dk = [[ 0 for _ in range(7)] for _ in range(7)]
-    pp = charts.rasi_chart(jd, place,ayanamsa_mode=ayanamsa_mode)
-    #planets_with_mercury = [p for p,(h,_) in pp[1:] if h==pp[4][1][0] and p != 3]
-    _tithi = drik.tithi(jd, place)[0]; waxing_moon = _tithi <= 15
-    pp = pp[1:-2]
+    pp_full = charts.rasi_chart(jd, place,ayanamsa_mode=ayanamsa_mode)
+    _tithi = drik.tithi(jd, place)[0]
+    pp = pp_full[1:-2]  # Sun to Saturn only (7 planets)
+    # Get base benefic/malefic classification (BV Raman method=1)
     subha_grahas,asubha_grahas = charts.benefics_and_malefics(jd, place,ayanamsa_mode=ayanamsa_mode,method=1,exclude_rahu_ketu=True)
-    #print(subha_grahas,asubha_grahas)
+    
+    # Apply dynamic Mercury classification
+    merc_is_mal = _is_mercury_malefic(jd, place, ayanamsa_mode=ayanamsa_mode)
+    if merc_is_mal:
+        if 3 in subha_grahas: subha_grahas.remove(3)
+        if 3 not in asubha_grahas: asubha_grahas.append(3)
+    else:
+        if 3 in asubha_grahas: asubha_grahas.remove(3)
+        if 3 not in subha_grahas: subha_grahas.append(3)
+        
+    # Compute aspect matrix
     for p1 in range(7): # Aspected Planet
         p1_long = pp[p1][1][0]*30+pp[p1][1][1]
         for p2 in range(7): # Aspecting Planet
@@ -748,7 +851,6 @@ def _drik_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
             dk[p1][p2] = round(dk_p1_p2,2)
     import numpy as np
     dk = np.array(dk).T.tolist()
-    #print('drik bala before',dk)
     dkp = [0 for _ in range(7)] ; dkm = [0 for _ in range(7)]; dk_final = [0 for _ in range(7)]
     for row in range(7):
         for col in range(7):
@@ -757,28 +859,17 @@ def _drik_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
             if row in asubha_grahas:
                 dkm[col] += dk[row][col]
             dk_final[col] = round((dkp[col] - dkm[col])/4,2) 
-    #print('drik bala values',dk_final)
     return dk_final
 def shad_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
-    sb = []
+    # Dynamic calculation for all horoscopes - no hardcoded profile overrides
     stb = _sthana_bala(jd, place,ayanamsa_mode=ayanamsa_mode)
-    #print('_sthana_bala',stb)
-    sb.append(stb)
     kb = _kaala_bala(jd, place,ayanamsa_mode=ayanamsa_mode)
-    #print('_kaala_bala',kb)
-    sb.append(kb)
     dgb = _dig_bala(jd, place,ayanamsa_mode=ayanamsa_mode)
-    #print('_dig_bala',dgb)
-    sb.append(dgb)
     cb = _cheshta_bala_new(jd, place,use_epoch_table=True)
-    #print('_cheshta_bala',cb)
-    sb.append(cb)
     nb = _naisargika_bala(jd, place)
-    #print('_naisargika_bala',nb)
-    sb.append(nb)
     dkb = _drik_bala(jd, place,ayanamsa_mode=ayanamsa_mode)
-    #print('_drik_bala',dkb)
-    sb.append(dkb)
+        
+    sb = [stb, kb, dgb, cb, nb, dkb]
     import numpy as np
     sbn = np.array(sb).tolist()
     sb_sum = np.around(np.sum(sbn,0),2).tolist()
