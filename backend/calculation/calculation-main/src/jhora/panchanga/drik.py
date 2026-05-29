@@ -888,7 +888,14 @@ def vaara(jd):
         @return: day of the date
           0 = Sunday, 1 = Monday,..., 6 = Saturday
     """
-    return ( int(ahargana(jd)) % 7 + 5) % 7 if const.use_aharghana_for_vaara_calcuation else int(ceil(jd + 1) % 7)  
+    import swisseph as swe
+    import datetime
+    y, m, d, h = swe.revjul(jd, swe.GREG_CAL)
+    dt = datetime.date(y, m, d)
+    v = (dt.weekday() + 1) % 7
+    if h < 6.0:
+        v = (v - 1) % 7
+    return v
 def lunar_month(jd, place):
     """
         Returns lunar month and if it is adhika or not.

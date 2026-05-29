@@ -904,38 +904,10 @@ def _bhava_dig_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
     chk = {k:v for k,v in chk}
     return [dict(sorted(chk.items())).get(h, 0.0) for h in range(12)]
 def __bhava_drik_bala_calc_1(dk_p1_p2,p1):
-    dk_p1_p2_new = dk_p1_p2
-    if dk_p1_p2 > 0 and dk_p1_p2 <= 30.0:
-        dk_p1_p2_new = 0.0
-    elif dk_p1_p2 >= 30.01 and dk_p1_p2 <= 60.0:
-        dk_p1_p2_new = 0.5*(dk_p1_p2-30.0)
-    elif dk_p1_p2 >= 60.01 and dk_p1_p2 <= 90.0:
-        dk_p1_p2_new = (dk_p1_p2-60.0)+15
-        if p1 == 6: # Mars
-            dk_p1_p2_new += 45
-    elif dk_p1_p2 >= 90.01 and dk_p1_p2 <= 120.0:
-        dk_p1_p2_new = 0.5*(120.0 - dk_p1_p2) + 30
-        if p1 == 2: # Mars
-            dk_p1_p2_new += 15
-    elif dk_p1_p2 >= 120.01 and dk_p1_p2 <= 150.0:
-        dk_p1_p2_new = (150.0 - dk_p1_p2)
-        if p1 == 4: # Jupiter
-            dk_p1_p2_new += 30
-    elif dk_p1_p2 >= 150.01 and dk_p1_p2 <= 180.0:
-        dk_p1_p2_new = 2.0*(dk_p1_p2 - 150)
-    elif dk_p1_p2 >= 180.01 and dk_p1_p2 <= 300.0:
-        dk_p1_p2_new = 0.5*(300.0 - dk_p1_p2)
-        if p1 == 2 and (dk_p1_p2 > 210.01 and dk_p1_p2 < 240.01) : # Mars
-            dk_p1_p2_new += 15
-        if p1 == 4 and (dk_p1_p2 > 240.01 and dk_p1_p2 < 270.01) : # Mars
-            dk_p1_p2_new += 30
-        if p1 == 6 and (dk_p1_p2 > 270.01 and dk_p1_p2 < 300.01) : # Mars
-            dk_p1_p2_new += 45
-    else:
-        dk_p1_p2_new = 0.0
+    val = __drik_bala_calc_1(dk_p1_p2, p1, 0)
     if p1 not in [3,4]:
-        dk_p1_p2_new = round(dk_p1_p2_new*0.25,2)
-    return dk_p1_p2_new
+        val *= 0.25
+    return round(val, 2)
 def bhava_drishti_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
     """ TODO: Check if Bhava Drishi bala is same as Aspect Relationship Table??? """
     return _bhava_drik_bala(jd, place, ayanamsa_mode=ayanamsa_mode)
@@ -943,15 +915,34 @@ def _bhava_drik_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
     dk = [[ 0 for _ in range(7)] for _ in range(12)]
     pp = charts.rasi_chart(jd, place, ayanamsa_mode=ayanamsa_mode)
     asc_long = pp[0][1][0]*30 + pp[0][1][1]
-    pp = pp[1:-2]
-    subha_grahas = [1,3,4,5] ; asubha_grahas = [0,2,6]
+    pp_planets = pp[1:-2]
     
+    # Get dynamic classifications
+    subha_grahas, asubha_grahas = charts.benefics_and_malefics(jd, place, ayanamsa_mode=ayanamsa_mode, method=1, exclude_rahu_ketu=True)
+    
+    # Mercury classification dynamically
+    merc_sign = pp_planets[3][1][0]
+    has_malefic_with_merc = False
+    malefics_to_check = [0, 2, 6]
+    if 1 in asubha_grahas and pp_planets[1][1][0] == merc_sign:
+        has_malefic_with_merc = True
+    for p in malefics_to_check:
+        if pp_planets[p][1][0] == merc_sign:
+            has_malefic_with_merc = True
+            break
+    if has_malefic_with_merc:
+        if 3 in subha_grahas: subha_grahas.remove(3)
+        if 3 not in asubha_grahas: asubha_grahas.append(3)
+    else:
+        if 3 in asubha_grahas: asubha_grahas.remove(3)
+        if 3 not in subha_grahas: subha_grahas.append(3)
+        
     bm = [(asc_long + h*30)%360 for h in range(12)]
     
     for h in range(12): # Aspected House
         h_mid = bm[h]
         for p in range(7): # Aspecting Planet
-            p_long = pp[p][1][0]*30+pp[p][1][1]
+            p_long = pp_planets[p][1][0]*30+pp_planets[p][1][1]
             dk_h_p = round((360.0+h_mid-p_long)%360,2)
             dk_h_p = __bhava_drik_bala_calc_1(dk_h_p,p)
             dk[h][p] = round(dk_h_p,2)

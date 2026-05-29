@@ -1988,5 +1988,32 @@
     "latitude": null,
     "longitude": null,
     "compact": false
+  },
+  "8aa764c0669512ca7f056af7e91610c71789a1cbab7e2df05022ec343be24ba0": {
+    "birthDateTime": "2010-10-12T20:30:00",
+    "location": {
+      "place": "Ahmedabad, Gujarat, India",
+      "latitude": 23.0215374,
+      "longitude": 72.5800568,
+      "tzOffset": 5.5
+    },
+    "ayanamsaMode": "TRUE_CITRA",
+    "calcType": "drik",
+    "houseSystem": null,
+    "language": "en",
+    "years": 1,
+    "months": 1,
+    "sixtyHours": 1,
+    "praveshaType": 0,
+    "divisionalFactors": null,
+    "sendToAgent": false,
+    "sendToAgentMode": "summary",
+    "name": "ruru",
+    "date": null,
+    "time": null,
+    "tzOffsetMinutes": null,
+    "latitude": null,
+    "longitude": null,
+    "compact": false
   }
 }
