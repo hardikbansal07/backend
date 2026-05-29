@@ -1961,5 +1961,32 @@
     "latitude": null,
     "longitude": null,
     "compact": false
+  },
+  "76555060d025e8e91ee08634427d998d858e673a12e23515c91d74ed53f09744": {
+    "birthDateTime": "2005-08-10T11:20:00",
+    "location": {
+      "place": "Cuddalore, Tamil Nadu, India",
+      "latitude": 11.5202071,
+      "longitude": 79.3396356,
+      "tzOffset": 5.5
+    },
+    "ayanamsaMode": "TRUE_CITRA",
+    "calcType": "drik",
+    "houseSystem": null,
+    "language": "en",
+    "years": 1,
+    "months": 1,
+    "sixtyHours": 1,
+    "praveshaType": 0,
+    "divisionalFactors": null,
+    "sendToAgent": false,
+    "sendToAgentMode": "summary",
+    "name": "raju",
+    "date": null,
+    "time": null,
+    "tzOffsetMinutes": null,
+    "latitude": null,
+    "longitude": null,
+    "compact": false
   }
 }

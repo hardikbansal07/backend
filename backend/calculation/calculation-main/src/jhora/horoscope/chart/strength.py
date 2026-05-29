@@ -513,7 +513,7 @@ def _paksha_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
         diff = 360.0 - diff
     pb = round(diff / 3.0,2)
     pbp = [pb for _ in range(7)]
-    cht_benefics,cht_malefics = charts.benefics_and_malefics(jd, place,ayanamsa_mode=ayanamsa_mode,exclude_rahu_ketu=True)
+    cht_benefics,cht_malefics = charts.benefics_and_malefics(jd, place,ayanamsa_mode=ayanamsa_mode,method=1,exclude_rahu_ketu=True)
     
     # Override Mercury classification dynamically
     merc_is_mal = _is_mercury_malefic(jd, place, ayanamsa_mode=ayanamsa_mode)
@@ -623,7 +623,7 @@ def _vaara_bala(jd,place):
     return abp
 def _hora_bala(jd,place):
     abp = [0 for _ in range(7)]
-    day = (drik.vaara(jd) - 1) % 7
+    day = drik.vaara(jd)
     _,_,_,tobh = utils.jd_to_gregorian(jd)
     srise = drik.sunrise(jd, place)[0]
     if tobh < srise:
