@@ -2015,5 +2015,32 @@
     "latitude": null,
     "longitude": null,
     "compact": false
+  },
+  "5ef343718bbb79116e5bd3be47e7e5f4122c630433f3d173656b64a356c8cdb1": {
+    "birthDateTime": "2008-10-14T11:45:00",
+    "location": {
+      "place": "Cuddalore, Tamil Nadu, India",
+      "latitude": 11.5202071,
+      "longitude": 79.3396356,
+      "tzOffset": 5.5
+    },
+    "ayanamsaMode": "TRUE_CITRA",
+    "calcType": "drik",
+    "houseSystem": null,
+    "language": "en",
+    "years": 1,
+    "months": 1,
+    "sixtyHours": 1,
+    "praveshaType": 0,
+    "divisionalFactors": null,
+    "sendToAgent": false,
+    "sendToAgentMode": "summary",
+    "name": "lapoz",
+    "date": null,
+    "time": null,
+    "tzOffsetMinutes": null,
+    "latitude": null,
+    "longitude": null,
+    "compact": false
   }
 }

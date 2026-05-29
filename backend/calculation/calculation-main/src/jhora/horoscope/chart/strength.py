@@ -920,22 +920,11 @@ def _bhava_drik_bala(jd,place,ayanamsa_mode=const._DEFAULT_AYANAMSA_MODE):
     # Get dynamic classifications
     subha_grahas, asubha_grahas = charts.benefics_and_malefics(jd, place, ayanamsa_mode=ayanamsa_mode, method=1, exclude_rahu_ketu=True)
     
-    # Mercury classification dynamically
-    merc_sign = pp_planets[3][1][0]
-    has_malefic_with_merc = False
-    malefics_to_check = [0, 2, 6]
-    if 1 in asubha_grahas and pp_planets[1][1][0] == merc_sign:
-        has_malefic_with_merc = True
-    for p in malefics_to_check:
-        if pp_planets[p][1][0] == merc_sign:
-            has_malefic_with_merc = True
-            break
-    if has_malefic_with_merc:
-        if 3 in subha_grahas: subha_grahas.remove(3)
-        if 3 not in asubha_grahas: asubha_grahas.append(3)
-    else:
-        if 3 in asubha_grahas: asubha_grahas.remove(3)
-        if 3 not in subha_grahas: subha_grahas.append(3)
+    # Mercury is always classified as a Benefic for Bhava Drik Bala in JHora
+    if 3 not in subha_grahas:
+        subha_grahas.append(3)
+    if 3 in asubha_grahas:
+        asubha_grahas.remove(3)
         
     bm = [(asc_long + h*30)%360 for h in range(12)]
     
