@@ -77,20 +77,20 @@ yoni_categories = ['Horse','Elephant','Sheep','Serpant','Dog','Cat','Rat','Cow',
 """ In South India yoni - Snake/Rat are enemies. In North India they are not """
 yoni_enemies_south = [(0,8),(1,13),(2,11),(3,12),(3,6),(4,10),(5,6),(6,3),(6,5),(7,9),(8,0),(9,7),(10,4),(11,2),(12,3),(13,1)]
 YoniArray = [
-            [4, 2, 2, 3, 2, 2, 2, 1, 0, 1, 1, 3, 2, 1],
-            [2, 4, 3, 3, 2, 2, 2, 2, 3, 1, 2, 3, 2, 0],
-            [2, 3, 4, 2, 1, 2, 1, 3, 3, 1, 2, 0, 3, 1],
-            [3, 3, 2, 4, 2, 1, 1, 1, 1, 2, 2, 2, 0, 2],
-            [2, 2, 1, 2, 4, 2, 1, 2, 2, 1, 0, 2, 1, 1],
-            [2, 2, 2, 1, 2, 4, 0, 2, 2, 1, 3, 3, 2, 1],
-            [2, 2, 1, 1, 1, 0, 4, 2, 2, 2, 2, 2, 1, 2],
-            [1, 2, 3, 1, 2, 2, 2, 4, 3, 0, 3, 2, 2, 1],
-            [0, 3, 3, 1, 2, 2, 2, 3, 4, 1, 2, 2, 2, 1],
-            [1, 1, 1, 2, 1, 1, 2, 0, 1, 4, 1, 1, 2, 1],
-            [1, 2, 2, 2, 0, 3, 2, 3, 2, 1, 4, 2, 2, 1],
-            [3, 3, 0, 2, 2, 3, 2, 2, 2, 1, 2, 4, 3, 2],
-            [2, 2, 3, 0, 1, 2, 1, 2, 2, 2, 2, 3, 4, 2],
-            [1, 0, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 2, 4]
+            [4, 2, 3, 1, 2, 3, 3, 3, 0, 1, 3, 2, 2, 1],
+            [2, 4, 2, 2, 2, 3, 2, 2, 2, 1, 2, 2, 2, 0],
+            [3, 2, 4, 1, 2, 3, 2, 3, 3, 1, 3, 0, 3, 1],
+            [1, 2, 1, 4, 1, 1, 1, 1, 2, 2, 1, 1, 0, 2],
+            [2, 2, 2, 1, 4, 1, 1, 1, 2, 1, 0, 2, 1, 1],
+            [3, 3, 3, 1, 1, 4, 0, 2, 2, 2, 2, 2, 2, 2],
+            [3, 2, 2, 1, 1, 0, 4, 2, 2, 2, 2, 2, 2, 1],
+            [3, 2, 3, 1, 1, 2, 2, 4, 3, 0, 2, 2, 2, 1],
+            [0, 3, 3, 2, 2, 2, 2, 3, 4, 1, 2, 2, 2, 1],
+            [1, 1, 1, 2, 1, 2, 2, 0, 1, 4, 1, 1, 2, 2],
+            [3, 2, 3, 1, 0, 2, 2, 2, 3, 1, 4, 2, 2, 1],
+            [2, 2, 0, 1, 2, 2, 2, 2, 2, 1, 2, 4, 2, 2],
+            [2, 2, 3, 0, 1, 2, 2, 2, 2, 2, 2, 2, 4, 2],
+            [1, 0, 1, 2, 1, 2, 1, 1, 1, 2, 1, 2, 2, 4]
             ]
 yoni_results = {0:"Worse",1:'Bad',2:'Neutral',3:'Good',4:'Perfect'}
 yoni_max_score = 4
@@ -132,7 +132,7 @@ VasiyaArray_AstroYogi =[ # From astroyogi.com
             [1.0, 1.0, 1.0, 0.0, 2.0]]
 vasiya_results = {0.0:'Poor',0.5:"Neutral",1.0:'Good',2.0:'Perfect'}
 vasiya_max_score = 2.0
-gana_array = [[6, 6, 0], [5, 6, 0], [1, 0, 6]] ## Based on saravali.de (Maitri) Transposed in V3.1.1
+gana_array = [[6, 5, 1], [5, 6, 0], [0, 0, 6]] ## Standard Gana Milan Matrix matching AstroSage
 gana_results = {0:'Very Bad',1:'Bad',3:'Average',5:'Good',6:'Perfect'}
 gana_max_score = 6
 gana_south_deva = [1,5,7,8,13,15,17,22,27,]
@@ -341,7 +341,7 @@ class Ashtakoota:
         if (count <= 0):
             count = count + 27
         count = count % 9
-        if count in [3,5,7]: #((count % 2) == 0): #V3.1.1
+        if count not in [3,5,7]: # Favorable Taras
             res += 1.5
         else:
             res += 0
@@ -349,7 +349,7 @@ class Ashtakoota:
         if (count <= 0):
             count = count + 27
         count = count % 9
-        if count in [3,5,7]: #((count % 2) == 0): #V3.1.1
+        if count not in [3,5,7]: # Favorable Taras
             res += 1.5
         else:
             res += 0
