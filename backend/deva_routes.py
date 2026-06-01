@@ -49,6 +49,9 @@ GENDER_PLANET_POWER = {
     },
     "Transgender": {
         "rule": "USER IS TRANSGENDER. Neutral planets (Mercury, Saturn) will have higher power in this chart."
+    },
+    "Unknown": {
+        "rule": "USER GENDER IS UNKNOWN. Standard planetary weights apply."
     }
 }
 # ─────────────────────────────────────────────────────────────────────────────
