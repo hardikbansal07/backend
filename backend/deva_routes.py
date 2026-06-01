@@ -71,7 +71,7 @@ DOMAIN_CONFIG = {
     },
     "family": {
         "title": "Family & Comforts",
-        "main_house": 4
+        "main_house": 2
     },
     "children": {
         "title": "Children & Family",
@@ -653,10 +653,7 @@ async def run_domain_engine(
         # Domain config
         domain_cfg = DOMAIN_CONFIG.get(domain, DOMAIN_CONFIG["general"])
         domain_title     = domain_cfg["title"]
-        focus_houses     = domain_cfg["focus_houses"]
-        key_planets      = domain_cfg["key_planets"]
-        specialist_focus = domain_cfg["specialist_focus"]
-        varga_focus      = domain_cfg["varga_focus"]
+        main_house       = domain_cfg["main_house"]
 
         # Gender — meta se extract karo
         gender = chart_data.get("meta", {}).get("gender", "Unknown")
@@ -671,6 +668,80 @@ async def run_domain_engine(
         gender_power = GENDER_PLANET_POWER.get(gender_normalized, GENDER_PLANET_POWER["Unknown"])
         gender_context = gender_power["rule"]
 
+        # ── Universal Astrological Matrix Engine Integration ────────────────
+        import re
+        from services.astrology_metadata import resolve_lagna_sign_id, get_house_lord_circuit, AstrologicalMatrixEngine
+        
+        # 1. Resolve Lagna Sign ID
+        lagna_data = chart_data.get("lagna", {})
+        asc_sign = lagna_data.get("asc_sign", "Aries")
+        lagna_sign_id = resolve_lagna_sign_id(asc_sign)
+        
+        # 2. Build lord placements dictionary: E.g., {"Sun": 10, "Moon": 2, ...}
+        lord_placements = {}
+        for p in lagna_data.get("planets", []):
+            pname = p.get("name")
+            if not pname:
+                continue
+            clean_name = re.sub(r"[^a-zA-Z]", "", pname).strip()
+            if clean_name.lower() in ("asc", "ascendant", "lagna"):
+                continue
+            house = p.get("house")
+            if house is not None:
+                lord_placements[clean_name] = int(house)
+                
+        # 3. Resolve Shifted Matrix for this domain's main_house
+        main_house = domain_cfg.get("main_house", 1)
+        shifted_matrix = AstrologicalMatrixEngine.resolve_shifted_matrix(main_house, lagna_sign_id)
+        
+        # 4. Resolve Dynamic Lord Circuit starting from main_house
+        lord_circuit = get_house_lord_circuit(main_house, lagna_sign_id, lord_placements)
+        
+        # 5. Format Shifted Matrix and Lord Circuit for LLM prompt context
+        matrix_lines = []
+        matrix_lines.append("### 8. UNIVERSAL ASTROLOGICAL MATRIX (LAGNA SHIFT)")
+        matrix_lines.append(f"- **Focus Domain / Main House Anchor:** House {main_house} (acting as relative Lagna)")
+        matrix_lines.append("- **Relative House Shifting Map (Bhava Lagna):**")
+        matrix_lines.append("| Relative House | Semantic Meaning | Physical D1 House | Zodiac Sign | Occupying Planets | Classifications |")
+        matrix_lines.append("| :---: | :--- | :---: | :---: | :--- | :--- |")
+        
+        # Group D1 planets by physical house:
+        planets_by_house = {}
+        for p in lagna_data.get("planets", []):
+            pname = p.get("name")
+            if not pname:
+                continue
+            clean_name = re.sub(r"[^a-zA-Z]", "", pname).strip()
+            if clean_name.lower() in ("asc", "ascendant", "lagna"):
+                continue
+            h = p.get("house")
+            if h is not None:
+                planets_by_house.setdefault(int(h), []).append(clean_name)
+                
+        for r in range(1, 13):
+            cell = shifted_matrix[r]
+            h = cell["physical_house_number"]
+            sign_name = cell["zodiac_sign_name"]
+            concept = cell["concept"]
+            classifications_str = ", ".join(cell["classifications"])
+            occupants = ", ".join(planets_by_house.get(h, [])) if planets_by_house.get(h) else "None"
+            
+            matrix_lines.append(f"| House {r} | {concept} | House {h} | {sign_name} | {occupants} | {classifications_str} |")
+        matrix_lines.append("")
+        
+        matrix_lines.append("- **Dynamic House Lord Circuit Connection:**")
+        circuit_steps = []
+        for idx, step in enumerate(lord_circuit):
+            is_bb = " (Bhavat Bhavam Trigger!)" if step["is_bhavat_bhavam"] else ""
+            circuit_steps.append(
+                f"Step {idx+1}: House {step['house']} (Sign: {step['sign_name']}, Lord: {step['lord']}) "
+                f"-> Lord placed in House {step['placed_house']} ({step['steps_inclusive']} steps away){is_bb}"
+            )
+        matrix_lines.append("\n".join(f"  - {s}" for s in circuit_steps))
+        matrix_lines.append("")
+        
+        matrix_payload = "\n".join(matrix_lines)
+
         # ── System Prompt ────────────────────────────────────────────────────
         system_prompt = f"""You are Astro Care AI — an advanced Vedic astrology intelligence system.
 
@@ -679,13 +750,20 @@ IDENTITY: Always respond as "Astro Care AI". Never reveal your underlying model 
 ═══════════════════════════════════════════════
 ACTIVE ENGINE : {domain_title.upper()}
 USER GENDER   : {gender_normalized}
-FOCUS HOUSES  : {focus_houses}
-KEY PLANETS   : {key_planets}
-VARGA FOCUS   : {varga_focus}
 ═══════════════════════════════════════════════
 
+UNIVERSAL ASTROLOGICAL MATRIX (LAGNA SHIFTED FOCUS):
+{matrix_payload}
+
+CRITICAL RULES FOR ENGINE FOCUS (MANDATORY):
+- Treat the focus domain's Main House (House {main_house}) as the relative Lagna (1st House) for this analysis.
+- Every relative house R holds the semantic meaning of that life trait (e.g. 2nd relative house is wealth/savings, 6th relative house is disputes/obstacles, 10th relative house is career/achievements).
+- Map these relative meanings onto the physical D1 Houses as resolved in the matrix above.
+- Analyze the sign, occupying planets, dignity, and dynamic lord circuit of the physical D1 house to predict the relative life trait.
+- Under no circumstances should you describe a physical D1 house's default native meanings if it has been shifted (e.g., if analyzing Sibling's Wealth via physical D1 House 4, do NOT talk about Mother or Vehicles; focus strictly on Sibling's Wealth/Savings/Speech).
+
 YOUR CORE TASK:
-{specialist_focus}
+Analyze the user's question in relation to the active {domain_title} domain and the dynamic astrological matrix. Synthesize a highly accurate, deeply personalized, and actionable Vedic reading.
 
 GENDER-SPECIFIC RULES (MANDATORY — apply these throughout your reading):
 {gender_context}

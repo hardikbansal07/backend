@@ -340,3 +340,121 @@ HOUSE_KNOWLEDGE = {
         }
     }
 }
+
+# ─────────────────────────────────────────────────────────────────────────────
+# UNIVERSAL ASTROLOGICAL MATRIX ENGINE
+# ─────────────────────────────────────────────────────────────────────────────
+
+ZODIAC_SIGN_TO_ID = {
+    "Aries": 1,
+    "Taurus": 2,
+    "Gemini": 3,
+    "Cancer": 4,
+    "Leo": 5,
+    "Virgo": 6,
+    "Libra": 7,
+    "Scorpio": 8,
+    "Sagittarius": 9,
+    "Capricorn": 10,
+    "Aquarius": 11,
+    "Pisces": 12
+}
+
+def resolve_lagna_sign_id(asc_sign: str) -> int:
+    """Normalizes and maps a textual zodiac sign to its corresponding Vedic ID (1 to 12)"""
+    if not asc_sign:
+        return 1
+    normalized = asc_sign.strip().capitalize()
+    return ZODIAC_SIGN_TO_ID.get(normalized, 1)
+
+def get_house_lord_circuit(start_house: int, lagna_sign_id: int, lord_placements: dict) -> list:
+    """
+    Computes the dynamic House Lord Circuit starting from 'start_house' based on D1 chart.
+    Follows: current_house -> its zodiac sign -> the lord of that sign -> where it is placed.
+    Stops when it hits a house that has already been visited (loop termination).
+    """
+    circuit = []
+    visited = set()
+    current_house = start_house
+    
+    # Standard Vedic sign names in order (1-indexed)
+    sign_names = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
+    
+    while current_house not in visited:
+        visited.add(current_house)
+        
+        # 1. Sign of this house:
+        sign_id = (lagna_sign_id + current_house - 2) % 12 + 1
+        sign_name = sign_names[sign_id - 1]
+        
+        # 2. Lord of this sign:
+        lord = ZODIAC_LORDS.get(sign_id)
+        
+        # 3. Where is this lord placed?
+        placed_house = lord_placements.get(lord)
+        if placed_house is None:
+            # Fallback if placement data is missing
+            placed_house = current_house
+            
+        # 4. Calculate step distance inclusive anticlockwise from current_house to placed_house:
+        steps_inclusive = (placed_house - current_house) % 12 + 1
+        
+        step_entry = {
+            "house": current_house,
+            "sign_id": sign_id,
+            "sign_name": sign_name,
+            "lord": lord,
+            "placed_house": placed_house,
+            "steps_inclusive": steps_inclusive,
+            "is_bhavat_bhavam": steps_inclusive == current_house
+        }
+        circuit.append(step_entry)
+        
+        # Move to the placed house of the lord
+        current_house = placed_house
+        
+    return circuit
+
+class AstrologicalMatrixEngine:
+    """
+    The Universal Astrological Matrix Engine.
+    Lagna Shifter: Shifts the focus of the chart to any given main_house (acting as relative Lagna)
+    and resolves relative house meanings to physical D1 chart locations.
+    """
+    
+    @staticmethod
+    def get_physical_house(main_house: int, relative_house: int) -> int:
+        """Calculates the physical D1 house for a given relative house R from a main_house"""
+        return (main_house + relative_house - 2) % 12 + 1
+
+    @classmethod
+    def resolve_shifted_matrix(cls, main_house: int, lagna_sign_id: int) -> dict:
+        """
+        Shifts the Lagna to 'main_house' and resolves relative house properties to physical D1 houses.
+        Returns a dictionary mapping relative house numbers (1 to 12) to their physical house information and static metadata.
+        """
+        matrix = {}
+        sign_names = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"]
+        
+        for r in range(1, 13):
+            h = cls.get_physical_house(main_house, r)
+            sign_id = (lagna_sign_id + h - 2) % 12 + 1
+            sign_name = sign_names[sign_id - 1]
+            
+            # Retrieve static house knowledge for relative house R (which acts as the semantic theme)
+            static_knowledge = HOUSE_KNOWLEDGE.get(r, {})
+            
+            matrix[r] = {
+                "relative_house_number": r,
+                "physical_house_number": h,
+                "zodiac_sign_id": sign_id,
+                "zodiac_sign_name": sign_name,
+                "concept": static_knowledge.get("concept", ""),
+                "description": static_knowledge.get("description", ""),
+                "represents": static_knowledge.get("represents", []),
+                "core_themes": static_knowledge.get("core_themes", {}),
+                "classifications": static_knowledge.get("classifications", [])
+            }
+            
+        return matrix
+
