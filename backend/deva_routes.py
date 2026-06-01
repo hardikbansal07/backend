@@ -673,7 +673,12 @@ async def run_domain_engine(
 
         # ── Universal Astrological Matrix Engine Integration ────────────────
         import re
-        from services.astrology_metadata import resolve_lagna_sign_id, get_house_lord_circuit, AstrologicalMatrixEngine
+        from services.astrology_metadata import (
+            resolve_lagna_sign_id,
+            get_house_lord_circuit,
+            AstrologicalMatrixEngine,
+            identify_target_house_from_query
+        )
         
         # 1. Resolve Lagna Sign ID
         lagna_data = chart_data.get("lagna", {})
@@ -693,17 +698,28 @@ async def run_domain_engine(
             if house is not None:
                 lord_placements[clean_name] = int(house)
                 
-        # 3. Resolve Shifted Matrix for this domain's main_house
+        # 3. Dynamic Query Shifting (Identify Target House from Question)
         main_house = domain_cfg.get("main_house", 1)
-        shifted_matrix = AstrologicalMatrixEngine.resolve_shifted_matrix(main_house, lagna_sign_id)
+        target_house = identify_target_house_from_query(question)
         
-        # 4. Resolve Dynamic Lord Circuit starting from main_house
-        lord_circuit = get_house_lord_circuit(main_house, lagna_sign_id, lord_placements)
+        # Calculate relationship steps from main_house to target_house (if different)
+        relation_str = "Target matches the active focus domain's Main House."
+        if target_house != main_house:
+            steps_from_main = (target_house - main_house) % 12 + 1
+            relation_str = f"Target relative/topic (D1 House {target_house}) is {steps_from_main} steps inclusive (relative House {steps_from_main}) from this focus domain's Main House (House {main_house})."
+
+        # Shift the relative Lagna of our analysis to the target_house
+        shifted_matrix = AstrologicalMatrixEngine.resolve_shifted_matrix(target_house, lagna_sign_id)
+        
+        # 4. Resolve Dynamic Lord Circuit starting from the target_house
+        lord_circuit = get_house_lord_circuit(target_house, lagna_sign_id, lord_placements)
         
         # 5. Format Shifted Matrix and Lord Circuit for LLM prompt context
         matrix_lines = []
         matrix_lines.append("### 8. UNIVERSAL ASTROLOGICAL MATRIX (LAGNA SHIFT)")
-        matrix_lines.append(f"- **Focus Domain / Main House Anchor:** House {main_house} (acting as relative Lagna)")
+        matrix_lines.append(f"- **Focus Domain / Main House Anchor:** House {main_house}")
+        matrix_lines.append(f"- **Dynamic Target House (Query Entity):** House {target_house} (acting as relative Lagna)")
+        matrix_lines.append(f"- **Inter-House Relationship:** {relation_str}")
         matrix_lines.append("- **Relative House Shifting Map (Bhava Lagna):**")
         matrix_lines.append("| Relative House | Semantic Meaning | Physical D1 House | Zodiac Sign | Occupying Planets | Classifications |")
         matrix_lines.append("| :---: | :--- | :---: | :---: | :--- | :--- |")

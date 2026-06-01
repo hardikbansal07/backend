@@ -458,3 +458,102 @@ class AstrologicalMatrixEngine:
             
         return matrix
 
+# ─────────────────────────────────────────────────────────────────────────────
+# EXHAUSTIVE REPRESENTATION KEYWORD RESOLVER (PREVENTS LLM HALLUCINATIONS)
+# ─────────────────────────────────────────────────────────────────────────────
+
+REPRESENTATION_KEYWORD_MAP = {
+    # 1st House (Lagna / Self)
+    "self": 1, "me": 1, "myself": 1, "personality": 1, "nature": 1, "character": 1, 
+    "body structure": 1, "head": 1, "face": 1, "pituitary gland": 1, "health": 1, 
+    "fitness": 1, "attitude": 1, "behaviour": 1, "self-branding": 1, "beginnings": 1,
+    "mera": 1, "meri": 1, "mujhe": 1, "swasthya": 1, "roop": 1,
+    
+    # 2nd House (Dhan / Wealth / Family / Speech)
+    "wealth": 2, "bank balance": 2, "saving": 2, "savings": 2, "speech": 2, "voice": 2, 
+    "family lineage": 2, "kutumb": 2, "assets": 2, "jewels": 2, "gemstone": 2, "mouth": 2, 
+    "lips": 2, "right eye": 2, "nose": 2, "food": 2, "diet": 2, "liquids": 2,
+    "paisa": 2, "dhan": 2, "vanee": 2, "parivar": 2, "khana": 2,
+    
+    # 3rd House (Sahaj / Sibling / Efforts / Courage)
+    "younger sibling": 3, "younger brother": 3, "younger sister": 3, "courage": 3, "bravery": 3,
+    "efforts": 3, "hobbies": 3, "short travel": 3, "writing": 3, "book": 3, "communication": 3, 
+    "media": 3, "internet": 3, "data": 3, "marketing": 3, "ears": 3, "throat": 3, "arms": 3, "hands": 3,
+    "chota bhai": 3, "choti behn": 3, "mehnat": 3, "sahas": 3, "yatra": 3, "likhna": 3,
+    
+    # 4th House (Sukh / Mother / Property / Vehicles)
+    "mother": 4, "homeland": 4, "home": 4, "property": 4, "land": 4, "real estate": 4, 
+    "vehicle": 4, "car": 4, "luxury": 4, "comforts": 4, "inner peace": 4, "chest": 4, 
+    "lungs": 4, "heart": 4, "hospitality": 4, "hotel": 4, "school": 4,
+    "maa": 4, "mummy": 4, "mata": 4, "ghar": 4, "gadi": 4, "sukh": 4, "zameen": 4,
+    
+    # 5th House (Santan / Children / Study / Love)
+    "child": 5, "children": 5, "progeny": 5, "study": 5, "learning": 5, "education": 5, 
+    "romance": 5, "love": 5, "crush": 5, "affair": 5, "creativity": 5, "intelligence": 5, 
+    "wisdom": 5, "mantra": 5, "stomach": 5, "digestion": 5, "spinal cord": 5,
+    "beta": 5, "beti": 5, "bachha": 5, "santan": 5, "padhai": 5, "pyar": 5, "buddhi": 5,
+    
+    # 6th House (Rog & Shatru / Disease / Enemy / Dispute / Job)
+    "disease": 6, "illness": 6, "enemy": 6, "dispute": 6, "fight": 6, "litigation": 6, 
+    "court case": 6, "debt": 6, "loan": 6, "job": 6, "service": 6, "servant": 6, "maternal uncle": 6,
+    "kidney": 6, "vices": 6, "competition": 6, "exam": 6,
+    "rog": 6, "shatru": 6, "dushman": 6, "jhagda": 6, "karz": 6, "naukri": 6, "mama": 6,
+    
+    # 7th House (Vivah / Spouse / Marriage / Business Partnership)
+    "spouse": 7, "marriage": 7, "partner": 7, "partnership": 7, "husband": 7, "wife": 7, 
+    "business": 7, "trading": 7, "retail": 7, "opposite gender": 7, "reproductive organs": 7,
+    "pati": 7, "patni": 7, "shadi": 7, "vivah": 7, "vyapar": 7,
+    
+    # 8th House (Ayur & Mrityu / Secrets / Occult / In-laws / Pain)
+    "secrets": 8, "mysteries": 8, "occult": 8, "astrology": 8, "in-laws": 8, "spouse wealth": 8, 
+    "inheritance": 8, "pain": 8, "transformation": 8, "accident": 8, "surgery": 8, "death": 8, 
+    "womb": 8, "lifespan": 8, "research": 8,
+    "sasural": 8, "gupt": 8, "mrityu": 8, "dard": 8, "khoj": 8,
+    
+    # 9th House (Bhagya / Father / Mentor / Luck / Religion)
+    "father": 9, "mentor": 9, "guru": 9, "teacher": 9, "luck": 9, "fortune": 9, 
+    "religion": 9, "spirituality": 9, "pilgrimage": 9, "long travel": 9, "higher education": 9,
+    "papa": 9, "pitaji": 9, "bhagya": 9, "dharma": 9, "dharmik": 9,
+    
+    # 10th House (Karma / Career / Status)
+    "career": 10, "profession": 10, "work": 10, "job/career": 10, "karma": 10, "status": 10, 
+    "fame": 10, "reputation": 10, "authority": 10, "government": 10, "mother-in-law": 10, "knees": 10,
+    "kaam": 10, "karya": 10, "izzat": 10, "saas": 10,
+    
+    # 11th House (Labha / Income / Sibling / Gains / Bua)
+    "income": 11, "gains": 11, "profit": 11, "elder sibling": 11, "elder brother": 11, 
+    "elder sister": 11, "paternal uncle": 11, "paternal aunt": 11, "bua": 11, "chacha": 11, 
+    "friends": 11, "desires": 11,
+    "aamdani": 11, "labha": 11, "bada bhai": 11, "badi behn": 11,
+    
+    # 12th House (Vyaya / Losses / Foreign / Isolation)
+    "losses": 12, "expenses": 12, "expenditure": 12, "foreign": 12, "abroad": 12, "videsh": 12,
+    "isolation": 12, "confinement": 12, "sleep": 12, "bedroom": 12, "hospital": 12, "prison": 12, 
+    "moksha": 12, "liberation": 12, "detachment": 12,
+    "kharch": 12, "nuksan": 12, "neend": 12,
+}
+
+def identify_target_house_from_query(question: str) -> int:
+    """
+    Analyzes the user's query text and dynamically returns the target house ID (1 to 12).
+    If no specific relative or concept keyword matches, defaults to 1 (Lagna / Self).
+    """
+    import re
+    # Lowercase and normalize query characters
+    clean_q = re.sub(r"[^a-zA-Z\s]", "", question.lower()).strip()
+    words = clean_q.split()
+    
+    # 1. Check for multi-word phrases first
+    for key, house in REPRESENTATION_KEYWORD_MAP.items():
+        if " " in key and key in clean_q:
+            return house
+            
+    # 2. Check for single-word tokens
+    for word in words:
+        if word in REPRESENTATION_KEYWORD_MAP:
+            return REPRESENTATION_KEYWORD_MAP[word]
+            
+    # 3. Default to 1 (Self) if no match is found
+    return 1
+
+
