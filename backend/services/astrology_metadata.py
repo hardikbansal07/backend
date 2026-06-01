@@ -2,6 +2,8 @@
 # AstroCare AI — Astrological Expert System Metadata Engine
 # Optimized for high-speed, highly accurate LLM (Gemini) parsing
 
+from typing import Optional
+
 # ZODIAC LORDS Mapping
 ZODIAC_LORDS = {
     1: "Mars",      # Aries
@@ -533,10 +535,11 @@ REPRESENTATION_KEYWORD_MAP = {
     "kharch": 12, "nuksan": 12, "neend": 12,
 }
 
-def identify_target_house_from_query(question: str) -> int:
+def identify_target_house_from_query(question: str) -> Optional[int]:
     """
     Analyzes the user's query text and dynamically returns the target house ID (1 to 12).
-    If no specific relative or concept keyword matches, defaults to 1 (Lagna / Self).
+    If no specific relative or concept keyword matches, returns None to indicate
+    the question is out-of-scope/unanswerable.
     """
     import re
     # Lowercase and normalize query characters
@@ -548,12 +551,24 @@ def identify_target_house_from_query(question: str) -> int:
         if " " in key and key in clean_q:
             return house
             
+    # Generic pronouns that should not override more specific house keywords
+    generic_pronouns = {"me", "myself", "my", "mera", "meri", "mujhe"}
+    
     # 2. Check for single-word tokens
+    matches = []
     for word in words:
         if word in REPRESENTATION_KEYWORD_MAP:
-            return REPRESENTATION_KEYWORD_MAP[word]
+            matches.append((word, REPRESENTATION_KEYWORD_MAP[word]))
             
-    # 3. Default to 1 (Self) if no match is found
-    return 1
+    if not matches:
+        return None
+        
+    # Return the first match that is not a generic pronoun
+    for word, house in matches:
+        if word not in generic_pronouns:
+            return house
+            
+    # Fallback to the first generic pronoun match (typically House 1)
+    return matches[0][1]
 
 

@@ -144,7 +144,22 @@ async def deva_chat(
     try:
         logger.info(f"[DEVA] Chat request from user: {current_user.email}, question: {request.question[:50]}...")
         
-        # Step 0: Check Credit Balance
+        # Step 0: Check Out-of-scope / Unanswerable query
+        from services.astrology_metadata import identify_target_house_from_query
+        target_house = identify_target_house_from_query(request.question)
+        
+        if target_house is None:
+            logger.info(f"[DEVA] Out-of-scope question detected: '{request.question}'. Returning unanswerable status.")
+            return ChatResponse(
+                status="unanswerable",
+                response="I am Astro Care AI. I can only assist you with astrological queries related to your horoscope. Please ask a question related to your personality, career, wealth, family, romance, or other life domains.",
+                conversation_id="",
+                has_horoscope_data=True,
+                questions_remaining=int(current_user.credits),
+                total_questions_asked=0
+            )
+
+        # Step 0.2: Check Credit Balance
         if current_user.credits < 1:
             # Check if guest
             if getattr(current_user, "is_guest", False):
@@ -701,6 +716,8 @@ async def run_domain_engine(
         # 3. Dynamic Query Shifting (Identify Target House from Question)
         main_house = domain_cfg.get("main_house", 1)
         target_house = identify_target_house_from_query(question)
+        if target_house is None:
+            target_house = 1
         
         # Calculate relationship steps from main_house to target_house (if different)
         relation_str = "Target matches the active focus domain's Main House."
